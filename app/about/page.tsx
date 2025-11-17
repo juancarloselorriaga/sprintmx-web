@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 
 const AboutPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 w-full">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[var(--brand-blue)] via-[var(--brand-blue-dark)] to-[var(--brand-indigo)] py-20 text-primary-foreground">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
