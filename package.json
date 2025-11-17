@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "shadcn": "npx shadcn@latest"
+    "shadcn": "pnpm dlx shadcn@latest shadcn@latest"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
