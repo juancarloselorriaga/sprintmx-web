@@ -1,4 +1,4 @@
-import { Trophy, Calendar, Newspaper, CircleHelp, Mail } from 'lucide-react';
+import { Trophy, Calendar, Newspaper, CircleHelp, Mail, Info } from 'lucide-react';
 
 export const iconMap = {
   Trophy,
@@ -6,6 +6,7 @@ export const iconMap = {
   Newspaper,
   CircleHelp,
   Mail,
+  Info,
 } as const;
 
 export interface MenuItem {
@@ -39,5 +40,10 @@ export const navItems: MenuItem[] = [
     href: '/contact',
     label: 'Contact',
     iconName: 'Mail'
+  },
+  {
+    href: '/about',
+    label: 'About',
+    iconName: 'Info'
   },
 ];
