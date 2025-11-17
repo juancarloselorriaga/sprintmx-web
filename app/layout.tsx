@@ -1,8 +1,9 @@
-import { ThemeProvider } from '@/components/providers/theme-provider';
+import RootLayoutWrapper from '@/components/layout/root-layout-wrapper';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import React from 'react';
+import { Toaster } from 'sonner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -29,14 +30,8 @@ export default function RootLayout({
     <body
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      {children}
-    </ThemeProvider>
+    <Toaster/>
+    <RootLayoutWrapper>{children}</RootLayoutWrapper>
     </body>
     </html>
   );
