@@ -9,41 +9,35 @@ export const iconMap = {
   Info,
 } as const;
 
-export interface MenuItem {
-  href: string;
-  label: string;
-  iconName: keyof typeof iconMap;
-}
-
-export const navItems: MenuItem[] = [
+export const navItems = [
   {
     href: '/results',
     label: 'Results',
-    iconName: 'Trophy'
+    iconName: 'Trophy' as const,
   },
   {
     href: '/events',
     label: 'Events',
-    iconName: 'Calendar'
+    iconName: 'Calendar' as const,
   },
   {
     href: '/news',
     label: 'News',
-    iconName: 'Newspaper'
+    iconName: 'Newspaper' as const,
   },
   {
     href: '/help',
     label: 'Help',
-    iconName: 'CircleHelp'
+    iconName: 'CircleHelp' as const,
   },
   {
     href: '/contact',
     label: 'Contact',
-    iconName: 'Mail'
+    iconName: 'Mail' as const,
   },
   {
     href: '/about',
     label: 'About',
-    iconName: 'Info'
+    iconName: 'Info' as const,
   },
-];
+] as const;
