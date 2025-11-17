@@ -36,6 +36,12 @@
     --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
     --sidebar-border: oklch(0.92 0.004 286.32);
     --sidebar-ring: oklch(0.705 0.015 286.067);
+    /* Brand colors */
+    --brand-blue: oklch(0.536 0.176 252.3);
+    --brand-blue-dark: oklch(0.436 0.148 252.3);
+    --brand-indigo: oklch(0.427 0.149 278.3);
+    --brand-green: oklch(0.624 0.174 158.1);
+    --brand-green-dark: oklch(0.544 0.154 158.1);
 }
 
 .dark {
@@ -110,6 +116,11 @@
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
+    --color-brand-blue: var(--brand-blue);
+    --color-brand-blue-dark: var(--brand-blue-dark);
+    --color-brand-indigo: var(--brand-indigo);
+    --color-brand-green: var(--brand-green);
+    --color-brand-green-dark: var(--brand-green-dark);
 }
 
 @layer base {
