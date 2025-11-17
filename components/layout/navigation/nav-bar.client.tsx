@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import { useState } from 'react';
 
 const NavigationDrawerContent = dynamic(
-  () => import('./nav-drawer').then(mod => mod.NavigationDrawerContent),
+  () => import('./nav-drawer.client').then(mod => mod.NavigationDrawerContent),
   { ssr: false }
 );
 

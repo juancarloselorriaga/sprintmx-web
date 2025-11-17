@@ -1,7 +1,6 @@
-import UserAvatar from '@/app/components/auth/user-avatar';
-import { Button } from '@/app/components/ui/button';
-import { signOutAction } from '@/lib/api/auth.server';
-import { User } from '@supabase/auth-js';
+import UserAvatar from '@/components/auth/user-avatar';
+import { Button } from '@/components/ui/button';
+import { User } from '@/types/auth';
 import { LucideLogOut } from 'lucide-react';
 import { FC } from 'react';
 
@@ -19,7 +18,6 @@ const AuthControlsCompact: FC<AuthenticationControlsCompactProps> = ({
       <UserAvatar size="sm" onClick={cb} user={initialUser}/>
       <Button
         onClick={() => {
-          void signOutAction();
           cb?.();
         }}
         variant="ghost"
