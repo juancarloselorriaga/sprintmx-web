@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 const protectedRoutes = ['/dashboard', '/settings', '/profile', '/team'];
 const authRoutes = ['/sign-in', '/sign-up'];
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
   // Check if the current route is protected or auth-only
