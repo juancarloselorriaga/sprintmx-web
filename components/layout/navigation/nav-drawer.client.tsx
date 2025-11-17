@@ -10,7 +10,7 @@ import * as SheetPrimitive from '@radix-ui/react-dialog';
 import { PanelRightOpen } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 
 interface NavigationDrawerContentProps {
   user: User | null;
@@ -52,7 +52,9 @@ export function NavigationDrawerContent({ user }: NavigationDrawerContentProps) 
         <div className="mt-auto border-t p-4">
           <div className="flex w-full items-center justify-between">
             <AuthControlsCompact initialUser={user}/>
-            <ThemeSwitcher/>
+            <Suspense fallback={null}>
+              <ThemeSwitcher/>
+            </Suspense>
           </div>
         </div>
       </div>

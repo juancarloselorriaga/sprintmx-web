@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { AuthControls } from '@/components/auth/auth-controls';
 import { ThemeSwitcher } from '@/components/theme-switcher.client';
 import { cacheLife } from 'next/cache';
+import { Suspense } from 'react';
 
 export default async function NavigationBar() {
   'use cache'
@@ -36,7 +37,9 @@ export default async function NavigationBar() {
 
         <div className="hidden md:flex gap-2 items-center justify-end flex-1/3">
           <AuthControls/>
-          <ThemeSwitcher/>
+          <Suspense fallback={null}>
+            <ThemeSwitcher/>
+          </Suspense>
         </div>
       </div>
     </nav>

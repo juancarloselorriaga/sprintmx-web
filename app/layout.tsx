@@ -2,7 +2,7 @@ import RootLayoutWrapper from '@/components/layout/root-layout-wrapper';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Toaster } from 'sonner';
 import { metadata as baseMetadata } from '@/utils/seo';
 
@@ -28,7 +28,9 @@ export default function RootLayout({
     <body
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
-    <Toaster/>
+    <Suspense fallback={null}>
+      <Toaster/>
+    </Suspense>
     <RootLayoutWrapper>{children}</RootLayoutWrapper>
     </body>
     </html>
