@@ -138,6 +138,11 @@
           "CDMX races",
           "marathon Mexico"
         ],
+        "openGraph": {
+          "title": "Races and sporting events in Mexico | SprintMX",
+          "description": "Discover the best races in Mexico. Online registrations, secure payments, results, rankings, CDMX events and more with SprintMX.",
+          "imageAlt": "SprintMX - Platform for races in Mexico"
+        },
         "ogTitle": "Races and sporting events in Mexico | SprintMX",
         "ogDescription": "Discover the best races in Mexico. Online registrations, secure payments, results, rankings, CDMX events and more with SprintMX.",
         "ogAlt": "SprintMX - Platform for races in Mexico"

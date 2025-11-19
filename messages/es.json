@@ -138,6 +138,11 @@
           "carreras CDMX",
           "maratón México"
         ],
+        "openGraph": {
+          "title": "Carreras y eventos deportivos en México | SprintMX",
+          "description": "Descubre las mejores carreras en México. Inscripciones en línea, pagos seguros, resultados, rankings, eventos en CDMX y más con SprintMX.",
+          "imageAlt": "SprintMX - Plataforma para carreras en México"
+        },
         "ogTitle": "Carreras y eventos deportivos en México | SprintMX",
         "ogDescription": "Descubre las mejores carreras en México. Inscripciones en línea, pagos seguros, resultados, rankings, eventos en CDMX y más con SprintMX.",
         "ogAlt": "SprintMX - Plataforma para carreras en México"

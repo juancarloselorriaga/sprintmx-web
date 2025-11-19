@@ -5,7 +5,6 @@ import type { NavItem } from '@/components/layout/navigation/types';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/auth';
-import { cacheLife } from 'next/cache';
 import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 
@@ -18,9 +17,6 @@ export default async function NavigationBar({
   items,
   variant = 'public'
 }: NavigationBarProps) {
-  'use cache';
-  cacheLife('minutes');
-
   const user = await getCurrentUser();
   const t = await getTranslations('Common');
 
