@@ -3,7 +3,7 @@
 import { Home, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import './globals.css';
+import '../globals.css';
 
 export default function GlobalError({
   error,

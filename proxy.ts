@@ -1,16 +1,28 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
 
-// Define protected and auth-only routes
+// Create i18n routing handler
+const handleI18nRouting = createMiddleware(routing);
+
+// Define protected and auth-only routes (without locale prefix)
 const protectedRoutes = ['/dashboard', '/settings', '/profile', '/team'];
 const authRoutes = ['/sign-in', '/sign-up'];
 
 export async function proxy(req: NextRequest) {
-  const path = req.nextUrl.pathname;
+  // First, handle i18n routing
+  const i18nResponse = handleI18nRouting(req);
+
+  // Get the pathname after i18n processing
+  const pathname = req.nextUrl.pathname;
+
+  // Remove locale prefix to check routes (e.g., /en/dashboard -> /dashboard)
+  const pathnameWithoutLocale = pathname.replace(/^\/(es|en)/, '') || '/';
 
   // Check if the current route is protected or auth-only
-  const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route));
-  const isAuthRoute = authRoutes.some(route => path.startsWith(route));
+  const isProtectedRoute = protectedRoutes.some(route => pathnameWithoutLocale.startsWith(route));
+  const isAuthRoute = authRoutes.some(route => pathnameWithoutLocale.startsWith(route));
 
   // Get session from cookies
   // TODO: Implement proper session decryption when authentication is set up
@@ -21,30 +33,34 @@ export async function proxy(req: NextRequest) {
   // Replace this with proper session validation when auth is implemented
   const isAuthenticated = !!session;
 
+  // Extract locale from pathname
+  const localeMatch = pathname.match(/^\/(es|en)/);
+  const locale = localeMatch ? localeMatch[1] : 'es';
+
   // Redirect unauthenticated users trying to access protected routes
   if (isProtectedRoute && !isAuthenticated) {
-    return NextResponse.redirect(new URL('/sign-in', req.nextUrl));
+    return NextResponse.redirect(new URL(`/${locale}/sign-in`, req.nextUrl));
   }
 
   // Redirect authenticated users trying to access auth pages
   if (isAuthRoute && isAuthenticated) {
-    return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
+    return NextResponse.redirect(new URL(`/${locale}/dashboard`, req.nextUrl));
   }
 
-  return NextResponse.next();
+  return i18nResponse;
 }
 
-// Configure which routes the middleware should run on
+// Configure which routes the proxy should run on
 export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
      * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (images, etc.)
+     * - trpc (tRPC routes)
+     * - _next (Next.js internals)
+     * - _vercel (Vercel internals)
+     * - Static files (containing a dot)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+    '/((?!api|trpc|_next|_vercel|.*\\..*).*)'
+  ]
 };

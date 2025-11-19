@@ -1,0 +1,62 @@
+{
+  "Common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit"
+  },
+  "Navigation": {
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact",
+    "events": "Events",
+    "news": "News",
+    "results": "Results",
+    "help": "Help",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "team": "Team",
+    "projects": "Projects"
+  },
+  "Auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot your password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "createAccount": "Create account",
+    "welcome": "Welcome",
+    "welcomeBack": "Welcome back"
+  },
+  "Errors": {
+    "notFound": "Page not found",
+    "serverError": "Server error",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Forbidden",
+    "badRequest": "Bad request",
+    "somethingWentWrong": "Something went wrong"
+  },
+  "LocaleSwitcher": {
+    "label": "Change language",
+    "locale": "{locale, select, es {Spanish} en {English} other {Unknown}}"
+  },
+  "Metadata": {
+    "title": "SprintMX",
+    "description": "All-in-one platform to organize and promote races in Mexico"
+  }
+}
