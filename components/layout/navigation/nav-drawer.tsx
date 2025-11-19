@@ -3,6 +3,7 @@
 import AuthControlsCompact from '@/components/auth/auth-controls-compact';
 import { NavItems } from '@/components/layout/navigation/nav-items';
 import type { NavigationDrawerContentProps } from '@/components/layout/navigation/types';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -53,9 +54,14 @@ export function NavigationDrawerContent({
         <div className="mt-auto border-t p-4">
           <div className="flex w-full items-center justify-between">
             <AuthControlsCompact initialUser={user}/>
-            <Suspense fallback={null}>
-              <ThemeSwitcher/>
-            </Suspense>
+            <div className="flex items-center gap-2">
+              <Suspense fallback={null}>
+                <LanguageSwitcher/>
+              </Suspense>
+              <Suspense fallback={null}>
+                <ThemeSwitcher/>
+              </Suspense>
+            </div>
           </div>
         </div>
       </div>

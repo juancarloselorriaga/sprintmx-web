@@ -2,6 +2,7 @@ import { AuthControls } from '@/components/auth/auth-controls';
 import { NavDrawerTrigger } from '@/components/layout/navigation/nav-drawer-trigger';
 import { NavItems } from '@/components/layout/navigation/nav-items';
 import type { NavItem } from '@/components/layout/navigation/types';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Link } from '@/i18n/navigation';
 import { getCurrentUser } from '@/lib/auth';
@@ -43,6 +44,9 @@ export default async function NavigationBar({
 
         <div className="hidden md:flex gap-2 items-center justify-end flex-1/3">
           <AuthControls/>
+          <Suspense fallback={null}>
+            <LanguageSwitcher/>
+          </Suspense>
           <Suspense fallback={null}>
             <ThemeSwitcher/>
           </Suspense>
