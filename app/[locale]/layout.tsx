@@ -1,5 +1,5 @@
 import { Providers } from '@/components/providers/providers';
-import { routing } from '@/i18n/routing';
+import { AppLocale, routing } from '@/i18n/routing';
 import { generateAlternateMetadata } from '@/utils/seo';
 import { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
@@ -56,7 +56,7 @@ async function LocaleLayoutContent({
   const { locale } = await params;
 
   // Ensure that the incoming `locale` is valid
-  if (!routing.locales.includes(locale as any)) {
+  if (!routing.locales.includes(locale as AppLocale)) {
     notFound();
   }
 

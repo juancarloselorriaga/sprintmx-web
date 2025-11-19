@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import {
   Calendar,
   CircleHelp,
+  FileText,
   Info,
   LayoutDashboard,
   Mail,
@@ -30,7 +31,8 @@ const iconMap = {
   Trophy,
   Calendar,
   Newspaper,
-} as const;
+  FileText,
+} as const satisfies Record<NavItem['iconName'], typeof Info>;
 
 interface NavItemsProps {
   items: readonly NavItem[];
@@ -56,8 +58,8 @@ export function NavItems({
   return (
     <div className={cn('flex flex-col space-y-4 p-4', containerClassName)}>
       {items.map(item => {
-        const Icon = iconMap[item.iconName as keyof typeof iconMap];
-        const label = t(item.labelKey as any);
+        const Icon = iconMap[item.iconName];
+        const label = t(item.labelKey);
 
         const content = (
           <Link

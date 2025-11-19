@@ -1,3 +1,5 @@
+import type { NavItem, ProtectedNavIconName } from './types';
+
 export const protectedNavItems = [
   {
     href: '/dashboard',
@@ -19,4 +21,4 @@ export const protectedNavItems = [
     labelKey: 'profile' as const,
     iconName: 'User' as const,
   },
-] as const;
+] as const satisfies readonly NavItem<ProtectedNavIconName>[];

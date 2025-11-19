@@ -1,3 +1,5 @@
+import type { NavItem, PublicNavIconName } from './types';
+
 export const publicNavItems = [
   {
     href: '/results',
@@ -29,4 +31,4 @@ export const publicNavItems = [
     labelKey: 'about' as const,
     iconName: 'Info' as const,
   },
-] as const;
+] as const satisfies readonly NavItem<PublicNavIconName>[];

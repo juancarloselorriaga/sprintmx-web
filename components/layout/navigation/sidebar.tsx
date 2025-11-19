@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
+import type { NavItem, ProtectedNavIconName } from './types';
 import {
   ChevronLeft,
   ChevronRight,
@@ -23,16 +24,10 @@ const iconMap = {
   User,
   FileText,
   Users,
-} as const;
-
-interface NavItem {
-  href: string;
-  labelKey: string;
-  iconName: string;
-}
+} as const satisfies Record<ProtectedNavIconName, (typeof LayoutDashboard)>;
 
 interface SidebarProps {
-  items: readonly NavItem[];
+  items: readonly NavItem<ProtectedNavIconName>[];
 }
 
 export function Sidebar({ items }: SidebarProps) {
@@ -68,9 +63,9 @@ export function Sidebar({ items }: SidebarProps) {
         {/* Navigation Items */}
         <nav className="flex-1 p-2 space-y-1">
           {items.map((item) => {
-            const Icon = iconMap[item.iconName as keyof typeof iconMap];
+            const Icon = iconMap[item.iconName];
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-            const label = t(item.labelKey as any);
+            const label = t(item.labelKey);
 
             return (
               <Link
