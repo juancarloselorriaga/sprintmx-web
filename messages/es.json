@@ -162,11 +162,14 @@
           "tecnología mexicana",
           "organizadores de carreras",
           "sistema de inscripciones",
-          "SprintMX México"
+          "SprintMX México",
+          "cronometraje y resultados"
         ],
-        "ogTitle": "Sobre SprintMX | Quiénes somos",
-        "ogDescription": "Conoce SprintMX, la plataforma mexicana que transforma la manera de organizar y correr carreras. Tecnología local, running local.",
-        "ogAlt": "Sobre SprintMX"
+        "openGraph": {
+          "title": "Sobre SprintMX | Quiénes somos",
+          "description": "Conoce SprintMX, la plataforma mexicana que transforma la manera de organizar y correr carreras. Tecnología local, running local.",
+          "imageAlt": "Sobre SprintMX"
+        }
       },
       "hero": {
         "title": "Quiénes somos",
@@ -174,14 +177,13 @@
       },
       "vision": {
         "title": "Nuestra visión",
-        "paragraphs": [
-          "Queremos que México sea referente en innovación deportiva en Latinoamérica. Que cada carrera, sin importar su tamaño, tenga acceso a herramientas de clase mundial sin pagar precios de clase mundial.",
-          "Creemos que la tecnología debe servir al deporte, no complicarlo. Por eso construimos soluciones pensadas para el contexto mexicano: simples, accesibles y poderosas."
-        ]
+        "paragraph1": "Queremos que México sea referente en innovación deportiva en Latinoamérica. Que cada carrera, sin importar su tamaño, tenga acceso a herramientas de clase mundial sin pagar precios de clase mundial.",
+        "paragraph2": "Creemos que la tecnología debe servir al deporte, no complicarlo. Por eso construimos soluciones pensadas para el contexto mexicano: simples, accesibles y poderosas."
       },
       "whyWeExist": {
         "title": "Por qué existimos",
         "intro": "El running en México ha crecido enormemente, pero la infraestructura digital no ha crecido al mismo ritmo. Los organizadores y corredores enfrentan problemas recurrentes:",
+        "butText": "Pero eso está cambiando.",
         "problems": [
           "Sitios complicados para inscribirse",
           "Pagos inseguros o confusos",
@@ -194,7 +196,7 @@
       },
       "whatWeDo": {
         "title": "Qué hacemos",
-        "intro": "Creamos un ecosistema completo para el running en México:",
+        "subtitle": "Creamos un ecosistema completo para el running en México:",
         "forRunners": {
           "title": "Para corredores",
           "features": [
@@ -245,12 +247,9 @@
           }
         ]
       },
-      "mexicanTech": {
+      "mexicanTechnology": {
         "title": "Somos tecnología mexicana para el running mexicano",
-        "paragraphs": [
-          "No somos una adaptación de algo que funciona en Estados Unidos o Europa. SprintMX nace y crece en México, con profundo conocimiento del mercado local.",
-          "Entendemos el mercado mexicano porque vivimos en él. Conocemos sus retos, sus regulaciones, sus métodos de pago, su cultura."
-        ],
+        "subtitle": "No somos una adaptación de algo que funciona en Estados Unidos o Europa. SprintMX nace y crece en México, con profundo conocimiento del mercado local.",
         "weKnow": "Conocemos:",
         "knowledge": [
           "Las zonas donde se corre (CDMX, Guadalajara, Monterrey, Puebla, Querétaro...)",
@@ -259,20 +258,18 @@
           "El idioma y la cultura (comunicación clara en español mexicano)",
           "Los retos operativos reales (logística, clima, altitud, tráfico)"
         ],
-        "closing": "Por eso nuestra plataforma no solo funciona técnicamente: funciona para el contexto real de México."
+        "tagline": "Por eso nuestra plataforma no solo funciona técnicamente: funciona para el contexto real de México."
       },
       "commitment": {
         "title": "Nuestro compromiso",
-        "paragraphs": [
+        "goals": [
           "SprintMX no es solo software. Es un compromiso de largo plazo con la comunidad del running en México.",
           "Trabajamos codo a codo con organizadores para entender sus necesidades reales. Escuchamos corredores para mejorar su experiencia. Invertimos en tecnología de punta para mantenernos siempre adelante.",
           "Innovamos constantemente. Lo que hoy es la plataforma más completa del mercado, mañana será aún mejor.",
           "Porque al final del día, nuestro éxito se mide en carreras exitosas, corredores felices y una comunidad de running cada vez más fuerte."
         ],
-        "taglines": [
-          "Tecnología mexicana.",
-          "Running mexicano."
-        ]
+        "mission": "Nuestra misión es clara:",
+        "tagline": "Tecnología mexicana. Running mexicano."
       }
     },
     "Contact": {

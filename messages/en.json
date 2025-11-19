@@ -162,11 +162,14 @@
           "Mexican technology",
           "race organizers",
           "registration system",
-          "SprintMX Mexico"
+          "SprintMX Mexico",
+          "timing and results"
         ],
-        "ogTitle": "About SprintMX | Who we are",
-        "ogDescription": "Learn about SprintMX, the Mexican platform that transforms the way races are organized and run. Local technology, local running.",
-        "ogAlt": "About SprintMX"
+        "openGraph": {
+          "title": "About SprintMX | Who we are",
+          "description": "Learn about SprintMX, the Mexican platform that transforms the way races are organized and run. Local technology, local running.",
+          "imageAlt": "About SprintMX"
+        }
       },
       "hero": {
         "title": "Who we are",
@@ -174,14 +177,13 @@
       },
       "vision": {
         "title": "Our vision",
-        "paragraphs": [
-          "We want Mexico to be a reference in sports innovation in Latin America. That every race, regardless of its size, has access to world-class tools without paying world-class prices.",
-          "We believe that technology should serve the sport, not complicate it. That's why we build solutions designed for the Mexican context: simple, accessible and powerful."
-        ]
+        "paragraph1": "We want Mexico to be a reference in sports innovation in Latin America. That every race, regardless of its size, has access to world-class tools without paying world-class prices.",
+        "paragraph2": "We believe that technology should serve the sport, not complicate it. That's why we build solutions designed for the Mexican context: simple, accessible and powerful."
       },
       "whyWeExist": {
         "title": "Why we exist",
         "intro": "Running in Mexico has grown enormously, but the digital infrastructure has not grown at the same pace. Organizers and runners face recurring problems:",
+        "butText": "But that's changing.",
         "problems": [
           "Complicated registration websites",
           "Insecure or confusing payments",
@@ -194,7 +196,7 @@
       },
       "whatWeDo": {
         "title": "What we do",
-        "intro": "We create a complete ecosystem for running in Mexico:",
+        "subtitle": "We create a complete ecosystem for running in Mexico:",
         "forRunners": {
           "title": "For runners",
           "features": [
@@ -245,12 +247,9 @@
           }
         ]
       },
-      "mexicanTech": {
+      "mexicanTechnology": {
         "title": "We are Mexican technology for Mexican running",
-        "paragraphs": [
-          "We are not an adaptation of something that works in the United States or Europe. SprintMX is born and grows in Mexico, with deep knowledge of the local market.",
-          "We understand the Mexican market because we live in it. We know its challenges, its regulations, its payment methods, its culture."
-        ],
+        "subtitle": "We are not an adaptation of something that works in the United States or Europe. SprintMX is born and grows in Mexico, with deep knowledge of the local market.",
         "weKnow": "We know:",
         "knowledge": [
           "The areas where people run (CDMX, Guadalajara, Monterrey, Puebla, Querétaro...)",
@@ -259,20 +258,18 @@
           "The language and culture (clear communication in Mexican Spanish)",
           "Real operational challenges (logistics, weather, altitude, traffic)"
         ],
-        "closing": "That's why our platform doesn't just work technically: it works for the real context of Mexico."
+        "tagline": "That's why our platform doesn't just work technically: it works for the real context of Mexico."
       },
       "commitment": {
         "title": "Our commitment",
-        "paragraphs": [
+        "goals": [
           "SprintMX is not just software. It's a long-term commitment to the running community in Mexico.",
           "We work side by side with organizers to understand their real needs. We listen to runners to improve their experience. We invest in cutting-edge technology to always stay ahead.",
           "We constantly innovate. What is today the most complete platform on the market, tomorrow will be even better.",
           "Because at the end of the day, our success is measured in successful races, happy runners and an increasingly strong running community."
         ],
-        "taglines": [
-          "Mexican technology.",
-          "Mexican running."
-        ]
+        "mission": "Our mission is clear:",
+        "tagline": "Mexican technology. Mexican running."
       }
     },
     "Contact": {
