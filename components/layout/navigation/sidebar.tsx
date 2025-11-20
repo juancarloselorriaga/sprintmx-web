@@ -66,10 +66,11 @@ export function Sidebar({ items }: SidebarProps) {
             const Icon = iconMap[item.iconName];
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
             const label = t(item.labelKey);
+            const key = typeof item.href === 'string' ? item.href : item.href.pathname ?? 'sidebar-item';
 
             return (
               <Link
-                key={item.href}
+                key={key}
                 href={item.href}
                 className={cn(
                   'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',

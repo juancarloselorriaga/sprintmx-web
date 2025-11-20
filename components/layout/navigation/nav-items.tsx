@@ -60,6 +60,7 @@ export function NavItems({
       {items.map(item => {
         const Icon = iconMap[item.iconName];
         const label = t(item.labelKey);
+        const key = typeof item.href === 'string' ? item.href : item.href.pathname ?? 'nav-item';
 
         const content = (
           <Link
@@ -76,7 +77,7 @@ export function NavItems({
         );
 
         return (
-          <div key={item.href} className={cn('flex flex-row items-center', itemClassName)}>
+          <div key={key} className={cn('flex flex-row items-center', itemClassName)}>
             {!showLabels ? (
               <TooltipProvider>
                 <Tooltip>
