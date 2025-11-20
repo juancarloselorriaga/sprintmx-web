@@ -7,7 +7,7 @@ import { routing } from './i18n/routing';
 const handleI18nRouting = createMiddleware(routing);
 
 // Define protected and auth-only routes (without locale prefix)
-const protectedRoutes = ['/dashboard', '/settings', '/profile', '/team'];
+const protectedRoutes = ['/dashboard', '/settings', '/profile'];
 const authRoutes = ['/sign-in', '/sign-up'];
 
 export async function proxy(req: NextRequest) {

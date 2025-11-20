@@ -28,9 +28,7 @@
     "help": "Ayuda",
     "dashboard": "Panel",
     "profile": "Perfil",
-    "settings": "Configuración",
-    "team": "Equipo",
-    "projects": "Proyectos"
+    "settings": "Configuración"
   },
   "Auth": {
     "signIn": "Iniciar sesión",

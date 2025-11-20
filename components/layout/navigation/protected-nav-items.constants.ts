@@ -7,11 +7,6 @@ export const protectedNavItems = [
     iconName: 'LayoutDashboard' as const,
   },
   {
-    href: '/team',
-    labelKey: 'team' as const,
-    iconName: 'Users' as const,
-  },
-  {
     href: '/settings',
     labelKey: 'settings' as const,
     iconName: 'Settings' as const,
