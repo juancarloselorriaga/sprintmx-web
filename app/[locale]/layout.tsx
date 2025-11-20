@@ -42,17 +42,6 @@ export default async function LocaleLayout({
   children,
   params,
 }: Props) {
-  return (
-    <Suspense fallback={<Loading />}>
-      <LocaleLayoutContent params={params}>{children}</LocaleLayoutContent>
-    </Suspense>
-  );
-}
-
-async function LocaleLayoutContent({
-  children,
-  params,
-}: Props) {
   const { locale } = await params;
 
   // Ensure that the incoming `locale` is valid
@@ -61,21 +50,36 @@ async function LocaleLayoutContent({
   }
 
   // Enable static rendering
-  setRequestLocale(locale);
-  const messages = await getMessages();
-
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <Suspense fallback={null}>
-            <Toaster />
+        <Providers>
+          <Suspense fallback={<Loading />}>
+            <IntlProvider locale={locale}>
+              {children}
+            </IntlProvider>
           </Suspense>
-          <Providers>{children}</Providers>
-        </NextIntlClientProvider>
+        </Providers>
       </body>
     </html>
+  );
+}
+
+type IntlProviderProps = {
+  locale: string;
+  children: React.ReactNode;
+};
+
+async function IntlProvider({ locale, children }: IntlProviderProps) {
+  setRequestLocale(locale);
+  const messages = await getMessages();
+
+  return (
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      <Toaster />
+      {children}
+    </NextIntlClientProvider>
   );
 }
