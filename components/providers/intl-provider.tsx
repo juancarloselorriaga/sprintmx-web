@@ -1,9 +1,10 @@
+import { AppLocale } from '@/i18n/routing';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import React from 'react';
 
 type IntlProviderProps = {
-  locale: string;
+  locale: AppLocale;
   children: React.ReactNode;
 };
 
