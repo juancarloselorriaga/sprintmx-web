@@ -73,8 +73,6 @@ Provide the full file contents.
 
 Tests Added
 
-Provide unified diffs for added or updated tests.
-
 Post-Check
 
 Confirm no overlap with other tickets.
