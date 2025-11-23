@@ -57,6 +57,186 @@
           "imageAlt": "Sobre SprintMX"
         }
       }
+    },
+    "Contact": {
+      "metadata": {
+        "title": "Contacto SprintMX",
+        "description": "Ponte en contacto con el equipo de SprintMX para soporte, alianzas o preguntas generales.",
+        "keywords": [
+          "contacto sprintmx",
+          "soporte"
+        ],
+        "openGraph": {
+          "title": "Contacto SprintMX",
+          "description": "Comunícate con el equipo de SprintMX.",
+          "imageAlt": "Contacto SprintMX"
+        }
+      }
+    },
+    "Help": {
+      "metadata": {
+        "title": "Centro de ayuda | SprintMX",
+        "description": "Encuentra respuestas sobre inscripciones, pagos y gestión de carreras en SprintMX.",
+        "keywords": [
+          "ayuda",
+          "soporte"
+        ],
+        "openGraph": {
+          "title": "Centro de ayuda | SprintMX",
+          "description": "Ayuda sobre inscripciones, pagos y gestión de carreras en SprintMX.",
+          "imageAlt": "Recursos de ayuda"
+        }
+      }
+    },
+    "News": {
+      "metadata": {
+        "title": "Noticias de running | SprintMX",
+        "description": "Mantente al día con noticias, consejos y anuncios de carreras en México.",
+        "keywords": [
+          "noticias running",
+          "actualizaciones carreras"
+        ],
+        "openGraph": {
+          "title": "Noticias de running | SprintMX",
+          "description": "Últimas noticias y actualizaciones de carreras en SprintMX.",
+          "imageAlt": "Noticias de running"
+        }
+      }
+    },
+    "Events": {
+      "metadata": {
+        "title": "Calendario de eventos | SprintMX",
+        "description": "Explora próximas carreras y eventos deportivos en México organizados con SprintMX.",
+        "keywords": [
+          "eventos",
+          "carreras"
+        ],
+        "openGraph": {
+          "title": "Calendario de eventos | SprintMX",
+          "description": "Próximas carreras y eventos con SprintMX.",
+          "imageAlt": "Calendario de eventos"
+        }
+      }
+    },
+    "Results": {
+      "metadata": {
+        "title": "Resultados de carreras | SprintMX",
+        "description": "Consulta resultados oficiales, rankings e insights de desempeño.",
+        "keywords": [
+          "resultados",
+          "rankings"
+        ],
+        "openGraph": {
+          "title": "Resultados de carreras | SprintMX",
+          "description": "Consulta resultados y rankings en SprintMX.",
+          "imageAlt": "Resultados de carreras"
+        }
+      }
+    },
+    "SignIn": {
+      "metadata": {
+        "title": "Iniciar sesión en SprintMX",
+        "description": "Accede a tu cuenta SprintMX para gestionar inscripciones, eventos y resultados.",
+        "keywords": [
+          "iniciar sesión",
+          "login"
+        ],
+        "openGraph": {
+          "title": "Iniciar sesión en SprintMX",
+          "description": "Ingresa a tu cuenta SprintMX.",
+          "imageAlt": "Iniciar sesión en SprintMX"
+        }
+      }
+    },
+    "SignUp": {
+      "metadata": {
+        "title": "Crear cuenta en SprintMX",
+        "description": "Únete a SprintMX para organizar eventos, gestionar inscripciones y ver resultados.",
+        "keywords": [
+          "registrarse",
+          "crear cuenta"
+        ],
+        "openGraph": {
+          "title": "Crear cuenta en SprintMX",
+          "description": "Regístrate en SprintMX.",
+          "imageAlt": "Crear cuenta"
+        }
+      }
+    },
+    "Dashboard": {
+      "metadata": {
+        "title": "Dashboard | SprintMX",
+        "description": "Resumen de tus eventos, inscripciones y métricas en SprintMX.",
+        "keywords": [
+          "dashboard",
+          "resumen"
+        ],
+        "openGraph": {
+          "title": "Dashboard | SprintMX",
+          "description": "Consulta tu dashboard en SprintMX.",
+          "imageAlt": "Dashboard SprintMX"
+        }
+      }
+    },
+    "Settings": {
+      "metadata": {
+        "title": "Configuración | SprintMX",
+        "description": "Administra preferencias y ajustes de tu cuenta SprintMX.",
+        "keywords": [
+          "configuración",
+          "preferencias"
+        ],
+        "openGraph": {
+          "title": "Configuración | SprintMX",
+          "description": "Actualiza tu configuración en SprintMX.",
+          "imageAlt": "Configuración"
+        }
+      }
+    },
+    "Profile": {
+      "metadata": {
+        "title": "Perfil | SprintMX",
+        "description": "Consulta y edita la información de tu perfil en SprintMX.",
+        "keywords": [
+          "perfil",
+          "cuenta"
+        ],
+        "openGraph": {
+          "title": "Perfil | SprintMX",
+          "description": "Administra tu perfil en SprintMX.",
+          "imageAlt": "Perfil"
+        }
+      }
+    },
+    "Privacy": {
+      "metadata": {
+        "title": "Aviso de privacidad | SprintMX",
+        "description": "Conoce cómo SprintMX maneja tus datos y protege tu privacidad.",
+        "keywords": [
+          "privacidad",
+          "datos"
+        ],
+        "openGraph": {
+          "title": "Aviso de privacidad | SprintMX",
+          "description": "Cómo SprintMX protege tu privacidad.",
+          "imageAlt": "Aviso de privacidad"
+        }
+      }
+    },
+    "Terms": {
+      "metadata": {
+        "title": "Términos y condiciones | SprintMX",
+        "description": "Consulta los términos y condiciones de uso de SprintMX.",
+        "keywords": [
+          "términos",
+          "condiciones"
+        ],
+        "openGraph": {
+          "title": "Términos y condiciones | SprintMX",
+          "description": "Términos y condiciones de SprintMX.",
+          "imageAlt": "Términos y condiciones"
+        }
+      }
     }
   },
   "Components": {

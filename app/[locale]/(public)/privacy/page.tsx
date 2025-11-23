@@ -6,23 +6,20 @@ import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata({ params }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
-  return createLocalizedPageMetadata(
-    locale,
-    '/sign-up',
-    (messages) => messages.Pages?.SignUp?.metadata,
-    { robots: { index: false, follow: false } }
-  );
+  return createLocalizedPageMetadata(locale, '/privacy', (messages) => messages.Pages?.Privacy?.metadata, {
+    robots: { index: false, follow: false },
+  });
 }
 
-export default async function SignUpPage({ params }: LocalePageProps) {
+export default async function PrivacyPage({ params }: LocalePageProps) {
   await configPageLocale(params);
-  const t = await getTranslations('Pages.SignUp');
+  const t = await getTranslations('Components.Footer.links');
 
   return (
-    <div className="rounded-lg border bg-card p-8 shadow-lg">
-      <h1 className="text-2xl font-bold mb-4">{t('title')}</h1>
+    <div className="space-y-4">
+      <h1 className="text-3xl font-bold">{t('privacy')}</h1>
       <p className="text-muted-foreground">
-        {t('description')}
+        Content coming soon.
       </p>
     </div>
   );

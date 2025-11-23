@@ -162,13 +162,18 @@ export async function createLocalizedPageMetadata(
     pathname,
     options?.params
   );
-
-  return createPageMetadata(locale, select, {
+  const metadata = createPageMetadata(locale, select, {
     url: canonical,
     imagePath: options?.imagePath,
     alternates: { canonical, languages },
     robots: options?.robots,
   });
+
+  // Ensure canonical/hreflang alternates are present even when page metadata is empty
+  return {
+    ...metadata,
+    alternates: { canonical, languages },
+  } satisfies Metadata;
 }
 
 /**
