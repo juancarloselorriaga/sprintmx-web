@@ -1,14 +1,8 @@
 import { siteUrl } from '@/config/url';
 import type { Metadata } from 'next';
 import { routing, AppLocale } from '@/i18n/routing';
+import { isValidLocale } from '@/i18n/utils';
 import { createDefaultSeoMetadata, createPageMetadata, type PageMetaSelector } from './metadata';
-
-type PageMetadataOptions = {
-  url?: string;
-  imagePath?: string;
-  alternates?: Metadata['alternates'];
-  robots?: Metadata['robots'];
-};
 
 type LocaleConfig = {
   openGraphLocale: string;
@@ -19,9 +13,6 @@ const localeConfig: Record<AppLocale, LocaleConfig> = {
   es: { openGraphLocale: 'es_MX', hreflangTags: ['es', 'es-MX'] },
   en: { openGraphLocale: 'en_US', hreflangTags: ['en'] },
 };
-
-const isKnownLocale = (locale: string): locale is AppLocale =>
-  routing.locales.includes(locale as AppLocale);
 
 type BuildAlternatesOptions = {
   locale: string;
@@ -104,6 +95,12 @@ function buildLanguages({
     });
   });
 
+  // Add x-default pointing to default locale
+  const defaultLocaleUrl = languages[routing.defaultLocale];
+  if (defaultLocaleUrl) {
+    languages['x-default'] = defaultLocaleUrl;
+  }
+
   return languages;
 }
 
@@ -125,7 +122,7 @@ export async function generateAlternateMetadata(
   pathname: string = '/',
   params?: Record<string, string | number>
 ): Promise<AlternateMetadataResult> {
-  const resolvedLocale = isKnownLocale(locale) ? locale : routing.defaultLocale;
+  const resolvedLocale = isValidLocale(locale) ? locale : routing.defaultLocale;
   const cfg = localeConfig[resolvedLocale];
   const languages = buildLanguages({ pathname, params });
   const canonical =
@@ -188,7 +185,7 @@ export async function generateRootMetadata(
   pathname: string = '/',
   params?: Record<string, string | number>
 ): Promise<Metadata> {
-  const resolvedLocale = isKnownLocale(locale) ? locale : routing.defaultLocale;
+  const resolvedLocale = isValidLocale(locale) ? locale : routing.defaultLocale;
   const cfg = localeConfig[resolvedLocale];
   const languages = buildLanguages({ pathname, params });
   const canonical =

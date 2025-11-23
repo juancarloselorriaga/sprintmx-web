@@ -1,6 +1,5 @@
 import { Providers } from '@/components/providers/providers';
 import { Toaster } from '@/components/ui/sonner';
-import { routing } from '@/i18n/routing';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import React, { Suspense } from 'react';
@@ -33,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html suppressHydrationWarning lang={routing.defaultLocale}>
+    <html suppressHydrationWarning>
     <head>
       <script
         dangerouslySetInnerHTML={{

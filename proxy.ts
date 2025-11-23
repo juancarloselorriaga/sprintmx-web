@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 import { routing, type AppLocale } from './i18n/routing';
+import { isValidLocale } from './i18n/utils';
 
 // Create i18n routing handler
 const handleI18nRouting = createMiddleware(routing);
@@ -11,9 +12,6 @@ const authRoutes = ['/sign-in', '/sign-up'];
 
 const localesPattern = routing.locales.join('|');
 const localePrefixRegex = new RegExp(`^/(${localesPattern})(?=/|$)`);
-
-const isKnownLocale = (value: string): value is AppLocale =>
-  routing.locales.includes(value as AppLocale);
 
 const resolvePrefix = (locale: AppLocale) => {
   const prefixSetting = routing.localePrefix as
@@ -43,7 +41,7 @@ const resolvePrefix = (locale: AppLocale) => {
 
 const getLocaleFromPath = (pathname: string): AppLocale => {
   const match = pathname.match(localePrefixRegex);
-  if (match && isKnownLocale(match[1])) return match[1];
+  if (match && isValidLocale(match[1])) return match[1];
   return routing.defaultLocale;
 };
 
@@ -82,12 +80,56 @@ const buildRedirectUrl = (req: NextRequest, targetInternalPath: string, locale: 
   return new URL(`${prefix}${normalizedPath}`, req.nextUrl);
 };
 
-export function proxy(req: NextRequest) {
-  // First, handle i18n routing
-  const i18nResponse = handleI18nRouting(req);
+/**
+ * Detects preferred locale from Accept-Language header
+ */
+const detectPreferredLocale = (acceptLanguage: string | null): AppLocale => {
+  if (!acceptLanguage) return routing.defaultLocale;
 
-  // Get the pathname after i18n processing
+  // Parse Accept-Language header (e.g., "en-US,en;q=0.9,es;q=0.8")
+  const languages = acceptLanguage
+    .split(',')
+    .map(lang => {
+      const [code, qValue] = lang.trim().split(';');
+      const quality = qValue ? parseFloat(qValue.split('=')[1]) : 1.0;
+      return { code: code.split('-')[0].toLowerCase(), quality };
+    })
+    .sort((a, b) => b.quality - a.quality);
+
+  // Find first matching locale
+  for (const { code } of languages) {
+    if (code === 'en') return 'en';
+    if (code === 'es') return 'es';
+  }
+
+  return routing.defaultLocale;
+};
+
+export function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
+
+  // Remove trailing slashes (except root)
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    const url = req.nextUrl.clone();
+    url.pathname = pathname.slice(0, -1);
+    return NextResponse.redirect(url, 308);
+  }
+
+  // Locale detection: Redirect root path to preferred locale if not default
+  if (pathname === '/') {
+    const acceptLanguage = req.headers.get('accept-language');
+    const preferredLocale = detectPreferredLocale(acceptLanguage);
+
+    // Only redirect if preferred locale is not the default (to avoid unnecessary redirects)
+    if (preferredLocale !== routing.defaultLocale) {
+      const url = req.nextUrl.clone();
+      url.pathname = `/${preferredLocale}`;
+      return NextResponse.redirect(url, 307); // Temporary redirect
+    }
+  }
+
+  // Handle i18n routing
+  const i18nResponse = handleI18nRouting(req);
 
   const locale = getLocaleFromPath(pathname);
   const pathnameWithoutLocale = stripLocalePrefix(pathname);
@@ -97,12 +139,10 @@ export function proxy(req: NextRequest) {
   const isProtectedRoute = protectedRoutes.some(route => internalPath.startsWith(route));
   const isAuthRoute = authRoutes.some(route => internalPath.startsWith(route));
 
-  // Get session from cookies
-  // TODO: Implement proper session decryption when authentication is set up
+  // Check session from request cookies (non-blocking way that doesn't force dynamic rendering)
+  // TODO: Implement proper session validation when authentication is set up
+  // For now, we check the session cookie directly from the request
   const session = req.cookies.get('session')?.value;
-
-  // For now, we'll treat any session cookie as authenticated
-  // Replace this with proper session validation when auth is implemented
   const isAuthenticated = !!session;
 
   // Redirect unauthenticated users trying to access protected routes

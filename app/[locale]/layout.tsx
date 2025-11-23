@@ -1,5 +1,6 @@
 import { HtmlLangSetter } from '@/components/providers/html-lang-setter';
 import { IntlProvider } from '@/components/providers/intl-provider';
+import { WebVitals } from '@/components/web-vitals';
 import { AppLocale, routing } from '@/i18n/routing';
 import { generateRootMetadata } from '@/utils/seo';
 import { Metadata } from 'next';
@@ -39,6 +40,7 @@ export default async function LocaleLayout({
     <Suspense fallback={<Loading/>}>
       <IntlProvider locale={locale}>
         <HtmlLangSetter locale={locale} />
+        <WebVitals />
         {children}
       </IntlProvider>
     </Suspense>
