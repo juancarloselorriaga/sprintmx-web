@@ -1,5 +1,5 @@
 import { AppLocale } from '@/i18n/routing';
-import type messages from '@/messages/en.json';
+import type messages from '@/messages/es.json';
 
 export type Messages = typeof messages;
 
