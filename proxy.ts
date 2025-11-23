@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 import { routing, type AppLocale } from './i18n/routing';
@@ -83,7 +82,7 @@ const buildRedirectUrl = (req: NextRequest, targetInternalPath: string, locale: 
   return new URL(`${prefix}${normalizedPath}`, req.nextUrl);
 };
 
-export async function proxy(req: NextRequest) {
+export function proxy(req: NextRequest) {
   // First, handle i18n routing
   const i18nResponse = handleI18nRouting(req);
 
@@ -100,8 +99,7 @@ export async function proxy(req: NextRequest) {
 
   // Get session from cookies
   // TODO: Implement proper session decryption when authentication is set up
-  const cookieStore = await cookies();
-  const session = cookieStore.get('session')?.value;
+  const session = req.cookies.get('session')?.value;
 
   // For now, we'll treat any session cookie as authenticated
   // Replace this with proper session validation when auth is implemented
