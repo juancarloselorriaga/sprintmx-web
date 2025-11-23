@@ -116,15 +116,21 @@ export function proxy(req: NextRequest) {
   }
 
   // Locale detection: Redirect root path to preferred locale if not default
+  // Only apply auto-detection if user hasn't explicitly chosen a locale (no NEXT_LOCALE cookie)
   if (pathname === '/') {
-    const acceptLanguage = req.headers.get('accept-language');
-    const preferredLocale = detectPreferredLocale(acceptLanguage);
+    const nextLocaleCookie = req.cookies.get('NEXT_LOCALE');
 
-    // Only redirect if preferred locale is not the default (to avoid unnecessary redirects)
-    if (preferredLocale !== routing.defaultLocale) {
-      const url = req.nextUrl.clone();
-      url.pathname = `/${preferredLocale}`;
-      return NextResponse.redirect(url, 307); // Temporary redirect
+    // Only auto-detect if user hasn't made an explicit choice via language switcher
+    if (!nextLocaleCookie) {
+      const acceptLanguage = req.headers.get('accept-language');
+      const preferredLocale = detectPreferredLocale(acceptLanguage);
+
+      // Only redirect if preferred locale is not the default (to avoid unnecessary redirects)
+      if (preferredLocale !== routing.defaultLocale) {
+        const url = req.nextUrl.clone();
+        url.pathname = `/${preferredLocale}`;
+        return NextResponse.redirect(url, 307); // Temporary redirect
+      }
     }
   }
 
