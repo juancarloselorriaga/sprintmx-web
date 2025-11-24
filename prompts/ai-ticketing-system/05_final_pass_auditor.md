@@ -28,7 +28,7 @@ Your job is **global consistency**, not creativity.
 
 - `./UPGRADE-PLAN.md`  
 - ALL ticket files in:  
-  `./ai-ticketing/<upgrade-plan-title>/01-*.md`  
+  `./ticketing/<upgrade-plan-title>/01-*.md`  
   through  
   (Example: `01-*.md` through `15-*.md`)  
 - Relevant code under:  input by the user

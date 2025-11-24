@@ -25,7 +25,7 @@ This is the ONLY ticket you will implement.
 
 ### You MUST:
 - Read the ticket file at:  
-  `./ai-ticketing/<upgrade-plan-title>/<TICKET_FILENAME>.md`
+  `./ticketing/<upgrade-plan-title>/<TICKET_FILENAME>.md`
 - Read `UPGRADE-PLAN.md` for context and alignment.
 - Read ONLY the code files referenced in the ticket.
 - Follow existing architecture, naming, patterns, and conventions.

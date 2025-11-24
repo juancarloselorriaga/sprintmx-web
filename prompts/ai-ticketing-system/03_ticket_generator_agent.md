@@ -26,7 +26,7 @@ Tickets must be small, incremental, and reviewable.
 
 ## 📁 Output File Rules (IMPORTANT)
 
-You must generate one Markdown file **per ticket** and write them into this folder: ./ai-ticketing/<
+You must generate one Markdown file **per ticket** and write them into this folder: ./ticketing/<
 upgrade-plan-title>/
 
 Where `<upgrade-plan-title>` is a kebab-case version of the plan title you were given.
@@ -49,7 +49,7 @@ If you have filesystem access (Codex CLI / Claude Code / MCP with FS):
 
 1. Create the directory if it does not exist:
 
-mkdir -p ./ai-ticketing/<upgrade-plan-title>/
+mkdir -p ./ticketing/<upgrade-plan-title>/
 
 The folder for this plan MUST be named using the exact upgrade plan title transformed into
 kebab-case. Do not shorten or rename it.

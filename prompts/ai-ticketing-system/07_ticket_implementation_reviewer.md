@@ -29,7 +29,7 @@ Example:
 `07 — 07-strategy-pattern.md`
 
 You must read the ticket file at:  
-`./ai-ticketing/<upgrade-plan-title>/<TICKET_FILENAME>.md`
+`./ticketing/<upgrade-plan-title>/<TICKET_FILENAME>.md`
 
 ---
 

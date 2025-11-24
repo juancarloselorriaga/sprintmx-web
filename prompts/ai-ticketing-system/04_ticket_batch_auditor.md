@@ -22,9 +22,9 @@ No speculative improvements.
 ## Files You Must Read  
 - `./UPGRADE-PLAN.md`  
 - All ticket files in the batch, e.g.:  
-  `./ai-ticketing/<upgrade-plan-title>/01-*.md`  
+  `./ticketing/<upgrade-plan-title>/01-*.md`  
   through  
-  `./ai-ticketing/<upgrade-plan-title>/05-*.md`  
+  `./ticketing/<upgrade-plan-title>/05-*.md`  
   (Only for verification of file paths, module names, and actual code reality.)
 
 ---
