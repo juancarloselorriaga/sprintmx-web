@@ -62,11 +62,6 @@ Summary of Implementation
 A short, clear description of WHAT was implemented and WHY,
 based strictly on the ticket requirements.
 
-Code Changes
-
-Provide unified diffs for each modified file.
-Include ONLY files changed to satisfy the ticket.
-
 New Files (if any)
 
 Provide the full file contents.
