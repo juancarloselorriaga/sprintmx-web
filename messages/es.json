@@ -107,52 +107,11 @@
   },
   "Pages": {
     "Home": {
-      "metadata": {
-        "title": "Carreras y eventos deportivos en México | SprintMX",
-        "description": "Descubre las mejores carreras en México. Inscripciones en línea, pagos seguros, resultados, rankings, eventos en CDMX y más con SprintMX.",
-        "keywords": [
-          "carreras en México",
-          "running México",
-          "eventos deportivos México",
-          "inscripciones carreras",
-          "resultados carreras México",
-          "SprintMX",
-          "carreras CDMX",
-          "maratón México"
-        ],
-        "openGraph": {
-          "title": "Carreras y eventos deportivos en México | SprintMX",
-          "description": "Descubre las mejores carreras en México. Inscripciones en línea, pagos seguros, resultados, rankings, eventos en CDMX y más con SprintMX.",
-          "imageAlt": "SprintMX - Plataforma para carreras en México"
-        },
-        "ogTitle": "Carreras y eventos deportivos en México | SprintMX",
-        "ogDescription": "Descubre las mejores carreras en México. Inscripciones en línea, pagos seguros, resultados, rankings, eventos en CDMX y más con SprintMX.",
-        "ogAlt": "SprintMX - Plataforma para carreras en México"
-      },
       "content": {
         "placeholder": "Inicio"
       }
     },
     "About": {
-      "metadata": {
-        "title": "Sobre SprintMX | Quiénes somos y qué hacemos",
-        "description": "Conoce SprintMX, la plataforma mexicana que transforma la manera de organizar y correr carreras. Tecnología local, running local.",
-        "keywords": [
-          "sobre SprintMX",
-          "quiénes somos",
-          "plataforma mexicana running",
-          "tecnología mexicana",
-          "organizadores de carreras",
-          "sistema de inscripciones",
-          "SprintMX México",
-          "cronometraje y resultados"
-        ],
-        "openGraph": {
-          "title": "Sobre SprintMX | Quiénes somos",
-          "description": "Conoce SprintMX, la plataforma mexicana que transforma la manera de organizar y correr carreras. Tecnología local, running local.",
-          "imageAlt": "Sobre SprintMX"
-        }
-      },
       "hero": {
         "title": "Quiénes somos",
         "description": "SprintMX nace en México para transformar la manera en que organizadores y corredores viven el running. Somos una plataforma end-to-end que simplifica inscripciones, pagos, cronometraje, resultados y rankings, todo en un solo lugar."

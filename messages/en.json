@@ -107,52 +107,11 @@
   },
   "Pages": {
     "Home": {
-      "metadata": {
-        "title": "Races and sporting events in Mexico | SprintMX",
-        "description": "Discover the best races in Mexico. Online registrations, secure payments, results, rankings, CDMX events and more with SprintMX.",
-        "keywords": [
-          "races in Mexico",
-          "running Mexico",
-          "sporting events Mexico",
-          "race registrations",
-          "race results Mexico",
-          "SprintMX",
-          "CDMX races",
-          "marathon Mexico"
-        ],
-        "openGraph": {
-          "title": "Races and sporting events in Mexico | SprintMX",
-          "description": "Discover the best races in Mexico. Online registrations, secure payments, results, rankings, CDMX events and more with SprintMX.",
-          "imageAlt": "SprintMX - Platform for races in Mexico"
-        },
-        "ogTitle": "Races and sporting events in Mexico | SprintMX",
-        "ogDescription": "Discover the best races in Mexico. Online registrations, secure payments, results, rankings, CDMX events and more with SprintMX.",
-        "ogAlt": "SprintMX - Platform for races in Mexico"
-      },
       "content": {
         "placeholder": "Home"
       }
     },
     "About": {
-      "metadata": {
-        "title": "About SprintMX | Who we are and what we do",
-        "description": "Learn about SprintMX, the Mexican platform that transforms the way races are organized and run. Local technology, local running.",
-        "keywords": [
-          "about SprintMX",
-          "who we are",
-          "Mexican running platform",
-          "Mexican technology",
-          "race organizers",
-          "registration system",
-          "SprintMX Mexico",
-          "timing and results"
-        ],
-        "openGraph": {
-          "title": "About SprintMX | Who we are",
-          "description": "Learn about SprintMX, the Mexican platform that transforms the way races are organized and run. Local technology, local running.",
-          "imageAlt": "About SprintMX"
-        }
-      },
       "hero": {
         "title": "Who we are",
         "description": "SprintMX was born in Mexico to transform the way organizers and runners experience running. We are an end-to-end platform that simplifies registrations, payments, timing, results and rankings, all in one place."

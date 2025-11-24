@@ -1,22 +1,29 @@
-import { generateAlternateMetadata, generateRootMetadata, createLocalizedPageMetadata } from '@/utils/seo';
+import enMetadata from '@/messages/metadata/en.json';
 import { routing } from '@/i18n/routing';
-import { createDefaultSeoMetadata, createPageMetadata, type PageMetaSelector } from '@/utils/metadata';
+import {
+  createDefaultSeoMetadata,
+  createPageMetadata,
+  type PageMetaSelector,
+} from '@/utils/metadata';
 import type { PartialMetadataMessages } from '@/utils/staticMessages';
+import { generateAlternateMetadata, generateRootMetadata, createLocalizedPageMetadata } from '@/utils/seo';
 
 jest.mock('@/config/url', () => ({
   siteUrl: 'https://example.com',
 }));
 
-jest.mock('@/utils/metadata', () => ({
-  createDefaultSeoMetadata: jest.fn((locale, _select, options) => ({
-    locale,
-    options,
-  })),
-  createPageMetadata: jest.fn((locale, _select, options) => ({
-    locale,
-    options,
-  })),
-}));
+jest.mock('@/utils/metadata', () => {
+  const actual = jest.requireActual<typeof import('@/utils/metadata')>('@/utils/metadata');
+  return {
+    ...actual,
+    createDefaultSeoMetadata: jest.fn((...args: Parameters<typeof actual.createDefaultSeoMetadata>) =>
+      actual.createDefaultSeoMetadata(...args)
+    ),
+    createPageMetadata: jest.fn((...args: Parameters<typeof actual.createPageMetadata>) =>
+      actual.createPageMetadata(...args)
+    ),
+  };
+});
 
 jest.mock('@/i18n/routing', () => {
   const routing = {
@@ -169,5 +176,20 @@ describe('createLocalizedPageMetadata', () => {
       en: 'https://example.com/en/news/test-article',
     });
     expect(call[2]?.localeOverride).toBe('en_US');
+  });
+
+  it('pulls page metadata from metadata dictionaries', async () => {
+    const metadata = await createLocalizedPageMetadata(
+      'en',
+      '/about',
+      (messages) => messages.Pages?.About?.metadata,
+      { imagePath: '/og-about.jpg' }
+    );
+
+    expect(metadata.title).toBe(enMetadata.Pages.About.metadata.title);
+    expect(metadata.description).toBe(enMetadata.Pages.About.metadata.description);
+    expect(metadata.openGraph?.title).toBe(enMetadata.Pages.About.metadata.openGraph?.title);
+    // @ts-expect-error - testing optional chaining
+    expect(metadata.openGraph?.images?.[0]?.alt).toBe(enMetadata.Pages.About.metadata.openGraph?.imageAlt);
   });
 });
