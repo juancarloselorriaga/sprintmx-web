@@ -151,6 +151,7 @@ describe('createLocalizedPageMetadata', () => {
       'es-MX': 'https://example.com/acerca',
       en: 'https://example.com/en/about',
     });
+    expect(call[2]?.localeOverride).toBe('es_MX');
   });
 
   it('handles dynamic params correctly', async () => {
@@ -167,5 +168,6 @@ describe('createLocalizedPageMetadata', () => {
       'es-MX': 'https://example.com/noticias/test-article',
       en: 'https://example.com/en/news/test-article',
     });
+    expect(call[2]?.localeOverride).toBe('en_US');
   });
 });

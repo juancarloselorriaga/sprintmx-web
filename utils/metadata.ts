@@ -17,6 +17,7 @@ type PageMetadataOptions = {
   imagePath?: string;
   alternates?: Metadata['alternates'];
   robots?: Metadata['robots'];
+  localeOverride?: string;
 };
 
 const DEFAULT_OG_IMAGE_PATH = '/og-image.jpg';
@@ -63,7 +64,7 @@ function sanitizeKeywords(keywords?: (string | null | undefined)[]) {
 export function createPageMetadata(
   locale: string,
   select: PageMetaSelector,
-  { url, imagePath, alternates, robots }: PageMetadataOptions = {}
+  { url, imagePath, alternates, robots, localeOverride }: PageMetadataOptions = {}
 ): Metadata {
   const pageMeta = resolveMessages(locale, select);
   if (!pageMeta) return {};
@@ -82,6 +83,7 @@ export function createPageMetadata(
         description: pageMeta.openGraph.description,
         url: baseUrl,
         images: buildOgImages(pageMeta.openGraph.imageAlt, imagePath),
+        ...(localeOverride && { locale: localeOverride }),
       },
     }),
     ...(alternates && { alternates }),

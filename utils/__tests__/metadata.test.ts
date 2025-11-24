@@ -88,6 +88,18 @@ describe('metadata helpers', () => {
     expect(metadata.robots).toEqual({ index: true });
   });
 
+  it('applies locale override to open graph metadata when provided', () => {
+    const metadata = createPageMetadata('en', selectHome, {
+      url: 'https://example.com/home',
+      localeOverride: 'es_MX',
+    });
+
+    expect(metadata.openGraph).toMatchObject({
+      url: 'https://example.com/home',
+      locale: 'es_MX',
+    });
+  });
+
   it('returns empty metadata when selector yields nothing', () => {
     const metadata = createPageMetadata('en', () => undefined);
     expect(metadata).toEqual({});

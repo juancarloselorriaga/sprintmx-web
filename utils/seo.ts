@@ -154,7 +154,7 @@ export async function createLocalizedPageMetadata(
     robots?: Metadata['robots'];
   }
 ): Promise<Metadata> {
-  const { canonical, languages } = await generateAlternateMetadata(
+  const { canonical, languages, openGraphLocale } = await generateAlternateMetadata(
     locale,
     pathname,
     options?.params
@@ -164,6 +164,7 @@ export async function createLocalizedPageMetadata(
     imagePath: options?.imagePath,
     alternates: { canonical, languages },
     robots: options?.robots,
+    localeOverride: openGraphLocale,
   });
 
   // Ensure canonical/hreflang alternates are present even when page metadata is empty
