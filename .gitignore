@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 .idea/
+
+# i18n generated artifacts
+i18n/loaders.generated.ts
+i18n/types.generated.ts
