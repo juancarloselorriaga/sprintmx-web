@@ -1,5 +1,4 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { headers } from 'next/headers';
 import { z } from 'zod';
 import { routing, type AppLocale } from './routing';
 import {
@@ -222,22 +221,6 @@ function buildLocalePathLookup() {
   return lookup;
 }
 
-async function inferPathnameFromHeaders(): Promise<string | undefined> {
-  try {
-    const headerList: Awaited<ReturnType<typeof headers>> = await headers();
-    const referer = headerList.get('referer');
-    const candidates = [
-      headerList.get('x-matched-path'),
-      headerList.get('next-url'),
-      referer ? new URL(referer).pathname : undefined,
-    ].filter(Boolean) as string[];
-
-    return candidates[0];
-  } catch {
-    return undefined;
-  }
-}
-
 export function rememberRoutePath(pathname: string) {
   const normalized = normalizePathname(pathname);
   setRouteContext(normalized);
@@ -250,8 +233,7 @@ export async function getRequestPathname(): Promise<string> {
     return existing.pathname;
   }
 
-  const fromHeaders = await inferPathnameFromHeaders();
-  const normalized = normalizePathname(fromHeaders ?? '/');
+  const normalized = normalizePathname('/');
   setRouteContext(normalized);
   return normalized;
 }
