@@ -1,3 +1,4 @@
+import { rememberRoutePath } from '@/i18n/utils';
 import { LocalePageProps } from '@/types/next';
 import { setRequestLocale } from 'next-intl/server';
 
@@ -25,13 +26,19 @@ import { setRequestLocale } from 'next-intl/server';
  *
  * @see {@link https://next-intl-docs.vercel.app/docs/getting-started/app-router/with-i18n-routing#static-rendering|next-intl Static Rendering}
  */
-export const configPageLocale = async (params: LocalePageProps['params']) => {
+export const configPageLocale = async (
+  params: LocalePageProps['params'],
+  options?: { pathname?: string }
+) => {
   const { locale } = await params;
 
   // Enable static rendering by setting the locale in the request context.
   // This allows next-intl to access the locale during static generation without
   // relying on runtime request headers, which would force dynamic rendering.
   setRequestLocale(locale);
+  if (options?.pathname) {
+    rememberRoutePath(options.pathname);
+  }
 
   return { locale };
 };

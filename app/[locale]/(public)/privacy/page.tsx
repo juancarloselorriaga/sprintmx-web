@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: LocalePageProps): Promise<Met
 }
 
 export default async function PrivacyPage({ params }: LocalePageProps) {
-  await configPageLocale(params);
+  await configPageLocale(params, { pathname: '/privacy' });
   const t = await getTranslations('components.footer.links');
 
   return (

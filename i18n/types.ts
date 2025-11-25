@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { AppLocale } from '@/i18n/routing';
 
-const commonSchema = z
+export const commonSchema = z
   .object({
     loading: z.string(),
     error: z.string(),
@@ -23,7 +23,7 @@ const commonSchema = z
   })
   .strict();
 
-const navigationSchema = z
+export const navigationSchema = z
   .object({
     home: z.string(),
     about: z.string(),
@@ -38,7 +38,7 @@ const navigationSchema = z
   })
   .strict();
 
-const authSchema = z
+export const authSchema = z
   .object({
     signIn: z.string(),
     signUp: z.string(),
@@ -55,7 +55,7 @@ const authSchema = z
   })
   .strict();
 
-const errorsSchema = z
+export const errorsSchema = z
   .object({
     notFound: z.string(),
     serverError: z.string(),
@@ -135,7 +135,7 @@ const errorBoundarySchema = z
   })
   .strict();
 
-const componentsSchema = z
+export const componentsSchema = z
   .object({
     footer: footerSchema,
     themeSwitcher: themeSwitcherSchema,
@@ -229,7 +229,7 @@ const aboutPageSchema = z
   })
   .strict();
 
-const pagesSchema = z
+export const pagesSchema = z
   .object({
     home: z
       .object({

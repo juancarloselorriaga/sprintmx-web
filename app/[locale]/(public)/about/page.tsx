@@ -25,7 +25,7 @@ export async function generateMetadata({
 }
 
 const AboutPage = async ({ params }: LocalePageProps) => {
-  await configPageLocale(params);
+  await configPageLocale(params, { pathname: '/about' });
 
   const t = await getTranslations('pages.about');
 

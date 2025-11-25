@@ -1,6 +1,7 @@
 import { IntlProvider } from '@/components/providers/intl-provider';
 import { WebVitals } from '@/components/web-vitals';
 import { AppLocale, routing } from '@/i18n/routing';
+import { getRequestPathname, loadRouteMessages } from '@/i18n/utils';
 import { generateRootMetadata } from '@/utils/seo';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -35,10 +36,13 @@ export default async function LocaleLayout({
     notFound();
   }
 
+  const pathname = await getRequestPathname();
+  const messages = await loadRouteMessages(locale, pathname);
+
   // Enable static rendering
   return (
-    <Suspense fallback={<Loading/>}>
-      <IntlProvider locale={locale}>
+    <Suspense fallback={<Loading />}>
+      <IntlProvider locale={locale} messages={messages}>
         <WebVitals />
         {children}
       </IntlProvider>

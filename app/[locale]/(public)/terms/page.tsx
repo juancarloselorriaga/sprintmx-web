@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: LocalePageProps): Promise<Met
 }
 
 export default async function TermsPage({ params }: LocalePageProps) {
-  await configPageLocale(params);
+  await configPageLocale(params, { pathname: '/terms' });
   const t = await getTranslations('components.footer.links');
 
   return (

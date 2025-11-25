@@ -3,7 +3,7 @@ import { hasLocale } from 'next-intl';
 
 import { getRequestConfig } from 'next-intl/server';
 import { routing } from './routing';
-import { loadMessages } from './utils';
+import { getRequestPathname, loadRouteMessages } from './utils';
 
 export default getRequestConfig(async ({ requestLocale }) => {
 
@@ -15,8 +15,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
     ? locale
     : routing.defaultLocale) as (typeof routing.locales)[number];
 
+  const pathname = await getRequestPathname();
+
   return {
     locale: resolvedLocale,
-    messages: await loadMessages(resolvedLocale),
+    messages: await loadRouteMessages(resolvedLocale, pathname),
   };
 });

@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: LocalePageProps): Promise<Met
 }
 
 export default async function SignInPage({ params }: LocalePageProps) {
-  await configPageLocale(params);
+  await configPageLocale(params, { pathname: '/sign-in' });
   const t = await getTranslations('pages.signIn');
 
   return (
