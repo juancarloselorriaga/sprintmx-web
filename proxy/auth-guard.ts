@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { buildRedirectUrl, type RequestContext } from './localization';
 import { isAuthRoute, isProtectedRoute } from './routes';
+import { getSessionCookie } from 'better-auth/cookies';
 
 export const handleAuthRedirects = async (req: NextRequest, context: RequestContext) => {
-  const session = await auth.api.getSession({
-    headers: req.headers,
-  });
-  const isAuthenticated = !!session;
+  const sessionCookie = getSessionCookie(req);
+  // Optimistic check only; protected routes must still call auth.api.getSession()
+  const hasSessionCookie = Boolean(sessionCookie);
 
-  if (isProtectedRoute(context.internalPath) && !isAuthenticated) {
+  if (isProtectedRoute(context.internalPath) && !hasSessionCookie) {
     return NextResponse.redirect(buildRedirectUrl(req, '/sign-in', context.locale));
   }
 
-  if (isAuthRoute(context.internalPath) && isAuthenticated) {
+  if (isAuthRoute(context.internalPath) && hasSessionCookie) {
     return NextResponse.redirect(buildRedirectUrl(req, '/dashboard', context.locale));
   }
 

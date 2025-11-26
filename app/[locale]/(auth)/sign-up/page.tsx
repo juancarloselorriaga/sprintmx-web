@@ -1,3 +1,5 @@
+import { SignUpForm } from '@/components/auth/sign-up-form';
+import { Link } from '@/i18n/navigation';
 import { LocalePageProps } from '@/types/next';
 import { configPageLocale } from '@/utils/config-page-locale';
 import { createLocalizedPageMetadata } from '@/utils/seo';
@@ -17,12 +19,24 @@ export async function generateMetadata({ params }: LocalePageProps): Promise<Met
 export default async function SignUpPage({ params }: LocalePageProps) {
   await configPageLocale(params, { pathname: '/sign-up' });
   const t = await getTranslations('pages.signUp');
+  const authT = await getTranslations('auth');
 
   return (
-    <div className="rounded-lg border bg-card p-8 shadow-lg">
-      <h1 className="text-2xl font-bold mb-4">{t('title')}</h1>
-      <p className="text-muted-foreground">
-        {t('description')}
+    <div className="space-y-6 rounded-lg border bg-card p-8 shadow-lg">
+      <div className="space-y-2 text-center">
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <p className="text-muted-foreground">
+          {t('description')}
+        </p>
+      </div>
+
+      <SignUpForm/>
+
+      <p className="text-center text-sm text-muted-foreground">
+        {authT('hasAccount')}{' '}
+        <Link className="font-semibold text-primary hover:underline" href="/sign-in">
+          {authT('signIn')}
+        </Link>
       </p>
     </div>
   );

@@ -1,4 +1,9 @@
 {
   "title": "Dashboard",
-  "description": "Welcome to your dashboard. This is a protected page that requires authentication."
+  "description": "Welcome to your dashboard. This is a protected page that requires authentication.",
+  "session": {
+    "title": "Session details",
+    "signedInAs": "Signed in as {email}",
+    "signedOut": "Session not available."
+  }
 }

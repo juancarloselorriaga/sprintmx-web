@@ -1,4 +1,9 @@
 {
   "title": "Panel",
-  "description": "Bienvenido a tu panel. Esta es una página protegida que requiere autenticación."
+  "description": "Bienvenido a tu panel. Esta es una página protegida que requiere autenticación.",
+  "session": {
+    "title": "Detalle de sesión",
+    "signedInAs": "Sesión iniciada como {email}",
+    "signedOut": "No hay una sesión activa."
+  }
 }

@@ -4,11 +4,16 @@
   "signOut": "Cerrar sesión",
   "email": "Correo electrónico",
   "password": "Contraseña",
+  "name": "Nombre completo",
+  "namePlaceholder": "Juan Pérez",
   "rememberMe": "Recordarme",
   "forgotPassword": "¿Olvidaste tu contraseña?",
   "noAccount": "¿No tienes una cuenta?",
   "hasAccount": "¿Ya tienes una cuenta?",
   "createAccount": "Crear cuenta",
   "welcome": "Bienvenido",
-  "welcomeBack": "Bienvenido de nuevo"
+  "welcomeBack": "Bienvenido de nuevo",
+  "continueWithGoogle": "Continuar con Google",
+  "genericError": "Algo salió mal. Inténtalo de nuevo.",
+  "missingFields": "Por favor completa todos los campos requeridos."
 }
