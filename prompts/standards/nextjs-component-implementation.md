@@ -266,6 +266,51 @@ export default async function Page() {
   export const dynamic = 'force-dynamic'       // Force dynamic rendering
   ```
 
+### Dynamic APIs and Partial Prerendering (PPR)
+
+- **Dynamic APIs** (`headers()`, `cookies()`, `searchParams`) opt routes into dynamic rendering
+- Routes using dynamic APIs render on every request, not at build time
+- **Partial Prerendering (PPR)** enables mixing static and dynamic content in the same route:
+  - Static shell (non-dynamic parts) is cached and served instantly
+  - Dynamic sections wrapped in `<Suspense>` stream in when ready
+  - Best of both worlds: fast initial load + fresh dynamic data
+- **Pattern for authentication**:
+  ```tsx
+  // lib/auth/server.ts - uses headers() (dynamic)
+  import { cache } from 'react'
+  import { headers } from 'next/headers'
+
+  export const getCurrentUser = cache(async () => {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    })
+    return session?.user ?? null
+  })
+
+  // app/page.tsx - PPR pattern
+  export default function Page() {
+    return (
+      <>
+        {/* Static shell - cached */}
+        <PublicHeader />
+
+        {/* Dynamic content - streams in */}
+        <Suspense fallback={<UserSkeleton />}>
+          <UserProfile />
+        </Suspense>
+      </>
+    )
+  }
+
+  // components/user-profile.tsx
+  async function UserProfile() {
+    const user = await getCurrentUser() // Uses headers()
+    return <div>{user?.name}</div>
+  }
+  ```
+- **React's `cache()`** deduplicates calls within a single render, not across requests
+- **Key insight**: Using `headers()` in cached functions is by design for auth—wrap consuming components in `<Suspense>` to enable PPR
+
 ### Caching Best Practices
 
 - **Prefer 'use cache' over route segment config** for granular control
@@ -274,6 +319,7 @@ export default async function Page() {
 - **Use 'private' cache** for personalized data
 - **Use 'remote' cache** for expensive operations in dynamic contexts
 - **Combine with React Suspense** for streaming and progressive rendering
+- **Wrap dynamic sections in Suspense** to enable PPR and optimize loading
 
 ### Internationalization with 'use cache'
 
