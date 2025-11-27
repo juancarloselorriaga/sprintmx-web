@@ -43,10 +43,10 @@ export function NavLink({
       href={href}
       aria-label={label}
       title={collapsed ? label : undefined}
+      data-collapsed={collapsed}
       className={cn(
-        'group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all',
+        'group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-300',
         isActive ? activeClassName : inactiveClassName,
-        collapsed && 'justify-center',
         linkClassName
       )}
     >
@@ -59,7 +59,17 @@ export function NavLink({
         )}
       />
 
-      {showLabel && !collapsed && <span>{label}</span>}
+      {showLabel && (
+        <span
+          className={cn(
+            'min-w-0 overflow-hidden whitespace-nowrap transition-[opacity,transform,max-width] duration-300 ease-in-out text-left',
+            collapsed ? 'max-w-0 opacity-0' : 'max-w-[200px] opacity-100'
+          )}
+          style={{ transitionDelay: collapsed ? '0ms' : '120ms' }}
+        >
+          {label}
+        </span>
+      )}
 
       {/* Side indicator bar */}
       {showIndicator && (

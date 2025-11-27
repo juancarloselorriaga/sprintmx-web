@@ -8,5 +8,8 @@
   "help": "Ayuda",
   "dashboard": "Panel",
   "profile": "Perfil",
-  "settings": "Configuración"
+  "settings": "Configuración",
+  "feedback": "Comentarios",
+  "collapseMenu": "Colapsar menú",
+  "expandMenu": "Expandir menú"
 }
