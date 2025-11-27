@@ -66,6 +66,10 @@ export const routing = defineRouting({
     '/events': {
       es: '/eventos',
       en: '/events'
+    },
+    '/verify-email-success': {
+      es: '/verificar-email-exitoso',
+      en: '/verify-email-success'
     }
   }
 });

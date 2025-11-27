@@ -54,9 +54,18 @@ export const auth = betterAuth({
       try {
         const locale = extractLocaleFromRequest(request);
 
+        // Construct the success page URL with proper locale
+        const baseURL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
+        const successURL = `${baseURL}/${locale}/verify-email-success`;
+
+        // Modify the verification URL to include callbackURL parameter
+        const urlObj = new URL(url);
+        urlObj.searchParams.set('callbackURL', successURL);
+        const modifiedURL = urlObj.toString();
+
         await sendVerificationEmail({
           email: user.email,
-          url,
+          url: modifiedURL,
           userName: user.name,
           locale,
         });
