@@ -1,4 +1,4 @@
-import { routing } from '@/i18n/routing';
+import { AppLocale, routing } from '@/i18n/routing';
 
 /**
  * Extracts the locale from a Better Auth request object.
@@ -7,7 +7,7 @@ import { routing } from '@/i18n/routing';
  * @param request - The Better Auth request object
  * @returns The extracted locale or the default locale
  */
-export function extractLocaleFromRequest(request?: Request | { url?: string; headers?: Headers }): string {
+export function extractLocaleFromRequest(request?: Request | { url?: string; headers?: Headers }): AppLocale {
   if (!request) {
     return routing.defaultLocale;
   }
@@ -15,9 +15,9 @@ export function extractLocaleFromRequest(request?: Request | { url?: string; hea
   // Try to extract locale from the URL path (e.g., /es/sign-up)
   const urlMatch = request.url?.match(/\/([a-z]{2})\//);
   if (urlMatch && urlMatch[1]) {
-    const locale = urlMatch[1];
+    const locale = urlMatch[1] as AppLocale;
     // Validate it's a supported locale
-    if (routing.locales.includes(locale as any)) {
+    if (routing.locales.includes(locale)) {
       return locale;
     }
   }
@@ -26,9 +26,9 @@ export function extractLocaleFromRequest(request?: Request | { url?: string; hea
   if (request.headers) {
     const acceptLanguage = request.headers.get?.('accept-language');
     if (acceptLanguage) {
-      const primaryLang = acceptLanguage.split(',')[0].split('-')[0];
+      const primaryLang = acceptLanguage.split(',')[0].split('-')[0] as AppLocale;
       // Validate it's a supported locale
-      if (routing.locales.includes(primaryLang as any)) {
+      if (routing.locales.includes(primaryLang)) {
         return primaryLang;
       }
     }

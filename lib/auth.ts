@@ -53,7 +53,6 @@ export const auth = betterAuth({
     }, request) => {
       try {
         const locale = extractLocaleFromRequest(request);
-        console.log('Locale', locale);
 
         await sendVerificationEmail({
           email: user.email,
@@ -61,7 +60,6 @@ export const auth = betterAuth({
           userName: user.name,
           locale,
         });
-        console.log(`✅ Verification email sent to: ${user.email} (locale: ${locale})`);
       } catch (error) {
         console.error('❌ Failed to send verification email:', error);
         throw error;
