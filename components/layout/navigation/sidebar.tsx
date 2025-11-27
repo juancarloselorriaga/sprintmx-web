@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { NavItem, NavSection, ProtectedNavIconName } from './types';
 import { NavLink } from './nav-link';
+import { NavActionContent, navActionContainer } from './nav-action';
 import {
   FileText,
   LayoutDashboard,
@@ -54,7 +55,7 @@ export function Sidebar({
           data-collapsed={collapsed}
         >
           {/* Navigation Items */}
-          <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-4">
+          <nav className="flex-1 overflow-hidden px-2 py-3 space-y-4">
             {resolvedSections.map((section, sectionIndex) => (
               <div key={sectionIndex} className="space-y-1">
                 {section.titleKey ? (
@@ -103,27 +104,17 @@ export function Sidebar({
             />
             <Button
               variant="ghost"
-              className={cn(
-                'w-full flex items-center gap-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-all duration-300',
-                collapsed ? 'justify-center px-2 gap-2' : 'justify-start px-3'
-              )}
+              className={cn(navActionContainer(), 'w-full text-muted-foreground hover:text-foreground')}
               onClick={() => setCollapsed(!collapsed)}
               aria-label={collapsed ? t('expandMenu') : t('collapseMenu')}
+              data-collapsed={collapsed}
             >
-              {collapsed ? (
-                <PanelLeftOpen className="h-4 w-4"/>
-              ) : (
-                <PanelLeftClose className="h-4 w-4"/>
-              )}
-              <span
-                className={cn(
-                  'min-w-0 overflow-hidden whitespace-nowrap transition-[opacity,transform,max-width] duration-300 ease-in-out',
-                  collapsed ? 'max-w-0 opacity-0' : 'max-w-[200px] opacity-100'
-                )}
-                style={{ transitionDelay: collapsed ? '0ms' : '120ms' }}
-              >
-              {collapsed ? t('expandMenu') : t('collapseMenu')}
-            </span>
+              <NavActionContent
+                icon={collapsed ? PanelLeftOpen : PanelLeftClose}
+                label={t('collapseMenu')}
+                collapsed={collapsed}
+                iconSize={20}
+              />
             </Button>
           </div>
         </aside>
