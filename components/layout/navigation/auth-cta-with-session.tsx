@@ -20,7 +20,7 @@ export function AuthCtaWithSession() {
     <Button
       asChild
       size="sm"
-      className="min-w-[128px] justify-center whitespace-nowrap text-foreground"
+      className="min-w-[128px] justify-center whitespace-nowrap"
     >
       <Link href={href}>
         {label}
