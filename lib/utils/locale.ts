@@ -1,58 +1,73 @@
 import { AppLocale, routing } from '@/i18n/routing';
 
+function isValidLocale(locale: string): locale is AppLocale {
+  return routing.locales.includes(locale as AppLocale);
+}
+
+function extractLocaleFromCookie(cookieHeader: string): AppLocale | null {
+  const localeCookie = cookieHeader
+    .split(';')
+    .map((part) => part.trim())
+    .find((part) => part.startsWith('NEXT_LOCALE='));
+
+  if (!localeCookie) return null;
+
+  const locale = decodeURIComponent(localeCookie.split('=')[1] || '');
+  return isValidLocale(locale) ? locale : null;
+}
+
+function extractLocaleFromUrl(url?: string): AppLocale | null {
+  if (!url) return null;
+
+  const urlMatch = url.match(/\/([a-z]{2})\//);
+  if (!urlMatch?.[1]) return null;
+
+  return isValidLocale(urlMatch[1]) ? urlMatch[1] : null;
+}
+
+function extractLocaleFromAcceptLanguage(acceptLanguage: string): AppLocale | null {
+  const primaryLang = acceptLanguage.split(',')[0].split('-')[0];
+  return isValidLocale(primaryLang) ? primaryLang : null;
+}
+
 /**
  * Extracts the locale from a Better Auth request object.
  * This is used in Better Auth callbacks where next-intl's context is not available.
+ *
+ * Priority order:
+ * 1. NEXT_LOCALE cookie
+ * 2. URL path (e.g., /es/sign-up)
+ * 3. Accept-Language header
+ * 4. Default locale
  *
  * @param request - The Better Auth request object
  * @returns The extracted locale or the default locale
  */
 export function extractLocaleFromRequest(request?: Request | { url?: string; headers?: Headers }): AppLocale {
-  console.log('Request', request)
- if (!request) {
-    return routing.defaultLocale;
-  }
+  if (!request) return routing.defaultLocale;
 
   const headers = request.headers;
-
-  // Check for explicit locale cookie set by next-intl
   const cookieHeader = headers?.get?.('cookie');
+
+  // 1. Check cookie
   if (cookieHeader) {
-    const localeCookie = cookieHeader
-      .split(';')
-      .map((part) => part.trim())
-      .find((part) => part.startsWith('NEXT_LOCALE='));
-
-    if (localeCookie) {
-      const locale = decodeURIComponent(localeCookie.split('=')[1] || '') as AppLocale;
-      if (routing.locales.includes(locale)) {
-        return locale;
-      }
-    }
+    const locale = extractLocaleFromCookie(cookieHeader);
+    if (locale) return locale;
   }
 
-  // Try to extract locale from the URL path (e.g., /es/sign-up)
-  const urlMatch = request.url?.match(/\/([a-z]{2})\//);
-  if (urlMatch && urlMatch[1]) {
-    const locale = urlMatch[1] as AppLocale;
-    // Validate it's a supported locale
-    if (routing.locales.includes(locale)) {
-      return locale;
-    }
-  }
+  // 2. Check URL
+  const urlLocale = extractLocaleFromUrl(request.url);
+  if (urlLocale) return urlLocale;
 
-  // Fallback to Accept-Language header
+  // 3. Check Accept-Language header
   if (headers) {
     const acceptLanguage = headers.get?.('accept-language');
     if (acceptLanguage) {
-      const primaryLang = acceptLanguage.split(',')[0].split('-')[0] as AppLocale;
-      // Validate it's a supported locale
-      if (routing.locales.includes(primaryLang)) {
-        return primaryLang;
-      }
+      const locale = extractLocaleFromAcceptLanguage(acceptLanguage);
+      if (locale) return locale;
     }
   }
 
-  // Final fallback to default locale
+  // 4. Default fallback
   return routing.defaultLocale;
 }

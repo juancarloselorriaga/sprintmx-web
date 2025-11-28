@@ -40,11 +40,17 @@ export async function sendEmail({
 
   try {
     const result = await emailApi.sendTransacEmail({
-      to: [{ email: to, name: toName }],
+      to: [{
+        email: to,
+        name: toName
+      }],
       subject,
       htmlContent,
       textContent,
-      sender: { email: senderEmail, name: senderName },
+      sender: {
+        email: senderEmail,
+        name: senderName
+      },
     });
 
     console.log('✅ Email sent successfully. Message ID:', result.body.messageId);
@@ -55,21 +61,25 @@ export async function sendEmail({
   }
 }
 
-export async function sendVerificationEmail({
-  email,
-  url,
-  userName,
-  locale,
-}: {
+interface VerificationEmailParams {
   email: string;
   url: string;
   userName: string;
   locale: AppLocale;
-}) {
-  const t = await getTranslations({ locale: locale, namespace: 'emails.verification' });
+}
+
+async function buildVerificationTemplateProps(
+  url: string,
+  userName: string,
+  locale: AppLocale
+) {
+  const t = await getTranslations({
+    locale,
+    namespace: 'emails.verification'
+  });
   const currentYear = new Date().getFullYear();
 
-  const templateProps = {
+  return {
     greeting: t('greeting', { userName }),
     message: t('message'),
     button: t('button'),
@@ -78,16 +88,27 @@ export async function sendVerificationEmail({
     footer: t('footer', { year: currentYear }),
     title: t('title'),
     url,
+    locale
   };
+}
 
-  const htmlContent = generateVerificationEmailHTML(templateProps);
-  const textContent = generateVerificationEmailText(templateProps);
+export async function sendVerificationEmail({
+  email,
+  url,
+  userName,
+  locale,
+}: VerificationEmailParams) {
+  const templateProps = await buildVerificationTemplateProps(url, userName, locale);
+  const t = await getTranslations({
+    locale,
+    namespace: 'emails.verification'
+  });
 
   return sendEmail({
     to: email,
     toName: userName,
     subject: t('subject'),
-    htmlContent,
-    textContent,
+    htmlContent: generateVerificationEmailHTML(templateProps),
+    textContent: generateVerificationEmailText(templateProps),
   });
 }

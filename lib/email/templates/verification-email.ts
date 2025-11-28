@@ -1,3 +1,5 @@
+import { AppLocale } from '@/i18n/routing';
+
 interface VerificationEmailTemplateProps {
   greeting: string;
   message: string;
@@ -7,6 +9,7 @@ interface VerificationEmailTemplateProps {
   alternativeText: string;
   footer: string;
   title: string;
+  locale: AppLocale;
 }
 
 export function generateVerificationEmailHTML({
@@ -18,10 +21,11 @@ export function generateVerificationEmailHTML({
   alternativeText,
   footer,
   title,
+  locale
 }: VerificationEmailTemplateProps): string {
   return `
     <!DOCTYPE html>
-    <html>
+    <html lang="${locale}">
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
