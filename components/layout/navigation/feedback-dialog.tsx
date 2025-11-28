@@ -12,7 +12,7 @@ import {
 import { LabeledTextarea } from '@/components/ui/labeled-textarea';
 import { NavActionContent, navActionContainer } from './nav-action';
 import { cn } from '@/lib/utils';
-import type { LucideIcon } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 
@@ -20,12 +20,14 @@ interface FeedbackDialogProps {
   collapsed: boolean;
   label: string;
   icon: LucideIcon;
+  iconSize?: number;
 }
 
 export function FeedbackDialog({
   collapsed,
   label,
-  icon: Icon
+  icon: Icon,
+  iconSize = 20,
 }: FeedbackDialogProps) {
   const t = useTranslations('components.feedback');
   const [open, setOpen] = useState(false);
@@ -61,10 +63,11 @@ export function FeedbackDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
+          type="button"
           variant="ghost"
           className={cn(
-            navActionContainer(collapsed),
-            'w-full text-muted-foreground hover:text-foreground'
+            navActionContainer(),
+            'w-full flex justify-start text-muted-foreground hover:bg-accent hover:text-foreground'
           )}
           title={collapsed ? label : undefined}
           aria-label={label}
@@ -73,9 +76,8 @@ export function FeedbackDialog({
           <NavActionContent
             icon={Icon}
             label={label}
-            collapsedLabel={label}
             collapsed={collapsed}
-            iconSize={20}
+            iconSize={iconSize}
           />
         </Button>
       </DialogTrigger>

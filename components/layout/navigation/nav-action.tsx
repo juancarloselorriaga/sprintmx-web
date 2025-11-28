@@ -33,39 +33,21 @@ export function NavActionContent({
   return (
     <>
       <Icon
-        size={iconSize}
         className={cn(
-          'flex-shrink-0 transition-colors group-hover:text-foreground',
+          `flex-shrink-0 size-${iconSize/4} transition-colors group-hover:text-foreground`,
           iconClassName
         )}
       />
-      <div
+      <span
         className={cn(
-          'relative min-w-0 h-5 flex-1'
+          'min-w-0 overflow-hidden whitespace-nowrap text-left transition-[opacity,transform,max-width] duration-300 ease-in-out',
+          collapsed ? 'max-w-0 opacity-0' : 'max-w-[200px] opacity-100',
+          labelClassName
         )}
+        style={{ transitionDelay: collapsed ? '0ms' : labelDelay }}
       >
-        <span
-          className={cn(
-            'absolute inset-y-0 left-0 right-0 overflow-hidden whitespace-nowrap text-left transition-opacity duration-300 ease-in-out',
-            collapsed ? 'opacity-0' : 'opacity-100',
-            labelClassName
-          )}
-          style={{ transitionDelay: collapsed ? '0ms' : labelDelay }}
-        >
-          {label}
-        </span>
-        <span
-          aria-hidden
-          className={cn(
-            'absolute inset-y-0 left-0 right-0 overflow-hidden whitespace-nowrap text-left transition-opacity duration-300 ease-in-out',
-            collapsed ? 'opacity-100' : 'opacity-0',
-            labelClassName
-          )}
-          style={{ transitionDelay: collapsed ? '120ms' : '0ms' }}
-        >
-          {label}
-        </span>
-      </div>
+        {label}
+      </span>
     </>
   );
 }

@@ -4,6 +4,7 @@ import { Link, usePathname } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
 import type { NavItem } from './types';
+import type { MouseEventHandler } from 'react';
 
 interface NavLinkProps {
   href: NavItem['href'];
@@ -18,6 +19,7 @@ interface NavLinkProps {
   inactiveClassName?: string;
   indicatorClassName?: string;
   showIndicator?: boolean;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
 }
 
 export function NavLink({
@@ -33,6 +35,7 @@ export function NavLink({
   inactiveClassName = 'text-muted-foreground hover:bg-accent hover:text-foreground',
   indicatorClassName,
   showIndicator = true,
+  onClick
 }: NavLinkProps) {
   const pathname = usePathname();
   const itemHref = typeof href === 'string' ? href : href.pathname ?? '/';
@@ -40,6 +43,7 @@ export function NavLink({
 
   return (
     <Link
+      onClick={onClick}
       href={href}
       aria-label={label}
       title={collapsed ? label : undefined}
