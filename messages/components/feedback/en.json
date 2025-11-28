@@ -5,5 +5,7 @@
   "placeholder": "What's working well? What's confusing? What's missing?",
   "hint": "Have an issue? Tell us what happened so we can reach out.",
   "cancel": "Cancel",
-  "send": "Send"
+  "send": "Send",
+  "success": "Thanks for your feedback! We received it.",
+  "error": "We couldn't send your feedback. Please try again."
 }

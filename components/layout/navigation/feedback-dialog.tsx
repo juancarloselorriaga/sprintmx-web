@@ -14,7 +14,10 @@ import { NavActionContent, navActionContainer } from './nav-action';
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { submitContactSubmission } from '@/app/actions/contact-submission';
+import { useTransition } from 'react';
 
 interface FeedbackDialogProps {
   collapsed: boolean;
@@ -32,23 +35,54 @@ export function FeedbackDialog({
   const t = useTranslations('components.feedback');
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [isPending, startTransition] = useTransition();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const resetForm = () => {
     setMessage('');
   };
 
-  const handleSubmit = () => {
-    // TODO: Connect feedback submission to mailing service
-    handleOpenChange(false);
-  };
-
-  const handleOpenChange = (value: boolean) => {
+  const handleOpenChange = useCallback((value: boolean) => {
     setOpen(value);
     if (!value) {
       resetForm();
     }
-  };
+  }, []);
+
+  const handleSubmit = useCallback(async () => {
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage) return;
+
+    const metadata =
+      typeof window !== 'undefined'
+        ? {
+          location: window.location.href,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        }
+        : undefined;
+
+    startTransition(() => {
+      void (async () => {
+        try {
+          const result = await submitContactSubmission({
+            message: trimmedMessage,
+            origin: 'feedback-dialog',
+            metadata,
+          });
+
+          if (!result.ok) {
+            throw new Error(result.error || 'Unknown error');
+          }
+
+          toast.success(t('success'));
+          handleOpenChange(false);
+        } catch (error) {
+          console.error('[FeedbackDialog] Failed to submit feedback', error);
+          toast.error(t('error'));
+        }
+      })();
+    });
+  }, [handleOpenChange, message, t]);
 
   useEffect(() => {
     if (!open) return;
@@ -93,9 +127,9 @@ export function FeedbackDialog({
           <DialogDescription>{t('subtitle')}</DialogDescription>
         </DialogHeader>
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            handleSubmit();
+            await handleSubmit();
           }}
           autoComplete="off"
           data-1p-ignore="true"
@@ -112,6 +146,7 @@ export function FeedbackDialog({
             hint={t('hint')}
             placeholder={t('placeholder')}
             value={message}
+            disabled={isPending}
             autoComplete="off"
             data-1p-ignore="true"
             data-lpignore="true"
@@ -124,8 +159,8 @@ export function FeedbackDialog({
             <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
               {t('cancel')}
             </Button>
-            <Button type="submit" disabled={!message.trim()}>
-              {t('send')}
+            <Button type="submit" disabled={!message.trim() || isPending}>
+              {isPending ? `${t('send')}...` : t('send')}
             </Button>
           </div>
         </form>

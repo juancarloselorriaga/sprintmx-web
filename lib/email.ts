@@ -12,12 +12,55 @@ emailApi.setApiKey(
   process.env.BREVO_API_KEY || ''
 );
 
+export interface EmailRecipient {
+  email: string;
+  name?: string;
+}
+
 interface SendEmailOptions {
-  to: string;
+  to: EmailRecipient | EmailRecipient[] | string | string[];
   subject: string;
   htmlContent: string;
   textContent?: string;
   toName?: string;
+}
+
+function normalizeRecipients(
+  recipients: SendEmailOptions['to'],
+  fallbackName?: string
+): EmailRecipient[] {
+  const normalized = Array.isArray(recipients) ? recipients : [recipients];
+  const cleaned: EmailRecipient[] = [];
+
+  for (const recipient of normalized) {
+    if (typeof recipient === 'string') {
+      const email = recipient.trim();
+      if (email) {
+        cleaned.push({ email, name: fallbackName });
+      }
+      continue;
+    }
+
+    if (recipient) {
+      const email = (recipient as EmailRecipient).email.trim();
+      if (email) {
+        cleaned.push({ email, name: (recipient as EmailRecipient).name });
+      }
+    }
+  }
+
+  return cleaned;
+}
+
+export function getSupportRecipients(): EmailRecipient[] {
+  const value = process.env.BREVO_SUPPORT_RECIPIENTS;
+  if (!value) return [];
+
+  return value
+    .split(/[,;\n]/)
+    .map((email) => email.trim())
+    .filter(Boolean)
+    .map((email) => ({ email }));
 }
 
 export async function sendEmail({
@@ -38,12 +81,14 @@ export async function sendEmail({
     throw new Error('BREVO_API_KEY environment variable is not set');
   }
 
+  const recipients = normalizeRecipients(to, toName);
+  if (recipients.length === 0) {
+    throw new Error('No email recipients provided');
+  }
+
   try {
     const result = await emailApi.sendTransacEmail({
-      to: [{
-        email: to,
-        name: toName
-      }],
+      to: recipients,
       subject,
       htmlContent,
       textContent,
@@ -105,8 +150,7 @@ export async function sendVerificationEmail({
   });
 
   return sendEmail({
-    to: email,
-    toName: userName,
+    to: { email, name: userName },
     subject: t('subject'),
     htmlContent: generateVerificationEmailHTML(templateProps),
     textContent: generateVerificationEmailText(templateProps),

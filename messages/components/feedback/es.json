@@ -5,5 +5,7 @@
   "placeholder": "¿Qué funciona bien? ¿Qué es confuso? ¿Qué falta?",
   "hint": "¿Tienes un problema? Cuéntanos para poder contactarte.",
   "cancel": "Cancelar",
-  "send": "Enviar"
+  "send": "Enviar",
+  "success": "¡Gracias por tus comentarios! Ya los recibimos.",
+  "error": "No pudimos enviar tus comentarios. Inténtalo de nuevo."
 }

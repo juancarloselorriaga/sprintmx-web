@@ -3,6 +3,7 @@ import {
   boolean,
   date,
   decimal,
+  jsonb,
   integer,
   pgTable,
   text,
@@ -161,3 +162,19 @@ export const userRoles = pgTable(
     ),
   }),
 );
+
+export const contactSubmissions = pgTable("contact_submissions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }),
+  email: varchar("email", { length: 255 }),
+  message: text("message").notNull(),
+  origin: varchar("origin", { length: 100 }).notNull(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+  metadata: jsonb("metadata")
+    .$type<Record<string, unknown>>()
+    .notNull()
+    .default({}),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+    .defaultNow()
+    .notNull(),
+});
