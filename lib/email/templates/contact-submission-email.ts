@@ -4,6 +4,7 @@ interface ContactEmailLabels {
   origin: string;
   name: string;
   email: string;
+  preferredLocale: string;
   userId: string;
   createdAt: string;
   message: string;
@@ -18,6 +19,7 @@ interface ContactSubmissionEmailProps {
   origin: string;
   name: string;
   email: string;
+  preferredLocale: string;
   userId: string;
   createdAt: string;
   message: string;
@@ -26,7 +28,21 @@ interface ContactSubmissionEmailProps {
 }
 
 export function renderContactSubmissionEmailHTML(props: ContactSubmissionEmailProps): string {
-  const { locale, title, intro, labels, origin, name, email, userId, createdAt, message, metadataText, footer } = props;
+  const {
+    locale,
+    title,
+    intro,
+    labels,
+    origin,
+    name,
+    email,
+    preferredLocale,
+    userId,
+    createdAt,
+    message,
+    metadataText,
+    footer,
+  } = props;
 
   const escape = (value: string) =>
     value
@@ -70,6 +86,10 @@ export function renderContactSubmissionEmailHTML(props: ContactSubmissionEmailPr
                 <div style="padding: 12px 14px; color: #111827;">${escape(email)}</div>
               </div>
               <div style="display: grid; grid-template-columns: 160px 1fr; border-bottom: 1px solid #e5e7eb;">
+                <div style="padding: 12px 14px; font-weight: 600; color: #374151; border-right: 1px solid #e5e7eb;">${escape(labels.preferredLocale)}</div>
+                <div style="padding: 12px 14px; color: #111827;">${escape(preferredLocale)}</div>
+              </div>
+              <div style="display: grid; grid-template-columns: 160px 1fr; border-bottom: 1px solid #e5e7eb;">
                 <div style="padding: 12px 14px; font-weight: 600; color: #374151; border-right: 1px solid #e5e7eb;">${escape(labels.userId)}</div>
                 <div style="padding: 12px 14px; color: #111827;">${escape(userId)}</div>
               </div>
@@ -103,13 +123,26 @@ export function renderContactSubmissionEmailText(props: {
   origin: string;
   name: string;
   email: string;
+  preferredLocale: string;
   userId: string;
   createdAt: string;
   message: string;
   metadataText: string;
   footer: string;
 }): string {
-  const { intro, labels, origin, name, email, userId, createdAt, message, metadataText, footer } = props;
+  const {
+    intro,
+    labels,
+    origin,
+    name,
+    email,
+    preferredLocale,
+    userId,
+    createdAt,
+    message,
+    metadataText,
+    footer,
+  } = props;
 
   return [
     intro,
@@ -117,6 +150,7 @@ export function renderContactSubmissionEmailText(props: {
     `${labels.origin}: ${origin}`,
     `${labels.name}: ${name}`,
     `${labels.email}: ${email}`,
+    `${labels.preferredLocale}: ${preferredLocale}`,
     `${labels.userId}: ${userId}`,
     `${labels.createdAt}: ${createdAt}`,
     '',

@@ -51,6 +51,7 @@ export async function submitContactSubmission(payload: SubmitContactSubmissionIn
     userId: session?.user?.id,
     metadata: {
       ...(parsed.data.metadata ?? {}),
+      preferredLocale: locale,
       ...collectRequestMetadata(h),
     },
   });

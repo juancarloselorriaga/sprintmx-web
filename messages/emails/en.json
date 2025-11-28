@@ -8,25 +8,5 @@
     "ignoreMessage": "If you didn't create an account on RungoMX, you can safely ignore this email.",
     "alternativeText": "If the button doesn't work, copy and paste this link into your browser:",
     "footer": "© {year} RungoMX. All rights reserved."
-  },
-  "contactSubmission": {
-    "subject": "[{origin}] New contact message",
-    "title": "New contact submission",
-    "intro": "Someone just submitted a message through the site. Here are the details:",
-    "labels": {
-      "origin": "Origin",
-      "name": "Name",
-      "email": "Email",
-      "userId": "User ID",
-      "createdAt": "Created at",
-      "message": "Message",
-      "metadata": "Metadata"
-    },
-    "fallbacks": {
-      "unknown": "Unknown",
-      "anonymous": "Anonymous",
-      "none": "N/A"
-    },
-    "footer": "© {year} RungoMX. All rights reserved."
   }
 }

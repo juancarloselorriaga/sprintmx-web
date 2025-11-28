@@ -3,7 +3,6 @@ import { contactSubmissions } from '@/db/schema';
 import { getSupportRecipients, sendEmail } from '@/lib/email';
 import { renderContactSubmissionEmailHTML, renderContactSubmissionEmailText } from '@/lib/email/templates/contact-submission-email';
 import { routing, type AppLocale } from '@/i18n/routing';
-import { getTranslations } from 'next-intl/server';
 import { z } from 'zod';
 
 export const contactSubmissionSchema = z.object({
@@ -57,7 +56,7 @@ export async function createContactSubmission(input: ContactSubmissionInput) {
 
 export async function notifySupportOfSubmission(
   submission: ContactSubmissionRecord,
-  locale: AppLocale = routing.defaultLocale,
+  userLocale: AppLocale = routing.defaultLocale,
 ): Promise<{ sent: boolean; reason?: string }> {
   const recipients = getSupportRecipients();
 
@@ -66,51 +65,59 @@ export async function notifySupportOfSubmission(
     return { sent: false, reason: 'missing_recipients' };
   }
 
-  const t = await getTranslations({ locale, namespace: 'emails.contactSubmission' });
+  const supportLocale = routing.defaultLocale;
   const metadata = normalizeMetadata(submission.metadata);
-  const metadataText = stringifyMetadata(metadata);
+  const { preferredLocale, ...restMetadata } = metadata as {
+    preferredLocale?: unknown;
+  } & Record<string, unknown>;
+  const preferredLocaleValue =
+    typeof preferredLocale === 'string' ? preferredLocale : userLocale;
+  const metadataText = stringifyMetadata(restMetadata);
   const createdAt =
     submission.createdAt instanceof Date
       ? submission.createdAt.toISOString()
       : new Date().toISOString();
 
-  const subject = t('subject', { origin: submission.origin });
+  const subject = `[${submission.origin}] Nuevo mensaje de contacto`;
   const labels = {
-    origin: t('labels.origin'),
-    name: t('labels.name'),
-    email: t('labels.email'),
-    userId: t('labels.userId'),
-    createdAt: t('labels.createdAt'),
-    message: t('labels.message'),
-    metadata: t('labels.metadata'),
+    origin: 'Origen',
+    name: 'Nombre',
+    email: 'Email',
+    preferredLocale: 'Idioma preferido',
+    userId: 'ID de usuario',
+    createdAt: 'Creado',
+    message: 'Mensaje',
+    metadata: 'Metadata',
   };
 
   const htmlContent = renderContactSubmissionEmailHTML({
-    locale,
-    title: t('title'),
-    intro: t('intro'),
+    locale: supportLocale,
+    title: 'Nueva solicitud de contacto',
+    intro: 'Alguien envió un mensaje desde el sitio. Estos son los detalles:',
     labels,
     origin: submission.origin,
-    name: submission.name || t('fallbacks.unknown'),
-    email: submission.email || t('fallbacks.unknown'),
-    userId: submission.userId || t('fallbacks.anonymous'),
+    name: submission.name || 'Desconocido',
+    email: submission.email || 'Desconocido',
+    preferredLocale: preferredLocaleValue,
+    userId: submission.userId || 'Anónimo',
     createdAt,
     message: submission.message,
-    metadataText: metadataText || t('fallbacks.none'),
-    footer: t('footer', { year: new Date().getFullYear() }),
+    metadataText: metadataText || 'N/A',
+    footer: `© ${new Date().getFullYear()} RungoMX. Todos los derechos reservados.`,
   });
 
   const textContent = renderContactSubmissionEmailText({
-    intro: t('intro'),
+    intro: 'Alguien envió un mensaje desde el sitio. Estos son los detalles:',
     labels,
     origin: submission.origin,
-    name: submission.name || t('fallbacks.unknown'),
-    email: submission.email || t('fallbacks.unknown'),
-    userId: submission.userId || t('fallbacks.anonymous'),
+    name: submission.name || 'Desconocido',
+    email: submission.email || 'Desconocido',
+    preferredLocale: preferredLocaleValue,
+    userId: submission.userId || 'Anónimo',
     createdAt,
     message: submission.message,
-    metadataText: metadataText || t('fallbacks.none'),
-    footer: t('footer', { year: new Date().getFullYear() }),
+    metadataText: metadataText || 'N/A',
+    footer: `© ${new Date().getFullYear()} RungoMX. Todos los derechos reservados.`,
   });
 
   await sendEmail({
