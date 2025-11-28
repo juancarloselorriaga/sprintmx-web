@@ -19,8 +19,7 @@ export const config = {
      * - Static files (containing a dot)
      */
     '/((?!api|trpc|_next|_vercel|.*\\..*).*)'
-  ],
-  runtime: 'nodejs'
+  ]
 };
 
 export async function proxy(req: NextRequest) {
