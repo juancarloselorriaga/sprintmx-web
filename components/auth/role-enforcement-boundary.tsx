@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { CheckCircle2, LogOut, Shield } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState, useTransition, type ReactNode } from 'react';
+import { useOnboardingOverrides } from './onboarding-context';
 
 const DEFAULT_PERMISSIONS: PermissionSet = {
   canAccessAdminArea: false,
@@ -83,6 +84,7 @@ export default function RoleEnforcementBoundary({ children }: { children: ReactN
     [availableExternalRoles]
   );
   const hasOptions = roleOptions.length > 0;
+  const { setProfileStatusOverride } = useOnboardingOverrides();
 
   useEffect(() => {
     setNeedsRoleAssignment(
@@ -142,6 +144,7 @@ export default function RoleEnforcementBoundary({ children }: { children: ReactN
 
       setNeedsRoleAssignment(result.needsRoleAssignment);
       setSelectedRoles(result.canonicalRoles.filter((role) => role.startsWith('external.')));
+      setProfileStatusOverride(result.profileStatus);
       router.refresh();
     });
   };

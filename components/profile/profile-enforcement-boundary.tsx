@@ -21,6 +21,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { CheckCircle2, LogOut, ShieldAlert } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState, useTransition } from 'react';
+import { useOnboardingOverrides } from '@/components/auth/onboarding-context';
 
 type ProfileFormState = {
   phone: string;
@@ -470,6 +471,7 @@ export default function ProfileEnforcementBoundary({ children }: ProfileEnforcem
   const [profileOverride, setProfileOverride] = useState<ProfileRecord | null>(null);
   const [capturedRoute, setCapturedRoute] = useState<string | null>(null);
   const user = data?.user ?? null;
+  const { profileStatusOverride } = useOnboardingOverrides();
   const profileMetadata = (data?.profileMetadata ??
     (user as { profileMetadata?: ProfileMetadata } | null)?.profileMetadata ??
     FALLBACK_METADATA) as ProfileMetadata;
@@ -482,7 +484,7 @@ export default function ProfileEnforcementBoundary({ children }: ProfileEnforcem
     false;
   const isInternal = user?.isInternal ??
     (data as { isInternal?: boolean } | undefined)?.isInternal ?? false;
-  const profileStatus = overrideStatus ?? user?.profileStatus ?? DEFAULT_STATUS;
+  const profileStatus = overrideStatus ?? profileStatusOverride ?? user?.profileStatus ?? DEFAULT_STATUS;
   const profile = profileOverride ?? profileFromSession;
   const shouldEnforce = !isInternal && !needsRoleAssignment && profileStatus.mustCompleteProfile;
   const intendedRoute = capturedRoute ?? (shouldEnforce ? toInternalPath(pathname) : null);
