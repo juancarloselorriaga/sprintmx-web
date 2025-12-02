@@ -4,17 +4,26 @@ import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { signIn } from '@/lib/auth/client';
+import { routing } from '@/i18n/routing';
 import { Loader2, Lock, LogIn, Mail } from 'lucide-react';
 import { FormEvent, useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 
-export function SignInForm() {
+type SignInFormProps = {
+  callbackPath?: string;
+};
+
+export function SignInForm({ callbackPath }: SignInFormProps) {
   const t = useTranslations('auth');
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const isAppPathname = (value: string): value is keyof typeof routing.pathnames =>
+    Object.prototype.hasOwnProperty.call(routing.pathnames, value);
+  const targetPath: keyof typeof routing.pathnames =
+    callbackPath && isAppPathname(callbackPath) ? callbackPath : '/dashboard';
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -25,6 +34,7 @@ export function SignInForm() {
         const { error: signInError } = await signIn.email({
           email,
           password,
+          callbackURL: targetPath,
         });
 
         if (signInError) {
@@ -33,7 +43,7 @@ export function SignInForm() {
         }
 
         router.refresh();
-        router.push('/dashboard');
+        router.push(targetPath);
       } catch {
         setError(t('genericError'));
       }
@@ -46,6 +56,7 @@ export function SignInForm() {
       try {
         const { error: signInError } = await signIn.social({
           provider: 'google',
+          callbackURL: targetPath,
         });
 
         if (signInError) {
@@ -54,7 +65,7 @@ export function SignInForm() {
         }
 
         router.refresh();
-        router.push('/dashboard');
+        router.push(targetPath);
       } catch {
         setError(t('genericError'));
       }

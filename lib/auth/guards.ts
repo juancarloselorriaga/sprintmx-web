@@ -1,0 +1,55 @@
+import type { ProfileStatus } from '@/lib/profiles';
+import { getAuthContext, type AuthContext } from './server';
+import type { Session } from './types';
+
+export class UnauthenticatedError extends Error {
+  readonly code = 'UNAUTHENTICATED';
+
+  constructor(message = 'Authentication required') {
+    super(message);
+  }
+}
+
+export type AuthenticatedContext = AuthContext & {
+  session: Session;
+  user: NonNullable<AuthContext['user']>;
+};
+
+export class ProfileIncompleteError extends Error {
+  readonly code = 'PROFILE_INCOMPLETE';
+  readonly profileStatus: ProfileStatus;
+
+  constructor(profileStatus: ProfileStatus, message = 'Profile is incomplete') {
+    super(message);
+    this.profileStatus = profileStatus;
+  }
+}
+
+export async function requireAuthenticatedUser(): Promise<AuthenticatedContext> {
+  const context = await getAuthContext();
+
+  if (!context.user || !context.session) {
+    throw new UnauthenticatedError();
+  }
+
+  return {
+    ...context,
+    user: context.user,
+    session: context.session,
+  };
+}
+
+// Guard exported for server actions and API handlers; may be imported later even if unused locally.
+export async function requireProfileCompleteUser(): Promise<AuthenticatedContext> {
+  const context = await requireAuthenticatedUser();
+
+  if (context.isInternal) {
+    return context;
+  }
+
+  if (context.profileStatus.mustCompleteProfile) {
+    throw new ProfileIncompleteError(context.profileStatus);
+  }
+
+  return context;
+}

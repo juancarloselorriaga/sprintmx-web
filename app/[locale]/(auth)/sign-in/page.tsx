@@ -1,5 +1,6 @@
 import { SignInForm } from '@/components/auth/sign-in-form';
 import { Link } from '@/i18n/navigation';
+import { routing } from '@/i18n/routing';
 import { LocalePageProps } from '@/types/next';
 import { configPageLocale } from '@/utils/config-page-locale';
 import { createLocalizedPageMetadata } from '@/utils/seo';
@@ -17,13 +18,23 @@ export async function generateMetadata({ params }: LocalePageProps): Promise<Met
   );
 }
 
-export default async function SignInPage({ params, searchParams }: LocalePageProps & { searchParams?: Promise<{ reset?: string }> }) {
+export default async function SignInPage({
+  params,
+  searchParams,
+}: LocalePageProps & { searchParams?: Promise<{ reset?: string; callbackURL?: string }> }) {
   await configPageLocale(params, { pathname: '/sign-in' });
   const t = await getTranslations('pages.signIn');
   const authT = await getTranslations('auth');
 
   const resolvedSearchParams = await searchParams;
   const resetSuccess = resolvedSearchParams?.reset === 'success';
+  const callbackURL = resolvedSearchParams?.callbackURL;
+  const isAppPathname = (value: string): value is keyof typeof routing.pathnames =>
+    Object.prototype.hasOwnProperty.call(routing.pathnames, value);
+  const callbackPath = callbackURL && isAppPathname(callbackURL) ? callbackURL : undefined;
+  const signUpHref = callbackPath
+    ? ({ pathname: '/sign-up', query: { callbackURL: callbackPath } } as const)
+    : '/sign-up';
 
   return (
     <div className="space-y-6 rounded-lg border bg-card p-8 shadow-lg">
@@ -46,11 +57,11 @@ export default async function SignInPage({ params, searchParams }: LocalePagePro
         </p>
       </div>
 
-      <SignInForm/>
+      <SignInForm callbackPath={callbackPath}/>
 
       <p className="text-center text-sm text-muted-foreground">
         {authT('noAccount')}{' '}
-        <Link className="font-semibold text-primary hover:underline" href="/sign-up">
+        <Link className="font-semibold text-primary hover:underline" href={signUpHref}>
           {authT('createAccount')}
         </Link>
       </p>

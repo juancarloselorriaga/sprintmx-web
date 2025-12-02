@@ -3,11 +3,16 @@
 import { Button } from '@/components/ui/button';
 import { useRouter } from '@/i18n/navigation';
 import { signIn, signUp } from '@/lib/auth/client';
+import { routing } from '@/i18n/routing';
 import { Loader2, Lock, Mail, UserRoundPlus } from 'lucide-react';
 import { FormEvent, useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 
-export function SignUpForm() {
+type SignUpFormProps = {
+  callbackPath?: string;
+};
+
+export function SignUpForm({ callbackPath }: SignUpFormProps) {
   const t = useTranslations('auth');
   const router = useRouter();
   const [name, setName] = useState('');
@@ -15,6 +20,10 @@ export function SignUpForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const isAppPathname = (value: string): value is keyof typeof routing.pathnames =>
+    Object.prototype.hasOwnProperty.call(routing.pathnames, value);
+  const targetPath: keyof typeof routing.pathnames =
+    callbackPath && isAppPathname(callbackPath) ? callbackPath : '/dashboard';
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -31,6 +40,7 @@ export function SignUpForm() {
           name,
           email,
           password,
+          callbackURL: targetPath,
         });
 
         if (signUpError) {
@@ -39,7 +49,7 @@ export function SignUpForm() {
         }
 
         router.refresh();
-        router.push('/dashboard');
+        router.push(targetPath);
       } catch {
         setError(t('genericError'));
       }
@@ -52,6 +62,7 @@ export function SignUpForm() {
       try {
         const { error: signInError } = await signIn.social({
           provider: 'google',
+          callbackURL: targetPath,
         });
 
         if (signInError) {
@@ -60,7 +71,7 @@ export function SignUpForm() {
         }
 
         router.refresh();
-        router.push('/dashboard');
+        router.push(targetPath);
       } catch {
         setError(t('genericError'));
       }

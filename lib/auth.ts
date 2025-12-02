@@ -1,8 +1,9 @@
 import { db } from '@/db';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { haveIBeenPwned } from 'better-auth/plugins';
+import { customSession, haveIBeenPwned } from 'better-auth/plugins';
 import { sendVerificationEmail, sendPasswordResetEmail } from '@/lib/email';
+import { resolveUserContext } from '@/lib/auth/user-context';
 import { extractLocaleFromRequest, extractLocaleFromCallbackURL } from '@/lib/utils/locale';
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
@@ -56,6 +57,20 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    customSession(async ({ user, session }) => {
+      const { roles, isInternal, profileStatus } = await resolveUserContext(user ?? null);
+
+      return {
+        roles,
+        isInternal,
+        user: {
+          ...user,
+          isInternal,
+          profileStatus,
+        },
+        session,
+      };
+    }),
     haveIBeenPwned({
       paths: [
         '/sign-up/email',

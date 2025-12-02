@@ -9,7 +9,9 @@ export const handleAuthRedirects = async (req: NextRequest, context: RequestCont
   const hasSessionCookie = Boolean(sessionCookie);
 
   if (isProtectedRoute(context.internalPath) && !hasSessionCookie) {
-    return NextResponse.redirect(buildRedirectUrl(req, '/sign-in', context.locale));
+    const redirectUrl = buildRedirectUrl(req, '/sign-in', context.locale);
+    redirectUrl.searchParams.set('callbackURL', context.internalPath);
+    return NextResponse.redirect(redirectUrl);
   }
 
   if (isAuthRoute(context.internalPath) && hasSessionCookie) {

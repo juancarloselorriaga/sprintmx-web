@@ -1,5 +1,6 @@
 import { SignUpForm } from '@/components/auth/sign-up-form';
 import { Link } from '@/i18n/navigation';
+import { routing } from '@/i18n/routing';
 import { LocalePageProps } from '@/types/next';
 import { configPageLocale } from '@/utils/config-page-locale';
 import { createLocalizedPageMetadata } from '@/utils/seo';
@@ -16,10 +17,21 @@ export async function generateMetadata({ params }: LocalePageProps): Promise<Met
   );
 }
 
-export default async function SignUpPage({ params }: LocalePageProps) {
+export default async function SignUpPage({
+  params,
+  searchParams,
+}: LocalePageProps & { searchParams?: Promise<{ callbackURL?: string }> }) {
   await configPageLocale(params, { pathname: '/sign-up' });
   const t = await getTranslations('pages.signUp');
   const authT = await getTranslations('auth');
+  const resolvedSearchParams = await searchParams;
+  const callbackURL = resolvedSearchParams?.callbackURL;
+  const isAppPathname = (value: string): value is keyof typeof routing.pathnames =>
+    Object.prototype.hasOwnProperty.call(routing.pathnames, value);
+  const callbackPath = callbackURL && isAppPathname(callbackURL) ? callbackURL : undefined;
+  const signInHref = callbackPath
+    ? ({ pathname: '/sign-in', query: { callbackURL: callbackPath } } as const)
+    : '/sign-in';
 
   return (
     <div className="space-y-6 rounded-lg border bg-card p-8 shadow-lg">
@@ -30,11 +42,11 @@ export default async function SignUpPage({ params }: LocalePageProps) {
         </p>
       </div>
 
-      <SignUpForm/>
+      <SignUpForm callbackPath={callbackPath}/>
 
       <p className="text-center text-sm text-muted-foreground">
         {authT('hasAccount')}{' '}
-        <Link className="font-semibold text-primary hover:underline" href="/sign-in">
+        <Link className="font-semibold text-primary hover:underline" href={signInHref}>
           {authT('signIn')}
         </Link>
       </p>

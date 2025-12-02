@@ -4,6 +4,7 @@ import { createContactSubmission, notifySupportOfSubmission } from '@/lib/contac
 import { auth } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { extractLocaleFromRequest } from '@/lib/utils/locale';
+import { EMPTY_PROFILE_STATUS } from '@/lib/auth/user-context';
 import { headers } from 'next/headers';
 
 jest.mock('@/lib/contact-submissions', () => {
@@ -17,7 +18,7 @@ jest.mock('@/lib/contact-submissions', () => {
     ),
     message: z.string().trim().min(1).max(5000),
     origin: z.string().trim().min(1).max(100).default('unknown'),
-    userId: z.string().uuid().optional(),
+    userId: z.uuid().optional(),
     metadata: z.record(z.string(), z.any()).optional(),
     // Allow any honeypot string so the action's
     // explicit honeypot check can handle bot detection.
@@ -186,6 +187,8 @@ describe('submitContactSubmission', () => {
       })
     );
     const rateLimitedSession = {
+      roles: [],
+      isInternal: false,
       session: {
         id: 'session-789',
         createdAt: new Date('2024-01-01T00:00:00.000Z'),
@@ -204,6 +207,8 @@ describe('submitContactSubmission', () => {
         updatedAt: new Date('2024-01-02T00:00:00.000Z'),
         emailVerified: true,
         image: null,
+        isInternal: false,
+        profileStatus: EMPTY_PROFILE_STATUS,
       },
     } satisfies SessionResult;
     mockGetSession.mockResolvedValue(rateLimitedSession);
@@ -264,6 +269,8 @@ describe('submitContactSubmission', () => {
     );
     mockLocale.mockReturnValue('en');
     const authenticatedSession = {
+      roles: [],
+      isInternal: false,
       session: {
         id: 'session-123',
         createdAt: new Date('2024-01-01T00:00:00.000Z'),
@@ -282,6 +289,8 @@ describe('submitContactSubmission', () => {
         updatedAt: new Date('2024-01-02T00:00:00.000Z'),
         emailVerified: true,
         image: null,
+        isInternal: false,
+        profileStatus: EMPTY_PROFILE_STATUS,
       },
     } satisfies SessionResult;
     mockGetSession.mockResolvedValue(authenticatedSession);

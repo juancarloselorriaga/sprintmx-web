@@ -11,6 +11,8 @@ import { checkRateLimit } from '@/lib/rate-limit';
 import { headers } from 'next/headers';
 import { extractLocaleFromRequest } from '@/lib/utils/locale';
 import { z } from 'zod';
+import { requireProfileCompleteUser, ProfileIncompleteError } from '@/lib/auth/guards';
+import { getAuthContext } from '@/lib/auth/server';
 
 const submitSchema = contactSubmissionSchema.omit({ userId: true });
 export type SubmitContactSubmissionInput = z.infer<typeof submitSchema>;
@@ -58,7 +60,27 @@ export async function submitContactSubmission(payload: SubmitContactSubmissionIn
       headers: h,
       url: h.get('referer') ?? undefined,
     });
-    const session = await auth.api.getSession({ headers: h }).catch(() => null);
+    const authContext = await getAuthContext();
+
+    if (authContext.user) {
+      try {
+        await requireProfileCompleteUser();
+      } catch (error) {
+        if (error instanceof ProfileIncompleteError) {
+          return {
+            ok: false as const,
+            error: 'PROFILE_INCOMPLETE',
+            profileStatus: error.profileStatus,
+          };
+        }
+        // Ignore unauthenticated errors to allow anonymous submissions; other errors propagate
+      }
+    }
+
+    let session = authContext.session;
+    if (!session) {
+      session = await auth.api.getSession({ headers: h }).catch(() => null);
+    }
     const metadata = collectRequestMetadata(h);
 
     // 3. Check rate limits
