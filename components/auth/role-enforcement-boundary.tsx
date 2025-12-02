@@ -84,15 +84,17 @@ export default function RoleEnforcementBoundary({ children }: { children: ReactN
     [availableExternalRoles]
   );
   const hasOptions = roleOptions.length > 0;
-  const { setProfileStatusOverride } = useOnboardingOverrides();
+  const { setProfileStatusOverride, setNeedsRoleAssignmentOverride } = useOnboardingOverrides();
 
   useEffect(() => {
-    setNeedsRoleAssignment(
+    const incomingNeedsRoleAssignment =
       (data as { needsRoleAssignment?: boolean } | undefined)?.needsRoleAssignment ??
       (user as { needsRoleAssignment?: boolean } | null)?.needsRoleAssignment ??
-      false
-    );
-  }, [data, user]);
+      false;
+
+    setNeedsRoleAssignment(incomingNeedsRoleAssignment);
+    setNeedsRoleAssignmentOverride(incomingNeedsRoleAssignment);
+  }, [data, setNeedsRoleAssignmentOverride, user]);
 
   useEffect(() => {
     setSelectedRoles(externalRolesFromSession);
@@ -143,6 +145,7 @@ export default function RoleEnforcementBoundary({ children }: { children: ReactN
       }
 
       setNeedsRoleAssignment(result.needsRoleAssignment);
+      setNeedsRoleAssignmentOverride(result.needsRoleAssignment);
       setSelectedRoles(result.canonicalRoles.filter((role) => role.startsWith('external.')));
       setProfileStatusOverride(result.profileStatus);
       router.refresh();

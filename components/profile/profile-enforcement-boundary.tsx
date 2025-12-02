@@ -471,7 +471,7 @@ export default function ProfileEnforcementBoundary({ children }: ProfileEnforcem
   const [profileOverride, setProfileOverride] = useState<ProfileRecord | null>(null);
   const [capturedRoute, setCapturedRoute] = useState<string | null>(null);
   const user = data?.user ?? null;
-  const { profileStatusOverride } = useOnboardingOverrides();
+  const { profileStatusOverride, needsRoleAssignmentOverride } = useOnboardingOverrides();
   const profileMetadata = (data?.profileMetadata ??
     (user as { profileMetadata?: ProfileMetadata } | null)?.profileMetadata ??
     FALLBACK_METADATA) as ProfileMetadata;
@@ -486,7 +486,8 @@ export default function ProfileEnforcementBoundary({ children }: ProfileEnforcem
     (data as { isInternal?: boolean } | undefined)?.isInternal ?? false;
   const profileStatus = overrideStatus ?? profileStatusOverride ?? user?.profileStatus ?? DEFAULT_STATUS;
   const profile = profileOverride ?? profileFromSession;
-  const shouldEnforce = !isInternal && !needsRoleAssignment && profileStatus.mustCompleteProfile;
+  const effectiveNeedsRoleAssignment = needsRoleAssignmentOverride ?? needsRoleAssignment;
+  const shouldEnforce = !isInternal && !effectiveNeedsRoleAssignment && profileStatus.mustCompleteProfile;
   const intendedRoute = capturedRoute ?? (shouldEnforce ? toInternalPath(pathname) : null);
 
   // Capture the first intended route when enforcement activates and keep it stable for the session.
