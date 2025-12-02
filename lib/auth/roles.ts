@@ -128,7 +128,7 @@ const ROLE_NAME_MAP: Record<string, CanonicalRole> = Object.values(ROLE_REGISTRY
 
 const DEFAULT_EXTERNAL_ROLE =
   Object.values(ROLE_REGISTRY).find((role) => role.category === 'external' && role.default) ??
-  ROLE_REGISTRY['external.volunteer'];
+  ROLE_REGISTRY['external.athlete'];
 
 const unique = <T>(values: Iterable<T>) => Array.from(new Set(values));
 

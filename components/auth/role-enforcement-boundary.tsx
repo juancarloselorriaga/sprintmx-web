@@ -159,7 +159,7 @@ export default function RoleEnforcementBoundary({ children }: { children: ReactN
     <>
       {children}
       <Dialog open={shouldEnforce} onOpenChange={() => undefined}>
-        <DialogContent className="max-w-2xl" showCloseButton={false}>
+        <DialogContent className="md:min-w-2xl sm:min-w-auto" showCloseButton={false}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary"/>
@@ -212,24 +212,26 @@ export default function RoleEnforcementBoundary({ children }: { children: ReactN
               )}
             </div>
 
-            <div
-              className="flex flex-col gap-3 border-t pt-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-2 border-t pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
               <Button
                 type="button"
                 variant="ghost"
-                className="justify-start gap-2 text-sm text-muted-foreground"
+                className="w-full justify-center gap-2 text-sm text-muted-foreground sm:w-auto"
                 onClick={handleSignOut}
               >
                 <LogOut className="h-4 w-4"/>
                 {t('roleAssignment.actions.signOut')}
               </Button>
 
-              <div className="flex items-center gap-2">
-                <Button type="button" onClick={handleSubmit} disabled={isSubmitting || !hasOptions}>
-                  {isSubmitting ? <Spinner className="mr-2 h-4 w-4"/> : null}
-                  {t('roleAssignment.actions.save')}
-                </Button>
-              </div>
+              <Button
+                type="button"
+                className="w-full sm:w-auto"
+                onClick={handleSubmit}
+                disabled={isSubmitting || !hasOptions}
+              >
+                {isSubmitting ? <Spinner className="mr-2 h-4 w-4"/> : null}
+                {t('roleAssignment.actions.save')}
+              </Button>
             </div>
           </div>
         </DialogContent>
