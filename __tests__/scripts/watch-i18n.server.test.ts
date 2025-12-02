@@ -47,7 +47,6 @@ describe('watch-i18n script', () => {
   it('watches JSON files and namespace directories', async () => {
     jest.isolateModules(() => {
       // Importing the script should register watchers and trigger initial generation
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       require('@/scripts/watch-i18n');
     });
 

@@ -12,7 +12,7 @@ describe('auth actions - password reset', () => {
   const mockCookies = cookies as unknown as jest.Mock;
 
   beforeEach(() => {
-    global.fetch = jest.fn() as any;
+    global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
     mockCookies.mockReturnValue({
       get: jest.fn(() => undefined),
     });
