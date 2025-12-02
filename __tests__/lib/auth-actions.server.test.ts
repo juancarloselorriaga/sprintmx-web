@@ -168,8 +168,11 @@ describe('auth actions - password reset', () => {
       });
     });
 
-    it('includes NEXT_LOCALE cookie when present', async () => {
-      const getMock = jest.fn(() => ({ value: 'en' }));
+    it.each([
+      ['en'],
+      ['es'],
+    ])('includes NEXT_LOCALE cookie when present (%s)', async (locale) => {
+      const getMock = jest.fn(() => ({ value: locale as string }));
       mockCookies.mockReturnValue({
         get: getMock,
       });
@@ -187,7 +190,7 @@ describe('auth actions - password reset', () => {
         expect.stringContaining('/api/auth/request-password-reset'),
         expect.objectContaining({
           headers: expect.objectContaining({
-            Cookie: 'NEXT_LOCALE=en',
+            Cookie: `NEXT_LOCALE=${locale}`,
           }),
         })
       );
