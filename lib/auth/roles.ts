@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { roles, userRoles } from '@/db/schema';
-import type { ProfileRequirementCategory } from '@/lib/profiles';
+import type { ProfileRequirementCategory } from '@/lib/profiles/requirements';
 import { eq, inArray, and } from 'drizzle-orm';
 
 export type CanonicalRole =
@@ -309,6 +309,67 @@ export async function updateUserExternalRoles(userId: string, canonicalRoles: Ca
       .values(roleIdsToInsert.map((roleId) => ({ userId, roleId })))
       .onConflictDoNothing();
   }
+}
+
+export async function updateUserInternalRoles(userId: string, canonicalRoles: CanonicalRole[]) {
+  const internalRoles = canonicalRoles.filter(
+    (role) => ROLE_REGISTRY[role]?.category === 'internal'
+  );
+  const desiredNames = unique(
+    internalRoles
+      .map((role) => ROLE_REGISTRY[role]?.sourceNames[0])
+      .filter((name): name is string => Boolean(name))
+  );
+
+  if (desiredNames.length === 0) {
+    return;
+  }
+
+  const existingRoles = await db
+    .select({
+      id: roles.id,
+      name: roles.name,
+    })
+    .from(roles)
+    .where(inArray(roles.name, desiredNames));
+
+  const existingNameSet = new Set(existingRoles.map(({ name }) => name.toLowerCase()).filter(Boolean));
+  const namesToInsert = desiredNames.filter(
+    (name) => !existingNameSet.has(name.toLowerCase())
+  );
+
+  if (namesToInsert.length) {
+    await db
+      .insert(roles)
+      .values(
+        namesToInsert.map((name) => ({
+          name,
+          description: `internal role ${name}`,
+        }))
+      )
+      .onConflictDoNothing();
+  }
+
+  const ensuredRoleRows = await db
+    .select({ id: roles.id, name: roles.name })
+    .from(roles)
+    .where(inArray(roles.name, desiredNames));
+
+  const roleIdByName = new Map(
+    ensuredRoleRows.map(({ id, name }) => [name.toLowerCase(), id])
+  );
+  const roleIds = desiredNames
+    .map((name) => roleIdByName.get(name.toLowerCase()))
+    .filter((id): id is string => Boolean(id));
+
+  if (roleIds.length === 0) {
+    return;
+  }
+
+  await db
+    .insert(userRoles)
+    .values(roleIds.map((roleId) => ({ userId, roleId })))
+    .onConflictDoNothing();
 }
 
 export function getRoleDefinition(role: CanonicalRole) {
