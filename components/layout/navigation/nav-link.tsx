@@ -39,7 +39,8 @@ export function NavLink({
 }: NavLinkProps) {
   const pathname = usePathname();
   const itemHref = typeof href === 'string' ? href : href.pathname ?? '/';
-  const isActive = pathname === itemHref || pathname.startsWith(`${itemHref}/`);
+  const allowPrefixMatch = itemHref !== '/admin';
+  const isActive = pathname === itemHref || (allowPrefixMatch && pathname.startsWith(`${itemHref}/`));
 
   return (
     <Link
