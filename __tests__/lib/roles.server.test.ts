@@ -138,7 +138,6 @@ describe('lib/auth/roles', () => {
     expect(result.permissions.canAccessUserArea).toBe(true);
     expect(result.profileRequirementCategories).toEqual([
       'basicContact',
-      'emergencyContact',
       'demographics',
     ]);
   });
@@ -166,8 +165,8 @@ describe('lib/auth/roles', () => {
     expect(result.permissions.canAccessUserArea).toBe(true);
     expect(result.profileRequirementCategories).toEqual([
       'basicContact',
-      'emergencyContact',
       'demographics',
+      'emergencyContact',
       'physicalAttributes',
     ]);
   });

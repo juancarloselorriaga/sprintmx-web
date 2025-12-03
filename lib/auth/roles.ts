@@ -77,7 +77,7 @@ const ROLE_REGISTRY: Record<CanonicalRole, RoleDefinition> = {
     category: 'external',
     kind: 'organizer',
     sourceNames: ['organizer'],
-    profileRequirementCategories: ['basicContact', 'emergencyContact', 'demographics'],
+    profileRequirementCategories: ['basicContact', 'demographics'],
     permissions: {
       ...DEFAULT_PERMISSIONS,
       canAccessUserArea: true,
@@ -108,7 +108,7 @@ const ROLE_REGISTRY: Record<CanonicalRole, RoleDefinition> = {
     kind: 'volunteer',
     default: true,
     sourceNames: ['volunteer', 'user'],
-    profileRequirementCategories: ['basicContact', 'emergencyContact', 'demographics'],
+    profileRequirementCategories: ['basicContact', 'demographics'],
     permissions: {
       ...DEFAULT_PERMISSIONS,
       canAccessUserArea: true,
