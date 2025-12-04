@@ -18,10 +18,12 @@ type AdminUsersPageProps = LocalePageProps & {
 
 export async function generateMetadata({ params }: LocalePageProps): Promise<Metadata> {
   const { locale } = await params;
+  const { getTranslations } = await import('next-intl/server');
+  const t = await getTranslations({ locale, namespace: 'pages.adminUsers.metadata' });
 
   return createLocalizedPageMetadata(locale, '/admin/users', () => ({
-    title: 'Admin users',
-    description: 'Manage internal administrators and staff accounts.',
+    title: t('title'),
+    description: t('description'),
   }), { robots: { index: false, follow: false } });
 }
 

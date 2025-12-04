@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { AdminUserRow } from '@/app/actions/admin-users-list';
 import { UsersEmptyState } from '@/components/admin/users/users-empty-state';
 import { UsersTable } from '@/components/admin/users/users-table';
@@ -32,18 +33,6 @@ function deserializeUsers(users: SerializedAdminUserRow[]): AdminUserRow[] {
   }));
 }
 
-function listErrorToMessage(error: ListInternalUsersError) {
-  if (!error) return null;
-  switch (error) {
-    case 'UNAUTHENTICATED':
-      return 'Your session expired. Please sign in again.';
-    case 'FORBIDDEN':
-      return 'You are not allowed to view internal users.';
-    default:
-      return 'Could not load internal users right now. Please try again.';
-  }
-}
-
 export function AdminUsersClient({
   initialUsers,
   initialError,
@@ -52,11 +41,23 @@ export function AdminUsersClient({
   currentUserId,
   currentUserEmail,
 }: AdminUsersClientProps) {
+  const t = useTranslations('pages.adminUsers');
   const [createOpen, setCreateOpen] = useState(false);
   const [isTableLoading, setIsTableLoading] = useState(false);
 
   const users = useMemo(() => deserializeUsers(initialUsers), [initialUsers]);
-  const bannerMessage = listErrorToMessage(initialError);
+
+  const bannerMessage = useMemo(() => {
+    if (!initialError) return null;
+    switch (initialError) {
+      case 'UNAUTHENTICATED':
+        return t('errors.unauthenticated');
+      case 'FORBIDDEN':
+        return t('errors.forbidden');
+      default:
+        return t('errors.loadFailed');
+    }
+  }, [initialError, t]);
 
   const hasFiltersApplied = initialQuery.role !== 'all' || initialQuery.search.trim() !== '';
 
@@ -64,21 +65,21 @@ export function AdminUsersClient({
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-primary/80">Admin</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-primary/80">{t('page.sectionLabel')}</p>
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold leading-tight">Internal users</h1>
+            <h1 className="text-3xl font-bold leading-tight">{t('page.title')}</h1>
             <p className="text-muted-foreground">
-              Create administrators or staff accounts and review their permissions.
+              {t('page.description')}
             </p>
           </div>
           {currentUserEmail ? (
-            <p className="text-xs text-muted-foreground">Signed in as {currentUserEmail}</p>
+            <p className="text-xs text-muted-foreground">{t('page.signedInAs', { email: currentUserEmail })}</p>
           ) : null}
         </div>
 
         <Button className="w-full sm:w-auto" onClick={() => setCreateOpen(true)}>
           <UserPlus2 className="size-4" />
-          Create internal user
+          {t('page.createButton')}
         </Button>
       </div>
 
@@ -97,7 +98,7 @@ export function AdminUsersClient({
         <UsersEmptyState
           cta={(
             <Button onClick={() => setCreateOpen(true)}>
-              Create first admin
+              {t('page.createFirstButton')}
             </Button>
           )}
         />

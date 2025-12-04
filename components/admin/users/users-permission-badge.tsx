@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { ShieldCheck } from 'lucide-react';
@@ -10,6 +11,8 @@ type UsersPermissionBadgeProps = {
 };
 
 export function UsersPermissionBadge({ label, enabled }: UsersPermissionBadgeProps) {
+  const t = useTranslations('pages.adminUsers.permissions.tooltip');
+
   return (
     <TooltipProvider>
       <Tooltip>
@@ -28,7 +31,7 @@ export function UsersPermissionBadge({ label, enabled }: UsersPermissionBadgePro
         </TooltipTrigger>
         <TooltipContent>
           <p className="max-w-xs text-xs">
-            {label} {enabled ? 'is enabled for this user.' : 'is not available for this user.'}
+            {enabled ? t('enabled', { label }) : t('disabled', { label })}
           </p>
         </TooltipContent>
       </Tooltip>

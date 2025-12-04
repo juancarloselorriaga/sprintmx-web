@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { deleteInternalUser } from '@/app/actions/admin-users-delete';
 import { Button } from '@/components/ui/button';
 import {
@@ -34,6 +35,7 @@ export function UserDeleteDialog({
   onDeletedAction,
   onPendingChangeAction,
 }: UserDeleteDialogProps) {
+  const t = useTranslations('pages.adminUsers.deleteDialog');
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -48,44 +50,44 @@ export function UserDeleteDialog({
 
         if (!result.ok) {
           if (result.error === 'UNAUTHENTICATED') {
-            const message = 'Your session expired. Please sign in again.';
+            const message = t('errors.unauthenticated');
             setError(message);
             toast.error(message);
             return;
           }
 
           if (result.error === 'FORBIDDEN') {
-            const message = 'You are not allowed to delete internal users.';
+            const message = t('errors.forbidden');
             setError(message);
             toast.error(message);
             return;
           }
 
           if (result.error === 'CANNOT_DELETE_SELF') {
-            const message = 'You cannot delete your own account.';
+            const message = t('errors.cannotDeleteSelf');
             setError(message);
             toast.error(message);
             return;
           }
 
           if (result.error === 'NOT_FOUND') {
-            const message = 'User not found or already removed.';
+            const message = t('errors.notFound');
             setError(message);
             toast.error(message);
             return;
           }
 
-          const message = 'Could not delete this user. Try again later.';
+          const message = t('errors.genericError');
           setError(message);
           toast.error(message);
           return;
         }
 
-        toast.success('User deleted', { description: userEmail });
+        toast.success(t('success.toast'), { description: userEmail });
         onOpenChangeAction(false);
         onDeletedAction?.();
       } catch {
-        const message = 'Could not delete this user. Try again later.';
+        const message = t('errors.genericError');
         setError(message);
         toast.error(message);
       } finally {
@@ -98,24 +100,24 @@ export function UserDeleteDialog({
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Delete user</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            This will revoke internal access for <span className="font-semibold text-foreground">{userName || userEmail}</span>.
+            {t('description', { userName: userName || userEmail })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex gap-3 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-foreground">
           <AlertTriangle className="mt-0.5 size-5 text-destructive" />
           <div className="space-y-1">
-            <p className="font-semibold text-destructive">Are you sure you want to delete this user?</p>
+            <p className="font-semibold text-destructive">{t('warning.title')}</p>
             <p className="text-muted-foreground">
-              Their internal account will be deactivated. You can recreate them later if needed.
+              {t('warning.description')}
             </p>
           </div>
         </div>
 
         <div className="space-y-1 rounded-md border border-border/60 bg-muted/30 p-3 text-sm">
-          <p className="font-semibold text-foreground">{userName || 'Unnamed user'}</p>
+          <p className="font-semibold text-foreground">{userName || t('userInfo.unnamedUser')}</p>
           <p className="text-muted-foreground">{userEmail}</p>
         </div>
 
@@ -127,18 +129,18 @@ export function UserDeleteDialog({
 
         <DialogFooter className="flex justify-end gap-2 sm:justify-end">
           <Button type="button" variant="ghost" onClick={() => onOpenChangeAction(false)}>
-            Cancel
+            {t('buttons.cancel')}
           </Button>
           <Button type="button" variant="destructive" disabled={isPending} onClick={handleDelete}>
             {isPending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Deleting...
+                {t('buttons.deleting')}
               </>
             ) : (
               <>
                 <Trash2 className="size-4" />
-                Delete user
+                {t('buttons.delete')}
               </>
             )}
           </Button>

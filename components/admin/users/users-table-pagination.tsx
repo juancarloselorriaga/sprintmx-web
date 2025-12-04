@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { buildAdminUsersQueryObject } from '@/components/admin/users/search-params';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
@@ -12,10 +13,11 @@ type UsersTablePaginationProps = {
   pageSize: number;
   basePath: string;
   filters: Record<string, string>;
-  onNavigate?: () => void;
+  onNavigateAction?: () => void;
 };
 
-export function UsersTablePagination({ page, pageCount, total, pageSize, basePath, filters, onNavigate }: UsersTablePaginationProps) {
+export function UsersTablePagination({ page, pageCount, total, pageSize, basePath, filters, onNavigateAction }: UsersTablePaginationProps) {
+  const t = useTranslations('pages.adminUsers.pagination');
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = total === 0 ? 0 : Math.min(total, page * pageSize);
 
@@ -36,31 +38,31 @@ export function UsersTablePagination({ page, pageCount, total, pageSize, basePat
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="text-xs text-muted-foreground">
-        Showing {start}-{end} of {total} users
+        {t('showing', { start, end, total })}
       </div>
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm" disabled={prevDisabled} asChild={!prevDisabled}>
           {prevDisabled ? (
             <>
               <ChevronLeft className="size-4" />
-              Previous
+              {t('previous')}
             </>
           ) : (
-            <Link href={prevHref} scroll={false} onClick={onNavigate}>
+            <Link href={prevHref} scroll={false} onClick={onNavigateAction}>
               <ChevronLeft className="size-4" />
-              Previous
+              {t('previous')}
             </Link>
           )}
         </Button>
         <Button variant="outline" size="sm" disabled={nextDisabled} asChild={!nextDisabled}>
           {nextDisabled ? (
             <>
-              Next
+              {t('next')}
               <ChevronRight className="size-4" />
             </>
           ) : (
-            <Link href={nextHref} scroll={false} onClick={onNavigate}>
-              Next
+            <Link href={nextHref} scroll={false} onClick={onNavigateAction}>
+              {t('next')}
               <ChevronRight className="size-4" />
             </Link>
           )}

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -38,6 +39,8 @@ export function UsersTableToolbar({
   onToggleColumnAction,
   onLoadingChangeAction,
 }: UsersTableToolbarProps) {
+  const t = useTranslations('pages.adminUsers.toolbar');
+  const tTable = useTranslations('pages.adminUsers.table');
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -57,10 +60,10 @@ export function UsersTableToolbar({
 
   const densityOptions = useMemo(
     () => [
-      { key: 'comfortable', label: 'Comfortable' },
-      { key: 'compact', label: 'Compact' },
+      { key: 'comfortable', label: tTable('density.comfortable') },
+      { key: 'compact', label: tTable('density.compact') },
     ] as const,
-    []
+    [tTable]
   );
 
   return (
@@ -68,7 +71,7 @@ export function UsersTableToolbar({
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Filter className="size-4" />
-          <span>Filters</span>
+          <span>{t('filtersLabel')}</span>
         </div>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <form onSubmit={handleSearch} className="flex flex-1 items-center gap-2" key={query.search}>
@@ -78,21 +81,21 @@ export function UsersTableToolbar({
                 type="search"
                 value={searchValue}
                 onChange={(event) => setSearchValue(event.target.value)}
-                placeholder="Search by name or email"
+                placeholder={t('searchPlaceholder')}
                 className={`pl-10 pr-3 ${adminUsersTextInputClassName}`}
               />
             </div>
             <Button type="submit" size="sm" variant="secondary">
-              Apply
+              {t('applyButton')}
             </Button>
           </form>
 
           <div className="flex flex-wrap items-center gap-2">
             {(
               [
-                { key: 'all', label: 'All' },
-                { key: 'admin', label: 'Admin' },
-                { key: 'staff', label: 'Staff' },
+                { key: 'all', label: t('roleAll') },
+                { key: 'admin', label: t('roleAdmin') },
+                { key: 'staff', label: t('roleStaff') },
               ] as const
             ).map(({ key, label }) => (
               <Button
@@ -112,14 +115,14 @@ export function UsersTableToolbar({
               variant="ghost"
               onClick={() => navigate({ role: 'all', search: null, page: '1' })}
             >
-              Clear filters
+              {t('clearFilters')}
             </Button>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-2 py-1 text-xs text-muted-foreground">
               <SlidersHorizontal className="size-4" />
-              Display
+              {t('displayLabel')}
             </div>
             <div className="flex items-center gap-1 rounded-md border bg-background px-2 py-1">
               {densityOptions.map((option) => (
@@ -140,18 +143,18 @@ export function UsersTableToolbar({
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="h-8 gap-2 text-xs">
                   <LayoutList className="size-4" />
-                  Columns
+                  {t('columnsButton')}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuLabel>Show columns</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('columnsLabel')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {(
                   [
-                    { key: 'role', label: 'Internal role' },
-                    { key: 'permissions', label: 'Permissions' },
-                    { key: 'created', label: 'Created' },
-                    { key: 'actions', label: 'Actions' },
+                    { key: 'role', label: tTable('columns.internalRole') },
+                    { key: 'permissions', label: tTable('columns.permissions') },
+                    { key: 'created', label: tTable('columns.created') },
+                    { key: 'actions', label: tTable('columns.actions') },
                   ] as const
                 ).map(({ key, label }) => (
                   <DropdownMenuCheckboxItem

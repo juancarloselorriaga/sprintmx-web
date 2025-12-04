@@ -1,0 +1,152 @@
+{
+  "metadata": {
+    "title": "Admin users",
+    "description": "Manage internal administrators and staff accounts."
+  },
+  "page": {
+    "sectionLabel": "Admin",
+    "title": "Internal users",
+    "description": "Create administrators or staff accounts and review their permissions.",
+    "signedInAs": "Signed in as {email}",
+    "createButton": "Create internal user",
+    "createFirstButton": "Create first admin"
+  },
+  "errors": {
+    "unauthenticated": "Your session expired. Please sign in again.",
+    "forbidden": "You are not allowed to view internal users.",
+    "loadFailed": "Could not load internal users right now. Please try again."
+  },
+  "table": {
+    "columns": {
+      "name": "Name",
+      "internalRole": "Internal role",
+      "permissions": "Permissions",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "emptyState": {
+      "noFilters": {
+        "title": "No internal users yet",
+        "description": "Create the first admin or staff account to manage internal access and permissions."
+      },
+      "noMatches": {
+        "title": "No users match your filters",
+        "description": "Try adjusting your search or clearing filters.",
+        "clearButton": "Clear filters"
+      }
+    },
+    "density": {
+      "comfortable": "Comfortable",
+      "compact": "Compact"
+    }
+  },
+  "toolbar": {
+    "filtersLabel": "Filters",
+    "searchPlaceholder": "Search by name or email",
+    "applyButton": "Apply",
+    "roleAll": "All",
+    "roleAdmin": "Admin",
+    "roleStaff": "Staff",
+    "clearFilters": "Clear filters",
+    "displayLabel": "Display",
+    "columnsButton": "Columns",
+    "columnsLabel": "Show columns"
+  },
+  "pagination": {
+    "showing": "Showing {start}-{end} of {total} users",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "actions": {
+    "working": "Working...",
+    "deleteUser": "Delete user"
+  },
+  "permissions": {
+    "labels": {
+      "adminArea": "Admin area",
+      "manageUsers": "Manage users",
+      "staffTools": "Staff tools"
+    },
+    "tooltip": {
+      "enabled": "{label} is enabled for this user.",
+      "disabled": "{label} is not available for this user."
+    }
+  },
+  "createDialog": {
+    "title": "Create internal user",
+    "description": "Invite an internal admin or staff member with a temporary password. They can reset it after signing in.",
+    "bannerTitle": "Create internal account",
+    "bannerDescription": "Admins manage users; staff have limited admin access.",
+    "roles": {
+      "admin": {
+        "label": "Admin",
+        "title": "Admin",
+        "description": "Full admin access, including user management.",
+        "summary": "Full admin access, including user management."
+      },
+      "staff": {
+        "label": "Staff",
+        "title": "Staff",
+        "description": "Staff tools and event management. No user management.",
+        "summary": "Staff-level access without user management."
+      }
+    },
+    "fields": {
+      "name": {
+        "label": "Full name",
+        "placeholder": "Jane Admin"
+      },
+      "email": {
+        "label": "Work email",
+        "placeholder": "user@example.com"
+      },
+      "password": {
+        "label": "Temporary password",
+        "placeholder": "••••••••",
+        "hint": "Minimum 8 characters. Ask the user to reset after first sign-in."
+      }
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "createAdmin": "Create admin",
+      "createStaff": "Create staff"
+    },
+    "errors": {
+      "unauthenticated": "Session expired. Refresh and sign in again.",
+      "forbidden": "You are not allowed to create internal users.",
+      "invalidInput": "Please fix the highlighted fields.",
+      "genericError": "Something went wrong while creating the user."
+    },
+    "success": {
+      "toast": "{email} created",
+      "toastDescription": "Role: {roles}"
+    }
+  },
+  "deleteDialog": {
+    "title": "Delete user",
+    "description": "This will revoke internal access for {userName}.",
+    "warning": {
+      "title": "Are you sure you want to delete this user?",
+      "description": "Their internal account will be deactivated. You can recreate them later if needed."
+    },
+    "userInfo": {
+      "unnamedUser": "Unnamed user"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "delete": "Delete user"
+    },
+    "errors": {
+      "unauthenticated": "Your session expired. Please sign in again.",
+      "forbidden": "You are not allowed to delete internal users.",
+      "cannotDeleteSelf": "You cannot delete your own account.",
+      "notFound": "User not found or already removed.",
+      "genericError": "Could not delete this user. Try again later."
+    },
+    "success": {
+      "toast": "User deleted"
+    }
+  }
+}

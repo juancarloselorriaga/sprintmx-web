@@ -1,0 +1,152 @@
+{
+  "metadata": {
+    "title": "Usuarios administradores",
+    "description": "Gestiona cuentas de administradores y personal interno."
+  },
+  "page": {
+    "sectionLabel": "Admin",
+    "title": "Usuarios internos",
+    "description": "Crea cuentas de administradores o personal y revisa sus permisos.",
+    "signedInAs": "Sesión iniciada como {email}",
+    "createButton": "Crear usuario interno",
+    "createFirstButton": "Crear primer admin"
+  },
+  "errors": {
+    "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo.",
+    "forbidden": "No tienes permiso para ver usuarios internos.",
+    "loadFailed": "No se pudieron cargar los usuarios internos. Intenta de nuevo."
+  },
+  "table": {
+    "columns": {
+      "name": "Nombre",
+      "internalRole": "Rol interno",
+      "permissions": "Permisos",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "emptyState": {
+      "noFilters": {
+        "title": "No hay usuarios internos aún",
+        "description": "Crea la primera cuenta de administrador o personal para gestionar accesos y permisos internos."
+      },
+      "noMatches": {
+        "title": "No hay usuarios que coincidan con tus filtros",
+        "description": "Intenta ajustar tu búsqueda o borrar los filtros.",
+        "clearButton": "Borrar filtros"
+      }
+    },
+    "density": {
+      "comfortable": "Cómoda",
+      "compact": "Compacta"
+    }
+  },
+  "toolbar": {
+    "filtersLabel": "Filtros",
+    "searchPlaceholder": "Buscar por nombre o correo",
+    "applyButton": "Aplicar",
+    "roleAll": "Todos",
+    "roleAdmin": "Admin",
+    "roleStaff": "Personal",
+    "clearFilters": "Borrar filtros",
+    "displayLabel": "Visualización",
+    "columnsButton": "Columnas",
+    "columnsLabel": "Mostrar columnas"
+  },
+  "pagination": {
+    "showing": "Mostrando {start}-{end} de {total} usuarios",
+    "previous": "Anterior",
+    "next": "Siguiente"
+  },
+  "actions": {
+    "working": "Procesando...",
+    "deleteUser": "Eliminar usuario"
+  },
+  "permissions": {
+    "labels": {
+      "adminArea": "Área de admin",
+      "manageUsers": "Gestionar usuarios",
+      "staffTools": "Herramientas de personal"
+    },
+    "tooltip": {
+      "enabled": "{label} está habilitado para este usuario.",
+      "disabled": "{label} no está disponible para este usuario."
+    }
+  },
+  "createDialog": {
+    "title": "Crear usuario interno",
+    "description": "Invita a un administrador o miembro del personal con una contraseña temporal. Pueden restablecerla después de iniciar sesión.",
+    "bannerTitle": "Crear cuenta interna",
+    "bannerDescription": "Los admins gestionan usuarios; el personal tiene acceso limitado.",
+    "roles": {
+      "admin": {
+        "label": "Admin",
+        "title": "Admin",
+        "description": "Acceso completo de administrador, incluida la gestión de usuarios.",
+        "summary": "Acceso completo de administrador, incluida la gestión de usuarios."
+      },
+      "staff": {
+        "label": "Personal",
+        "title": "Personal",
+        "description": "Herramientas de personal y gestión de eventos. Sin gestión de usuarios.",
+        "summary": "Acceso de nivel de personal sin gestión de usuarios."
+      }
+    },
+    "fields": {
+      "name": {
+        "label": "Nombre completo",
+        "placeholder": "Juan Admin"
+      },
+      "email": {
+        "label": "Correo laboral",
+        "placeholder": "usuario@ejemplo.com"
+      },
+      "password": {
+        "label": "Contraseña temporal",
+        "placeholder": "••••••••",
+        "hint": "Mínimo 8 caracteres. Pide al usuario que la restablezca después del primer inicio de sesión."
+      }
+    },
+    "buttons": {
+      "cancel": "Cancelar",
+      "creating": "Creando...",
+      "createAdmin": "Crear admin",
+      "createStaff": "Crear personal"
+    },
+    "errors": {
+      "unauthenticated": "Sesión expirada. Actualiza e inicia sesión de nuevo.",
+      "forbidden": "No tienes permiso para crear usuarios internos.",
+      "invalidInput": "Por favor corrige los campos resaltados.",
+      "genericError": "Algo salió mal al crear el usuario."
+    },
+    "success": {
+      "toast": "{email} creado",
+      "toastDescription": "Rol: {roles}"
+    }
+  },
+  "deleteDialog": {
+    "title": "Eliminar usuario",
+    "description": "Esto revocará el acceso interno de {userName}.",
+    "warning": {
+      "title": "¿Estás seguro de que quieres eliminar este usuario?",
+      "description": "Su cuenta interna será desactivada. Puedes recrearla más tarde si es necesario."
+    },
+    "userInfo": {
+      "unnamedUser": "Usuario sin nombre"
+    },
+    "buttons": {
+      "cancel": "Cancelar",
+      "deleting": "Eliminando...",
+      "delete": "Eliminar usuario"
+    },
+    "errors": {
+      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo.",
+      "forbidden": "No tienes permiso para eliminar usuarios internos.",
+      "cannotDeleteSelf": "No puedes eliminar tu propia cuenta.",
+      "notFound": "Usuario no encontrado o ya eliminado.",
+      "genericError": "No se pudo eliminar este usuario. Intenta de nuevo más tarde."
+    },
+    "success": {
+      "toast": "Usuario eliminado"
+    }
+  }
+}

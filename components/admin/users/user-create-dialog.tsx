@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { createAdminUser, createStaffUser } from '@/app/actions/admin-users';
 import { Button } from '@/components/ui/button';
 import {
@@ -83,6 +84,7 @@ function extractFieldErrors(details: unknown): FieldErrors {
 }
 
 export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, initialRole = 'internal.admin' }: UserCreateDialogProps) {
+  const t = useTranslations('pages.adminUsers.createDialog');
   const router = useRouter();
   const [internalOpen, setInternalOpen] = useState(false);
   const resolvedOpen = open ?? internalOpen;
@@ -115,9 +117,9 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
   const roleSummary = useMemo(
     () =>
       role === 'internal.admin'
-        ? 'Full admin access, including user management.'
-        : 'Staff-level access without user management.',
-    [role]
+        ? t('roles.admin.summary')
+        : t('roles.staff.summary'),
+    [role, t]
   );
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -132,12 +134,12 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
 
       if (!result.ok) {
         if (result.error === 'UNAUTHENTICATED') {
-          setBanner('Session expired. Refresh and sign in again.');
+          setBanner(t('errors.unauthenticated'));
           return;
         }
 
         if (result.error === 'FORBIDDEN') {
-          setBanner('You are not allowed to create internal users.');
+          setBanner(t('errors.forbidden'));
           return;
         }
 
@@ -146,16 +148,16 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
           const byField = extractFieldErrors(result.details);
           setValidationMessages(messages);
           setFieldErrors(byField);
-          setBanner(messages[0] ?? 'Please fix the highlighted fields.');
+          setBanner(messages[0] ?? t('errors.invalidInput'));
           return;
         }
 
-        setBanner('Something went wrong while creating the user.');
+        setBanner(t('errors.genericError'));
         return;
       }
 
-      toast.success(`${result.email} created`, {
-        description: `Role: ${result.canonicalRoles.join(', ')}`,
+      toast.success(t('success.toast', { email: result.email }), {
+        description: t('success.toastDescription', { roles: result.canonicalRoles.join(', ') }),
       });
 
       handleOpenChange(false);
@@ -171,9 +173,9 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>Create internal user</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            Invite an internal admin or staff member with a temporary password. They can reset it after signing in.
+            {t('description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -187,8 +189,8 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
           <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2">
             <Shield className="size-4 text-muted-foreground" />
             <div>
-              <p className="text-sm font-semibold">Create internal account</p>
-              <p className="text-xs text-muted-foreground">Admins manage users; staff have limited admin access.</p>
+              <p className="text-sm font-semibold">{t('bannerTitle')}</p>
+              <p className="text-xs text-muted-foreground">{t('bannerDescription')}</p>
             </div>
           </div>
 
@@ -200,7 +202,7 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
               onClick={() => setRole('internal.admin')}
             >
               <ShieldCheck className="size-4" />
-              Admin
+              {t('roles.admin.label')}
             </Button>
             <Button
               type="button"
@@ -209,7 +211,7 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
               onClick={() => setRole('internal.staff')}
             >
               <Shield className="size-4" />
-              Staff
+              {t('roles.staff.label')}
             </Button>
           </div>
 
@@ -220,8 +222,8 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
                 role === 'internal.admin' ? 'border-primary/40 bg-primary/5' : 'border-border/60 bg-muted/20'
               )}
             >
-              <p className="font-semibold text-foreground">Admin</p>
-              <p className="text-muted-foreground">Full admin access, including user management.</p>
+              <p className="font-semibold text-foreground">{t('roles.admin.title')}</p>
+              <p className="text-muted-foreground">{t('roles.admin.description')}</p>
             </div>
             <div
               className={cn(
@@ -229,8 +231,8 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
                 role === 'internal.staff' ? 'border-primary/40 bg-primary/5' : 'border-border/60 bg-muted/20'
               )}
             >
-              <p className="font-semibold text-foreground">Staff</p>
-              <p className="text-muted-foreground">Staff tools and event management. No user management.</p>
+              <p className="font-semibold text-foreground">{t('roles.staff.title')}</p>
+              <p className="text-muted-foreground">{t('roles.staff.description')}</p>
             </div>
           </div>
 
@@ -238,7 +240,7 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground/80" htmlFor="name">
-              Full name
+              {t('fields.name.label')}
             </label>
             <input
               id="name"
@@ -249,7 +251,7 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
               value={name}
               onChange={(event) => setName(event.target.value)}
               className={adminUsersTextInputClassName}
-              placeholder="Jane Admin"
+              placeholder={t('fields.name.placeholder')}
             />
             {fieldErrors.name?.length ? (
               <p className="text-xs text-destructive">{fieldErrors.name[0]}</p>
@@ -258,7 +260,7 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground/80" htmlFor="email">
-              Work email
+              {t('fields.email.label')}
             </label>
             <input
               id="email"
@@ -269,7 +271,7 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               className={adminUsersTextInputClassName}
-              placeholder="user@example.com"
+              placeholder={t('fields.email.placeholder')}
             />
             {fieldErrors.email?.length ? (
               <p className="text-xs text-destructive">{fieldErrors.email[0]}</p>
@@ -278,7 +280,7 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground/80" htmlFor="password">
-              Temporary password
+              {t('fields.password.label')}
             </label>
             <input
               id="password"
@@ -291,10 +293,10 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               className={adminUsersTextInputClassName}
-              placeholder="••••••••"
+              placeholder={t('fields.password.placeholder')}
             />
             <p className="text-xs text-muted-foreground">
-              Minimum 8 characters. Ask the user to reset after first sign-in.
+              {t('fields.password.hint')}
             </p>
             {fieldErrors.password?.length ? (
               <p className="text-xs text-destructive">{fieldErrors.password[0]}</p>
@@ -311,15 +313,15 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
 
           <DialogFooter className="flex justify-end gap-2 sm:justify-end">
             <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
-              Cancel
+              {t('buttons.cancel')}
             </Button>
             <Button className="justify-center gap-2" disabled={isPending} type="submit">
               {isPending ? (
-                <span className="animate-pulse">Creating...</span>
+                <span className="animate-pulse">{t('buttons.creating')}</span>
               ) : (
                 <>
                   <UserPlus2 className="size-4" />
-                  <span>{role === 'internal.admin' ? 'Create admin' : 'Create staff'}</span>
+                  <span>{role === 'internal.admin' ? t('buttons.createAdmin') : t('buttons.createStaff')}</span>
                 </>
               )}
             </Button>

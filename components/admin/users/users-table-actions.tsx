@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { UserDeleteDialog } from '@/components/admin/users/user-delete-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,6 +29,7 @@ export function UsersTableActions({
   onDeletedAction,
   onLoadingChangeAction,
 }: UsersTableActionsProps) {
+  const t = useTranslations('pages.adminUsers.actions');
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const isSelf = currentUserId === userId;
@@ -38,7 +40,7 @@ export function UsersTableActions({
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground" disabled={isPending}>
             {isPending ? <Loader2 className="size-4 animate-spin" /> : <MoreHorizontal className="size-4" />}
-            {isPending ? 'Working...' : ''}
+            {isPending ? t('working') : ''}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-40">
@@ -52,7 +54,7 @@ export function UsersTableActions({
             className="text-destructive focus:text-destructive"
           >
             <Trash2 className="size-4" />
-            Delete user
+            {t('deleteUser')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

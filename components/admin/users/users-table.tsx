@@ -1,5 +1,6 @@
 'use client';
 
+import { useFormatter, useTranslations } from 'next-intl';
 import type { AdminUserRow } from '@/app/actions/admin-users-list';
 import { buildAdminUsersQueryObject } from '@/components/admin/users/search-params';
 import { UsersPermissionBadge } from '@/components/admin/users/users-permission-badge';
@@ -37,13 +38,6 @@ type UsersTableProps = {
 
 const DENSITY_STORAGE_KEY = 'adminUsers.tableDensity';
 
-function formatDate(value: Date) {
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(value);
-}
-
 export function UsersTable({
   users,
   query,
@@ -52,9 +46,19 @@ export function UsersTable({
   isLoading = false,
   onLoadingChangeAction,
 }: UsersTableProps) {
+  const t = useTranslations('pages.adminUsers.table');
+  const tPermissions = useTranslations('pages.adminUsers.permissions.labels');
+  const format = useFormatter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+
+  const formatDate = (value: Date) => {
+    return format.dateTime(value, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
+  };
 
   const [density, setDensity] = useState<'comfortable' | 'compact'>('comfortable');
 
@@ -198,7 +202,7 @@ export function UsersTable({
                   className="flex items-center gap-1 text-foreground hover:text-primary"
                   onClick={() => handleSort('name')}
                 >
-                  Name
+                  {t('columns.name')}
                   {titleSort ? titleSort === 'asc' ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" /> : null}
                 </button>
               </th>
@@ -209,14 +213,14 @@ export function UsersTable({
                     className="flex items-center gap-1 text-foreground hover:text-primary"
                     onClick={() => handleSort('role')}
                   >
-                    Internal role
+                    {t('columns.internalRole')}
                     {roleSort ? roleSort === 'asc' ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" /> : null}
                   </button>
                 </th>
               ) : null}
               {visibleColumns.permissions ? (
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Permissions
+                  {t('columns.permissions')}
                 </th>
               ) : null}
               {visibleColumns.created ? (
@@ -226,12 +230,12 @@ export function UsersTable({
                     className="flex items-center gap-1 text-foreground hover:text-primary"
                     onClick={() => handleSort('createdAt')}
                   >
-                    Created
+                    {t('columns.created')}
                     {createdSort ? createdSort === 'asc' ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" /> : null}
                   </button>
                 </th>
               ) : null}
-              {visibleColumns.actions ? <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">Actions</th> : null}
+              {visibleColumns.actions ? <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('columns.actions')}</th> : null}
             </tr>
           </thead>
           <tbody>
@@ -245,11 +249,11 @@ export function UsersTable({
                 >
                   <div className="flex flex-col items-center gap-3">
                     <div>
-                      <p className="font-semibold text-foreground">No users match your filters</p>
-                      <p className="text-xs text-muted-foreground">Try adjusting your search or clearing filters.</p>
+                      <p className="font-semibold text-foreground">{t('emptyState.noMatches.title')}</p>
+                      <p className="text-xs text-muted-foreground">{t('emptyState.noMatches.description')}</p>
                     </div>
                     <Button size="sm" variant="outline" onClick={handleClearFilters}>
-                      Clear filters
+                      {t('emptyState.noMatches.clearButton')}
                     </Button>
                   </div>
                 </td>
@@ -280,9 +284,9 @@ export function UsersTable({
                   {visibleColumns.permissions ? (
                     <td className={cn('px-4 align-top', rowPadding)}>
                       <div className="flex flex-wrap gap-2">
-                        <UsersPermissionBadge label="Admin area" enabled={user.permissions.canAccessAdminArea} />
-                        <UsersPermissionBadge label="Manage users" enabled={user.permissions.canManageUsers} />
-                        <UsersPermissionBadge label="Staff tools" enabled={user.permissions.canViewStaffTools} />
+                        <UsersPermissionBadge label={tPermissions('adminArea')} enabled={user.permissions.canAccessAdminArea} />
+                        <UsersPermissionBadge label={tPermissions('manageUsers')} enabled={user.permissions.canManageUsers} />
+                        <UsersPermissionBadge label={tPermissions('staffTools')} enabled={user.permissions.canViewStaffTools} />
                       </div>
                     </td>
                   ) : null}
@@ -320,7 +324,7 @@ export function UsersTable({
         total={paginationMeta.total}
         basePath={pathname}
         filters={Object.fromEntries(searchParams.entries())}
-        onNavigate={() => onLoadingChangeAction?.(true)}
+        onNavigateAction={() => onLoadingChangeAction?.(true)}
       />
     </div>
   );
