@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SHIRT_SIZES } from './metadata';
+import { SHIRT_SIZES, BLOOD_TYPES } from './metadata';
 import { optionalPhoneNumber } from '@/lib/phone/schema';
 
 const optionalTrimmedString = (maxLength: number) =>
@@ -60,7 +60,7 @@ export const profileSchema = z.object({
   emergencyContactName: optionalTrimmedString(100),
   emergencyContactPhone: optionalPhoneNumber,
   medicalConditions: optionalText(),
-  bloodType: optionalTrimmedString(5),
+  bloodType: optionalEnum(BLOOD_TYPES),
   shirtSize: optionalEnum(SHIRT_SIZES),
   weightKg: optionalNumber(),
   heightCm: optionalNumber(),

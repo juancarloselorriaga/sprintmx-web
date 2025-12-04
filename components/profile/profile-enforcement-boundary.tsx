@@ -110,6 +110,11 @@ function normalizeShirtSize(value?: string | null) {
   return value.trim().toLowerCase();
 }
 
+function normalizeBloodType(value?: string | null) {
+  if (!value) return '';
+  return value.trim().toLowerCase();
+}
+
 function toFormState(profile: ProfileRecord | null): ProfileFormState {
   if (!profile) return DEFAULT_FORM_STATE;
 
@@ -122,7 +127,7 @@ function toFormState(profile: ProfileRecord | null): ProfileFormState {
     emergencyContactPhone: profile.emergencyContactPhone ?? '',
     gender: profile.gender ?? '',
     shirtSize: normalizeShirtSize(profile.shirtSize),
-    bloodType: profile.bloodType ?? '',
+    bloodType: normalizeBloodType(profile.bloodType),
     bio: profile.bio ?? '',
   };
 }
@@ -135,7 +140,7 @@ function buildPayload(form: ProfileFormState): ProfileUpsertInput {
     const trimmed = value?.trim?.() ?? '';
     if (!trimmed) return;
 
-    payload[key] = key === 'shirtSize' ? trimmed.toLowerCase() : trimmed;
+    payload[key] = (key === 'shirtSize' || key === 'bloodType') ? trimmed.toLowerCase() : trimmed;
   });
 
   return payload;
@@ -180,6 +185,7 @@ function ProfileCompletionModal({
     [metadata]
   );
   const shirtSizeOptions = metadata.shirtSizes ?? [];
+  const bloodTypeOptions = metadata.bloodTypes ?? [];
   const isRequiredField = (field: keyof ProfileRecord) => requiredFieldKeys.has(field);
 
   useEffect(() => {
@@ -392,15 +398,26 @@ function ProfileCompletionModal({
                 <FieldLabel required={isRequiredField('bloodType')}>
                   {t('fields.bloodType')}
                 </FieldLabel>
-                <input
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
-                  name="bloodType"
-                  value={formState.bloodType}
-                  onChange={(event) => setFormState((prev) => ({
-                    ...prev,
-                    bloodType: event.target.value
-                  }))}
-                />
+                <div className="relative">
+                  <select
+                    className="w-full appearance-none rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
+                    name="bloodType"
+                    value={formState.bloodType}
+                    onChange={(event) =>
+                      setFormState((prev) => ({
+                        ...prev,
+                        bloodType: event.target.value
+                      }))
+                    }
+                  >
+                    <option value="">{t('selectOption')}</option>
+                    {bloodTypeOptions.map((type) => (
+                      <option key={type} value={type}>
+                        {type.toUpperCase()}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </label>
             </div>
 
