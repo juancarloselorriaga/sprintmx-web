@@ -5,9 +5,10 @@ import { auth } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { extractLocaleFromRequest } from '@/lib/utils/locale';
 import { EMPTY_PROFILE_STATUS } from '@/lib/auth/user-context';
-import { buildProfileMetadata, buildProfileRequirementSummary } from '@/lib/profiles';
+import { buildProfileRequirementSummary } from '@/lib/profiles/requirements';
 import type { PermissionSet } from '@/lib/auth/roles';
 import { headers } from 'next/headers';
+import { buildProfileMetadata } from '@/lib/profiles/metadata';
 
 jest.mock('@/lib/contact-submissions', () => {
   const { z } = require('zod') as typeof import('zod');

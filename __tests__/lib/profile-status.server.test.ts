@@ -1,5 +1,5 @@
 import { computeProfileStatus } from '@/lib/profiles/status';
-import type { ProfileRecord } from '@/lib/profiles';
+import type { ProfileRecord } from '@/lib/profiles/types';
 
 describe('computeProfileStatus', () => {
   const baseProfile: ProfileRecord = {

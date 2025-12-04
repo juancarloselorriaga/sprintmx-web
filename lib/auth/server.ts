@@ -1,15 +1,15 @@
 import { auth } from '@/lib/auth';
 import { resolveUserContext } from '@/lib/auth/user-context';
-import type {
-  ProfileMetadata,
-  ProfileRequirementSummary,
-  ProfileStatus,
-  ProfileRecord,
-} from '@/lib/profiles';
 import { headers } from 'next/headers';
 import { cache } from 'react';
 import type { Session } from './types';
 import type { CanonicalRole, PermissionSet } from './roles';
+import {
+  ProfileRecord,
+  ProfileStatus
+} from '@/lib/profiles/types';
+import { ProfileRequirementSummary } from '@/lib/profiles/requirements';
+import { ProfileMetadata } from '@/lib/profiles/metadata';
 
 export type AuthContext = {
   session: Session | null;

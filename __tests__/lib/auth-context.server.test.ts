@@ -1,7 +1,8 @@
 import type { Session } from '@/lib/auth/types';
-import type { ProfileStatus } from '@/lib/profiles';
-import { buildProfileMetadata, buildProfileRequirementSummary } from '@/lib/profiles';
+import type { ProfileStatus } from '@/lib/profiles/types';
+import { buildProfileRequirementSummary } from '@/lib/profiles/requirements';
 import type { PermissionSet } from '@/lib/auth/roles';
+import { buildProfileMetadata } from '@/lib/profiles/metadata';
 
 const mockGetSession = jest.fn();
 const mockResolveUserContext = jest.fn();

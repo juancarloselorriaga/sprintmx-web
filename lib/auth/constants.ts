@@ -1,4 +1,4 @@
-import type { ProfileStatus } from '@/lib/profiles';
+import type { ProfileStatus } from '@/lib/profiles/types';
 
 export const EMPTY_PROFILE_STATUS: ProfileStatus = {
   hasProfile: false,
