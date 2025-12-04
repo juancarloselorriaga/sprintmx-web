@@ -1,18 +1,18 @@
 'use client';
 
 import type { AdminUserRow } from '@/app/actions/admin-users-list';
+import { buildAdminUsersQueryObject } from '@/components/admin/users/search-params';
 import { UsersPermissionBadge } from '@/components/admin/users/users-permission-badge';
 import { UsersTableActions } from '@/components/admin/users/users-table-actions';
 import { UsersTablePagination } from '@/components/admin/users/users-table-pagination';
 import { UsersTableToolbar } from '@/components/admin/users/users-table-toolbar';
 import { Button } from '@/components/ui/button';
+import type { ColumnKey } from '@/lib/admin-users/types';
 import { cn } from '@/lib/utils';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { useSearchParams } from 'next/navigation';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
-
-type ColumnKey = 'role' | 'permissions' | 'created' | 'actions';
 
 type UsersTableProps = {
   users: AdminUserRow[];
@@ -65,26 +65,12 @@ export function UsersTable({ users, query, paginationMeta, currentUserId }: User
     window.localStorage.setItem(DENSITY_STORAGE_KEY, density);
   }, [density]);
 
-  const buildHref = (updates: Record<string, string | null | undefined>): Parameters<typeof router.push>[0] => {
-    const params = new URLSearchParams(searchParams.toString());
-
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value === null || value === undefined || value === '') {
-        params.delete(key);
-      } else {
-        params.set(key, value);
-      }
-    });
-
-    const query = Object.fromEntries(params.entries());
-    return { pathname, query } as unknown as Parameters<typeof router.push>[0];
-  };
-
   const handleNavigate = (
     updates: Record<string, string | null | undefined>,
     options?: { replace?: boolean }
   ) => {
-    const href = buildHref(updates);
+    const queryObject = buildAdminUsersQueryObject(searchParams.toString(), updates);
+    const href = { pathname, query: queryObject } as unknown as Parameters<typeof router.push>[0];
     if (options?.replace) {
       router.replace(href, { scroll: false });
     } else {
@@ -236,7 +222,10 @@ export function UsersTable({ users, query, paginationMeta, currentUserId }: User
                     </td>
                   ) : null}
                   {visibleColumns.created ? (
-                    <td className={cn('px-4 align-top text-sm text-muted-foreground', rowPadding)}>
+                    <td
+                      className={cn('px-4 align-top text-sm text-muted-foreground', rowPadding)}
+                      suppressHydrationWarning
+                    >
                       {formatDate(user.createdAt)}
                     </td>
                   ) : null}

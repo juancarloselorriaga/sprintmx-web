@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { adminUsersTextInputClassName } from '@/components/admin/users/styles';
 import { cn } from '@/lib/utils';
 import { useRouter } from '@/i18n/navigation';
 import { Shield, ShieldCheck, UserPlus2 } from 'lucide-react';
@@ -247,7 +248,7 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
               autoComplete="name"
               value={name}
               onChange={(event) => setName(event.target.value)}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
+              className={adminUsersTextInputClassName}
               placeholder="Jane Admin"
             />
             {fieldErrors.name?.length ? (
@@ -267,7 +268,7 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
               autoComplete="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
+              className={adminUsersTextInputClassName}
               placeholder="user@example.com"
             />
             {fieldErrors.email?.length ? (
@@ -289,7 +290,7 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
               autoComplete="new-password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
+              className={adminUsersTextInputClassName}
               placeholder="••••••••"
             />
             <p className="text-xs text-muted-foreground">

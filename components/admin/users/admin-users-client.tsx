@@ -1,29 +1,21 @@
 'use client';
 
-import type { AdminUserRow, ListInternalUsersResult } from '@/app/actions/admin-users-list';
+import type { AdminUserRow } from '@/app/actions/admin-users-list';
 import { UsersEmptyState } from '@/components/admin/users/users-empty-state';
 import { UsersTable } from '@/components/admin/users/users-table';
 import { UserCreateDialog } from '@/components/admin/users/user-create-dialog';
 import { Button } from '@/components/ui/button';
+import type { NormalizedAdminUsersQuery } from '@/lib/admin-users/query';
+import type { ListInternalUsersError, SerializedAdminUserRow } from '@/lib/admin-users/types';
 import { useSession } from '@/lib/auth/client';
 import { cn } from '@/lib/utils';
 import { UserPlus2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-type SerializedAdminUserRow = Omit<AdminUserRow, 'createdAt'> & { createdAt: string };
-type ListError = Extract<ListInternalUsersResult, { ok: false }>['error'] | null;
-
 type AdminUsersClientProps = {
   initialUsers: SerializedAdminUserRow[];
-  initialError: ListError;
-  initialQuery: {
-    page: number;
-    pageSize: number;
-    role: 'all' | 'admin' | 'staff';
-    search: string;
-    sortBy: 'createdAt' | 'name' | 'email' | 'role';
-    sortDir: 'asc' | 'desc';
-  };
+  initialError: ListInternalUsersError;
+  initialQuery: NormalizedAdminUsersQuery;
   paginationMeta: {
     page: number;
     pageSize: number;
@@ -39,7 +31,7 @@ function deserializeUsers(users: SerializedAdminUserRow[]): AdminUserRow[] {
   }));
 }
 
-function listErrorToMessage(error: ListError) {
+function listErrorToMessage(error: ListInternalUsersError) {
   if (!error) return null;
   switch (error) {
     case 'UNAUTHENTICATED':

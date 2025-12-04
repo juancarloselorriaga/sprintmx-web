@@ -1,5 +1,6 @@
-"use client";
+'use client';
 
+import { buildAdminUsersQueryObject } from '@/components/admin/users/search-params';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -13,23 +14,6 @@ type UsersTablePaginationProps = {
   filters: Record<string, string>;
 };
 
-type NavHref = Parameters<typeof Link>[0]['href'];
-
-function buildHref(basePath: string, filters: Record<string, string>, updates: Record<string, string | null | undefined>): NavHref {
-  const params = new URLSearchParams(filters);
-
-  Object.entries(updates).forEach(([key, value]) => {
-    if (value === null || value === undefined || value === '') {
-      params.delete(key);
-    } else {
-      params.set(key, value);
-    }
-  });
-
-  const query = Object.fromEntries(params.entries());
-  return { pathname: basePath, query } as NavHref;
-}
-
 export function UsersTablePagination({ page, pageCount, total, pageSize, basePath, filters }: UsersTablePaginationProps) {
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = total === 0 ? 0 : Math.min(total, page * pageSize);
@@ -39,8 +23,14 @@ export function UsersTablePagination({ page, pageCount, total, pageSize, basePat
   const prevDisabled = page <= 1;
   const nextDisabled = pageCount === 0 || page >= pageCount;
 
-  const prevHref = buildHref(basePath, filters, { page: String(prevPage) });
-  const nextHref = buildHref(basePath, filters, { page: String(nextPage) });
+  const prevHref = {
+    pathname: basePath,
+    query: buildAdminUsersQueryObject(filters, { page: String(prevPage) }),
+  } as Parameters<typeof Link>[0]['href'];
+  const nextHref = {
+    pathname: basePath,
+    query: buildAdminUsersQueryObject(filters, { page: String(nextPage) }),
+  } as Parameters<typeof Link>[0]['href'];
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

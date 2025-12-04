@@ -13,6 +13,7 @@ export type CanonicalRole =
 type RoleCategory = 'internal' | 'external';
 
 type RoleKind = 'admin' | 'staff' | 'organizer' | 'athlete' | 'volunteer';
+type InternalRoleKind = Extract<RoleKind, 'admin' | 'staff'>;
 
 export type PermissionSet = {
   canAccessAdminArea: boolean;
@@ -223,6 +224,14 @@ export function getSelectableExternalRoles(): CanonicalRole[] {
   return Object.values(ROLE_REGISTRY)
     .filter((role) => role.category === 'external')
     .map((role) => role.id);
+}
+
+export function getInternalRoleSourceNames(kind?: InternalRoleKind): string[] {
+  return unique(
+    Object.values(ROLE_REGISTRY)
+      .filter((role) => role.category === 'internal' && (!kind || role.kind === kind))
+      .flatMap((role) => role.sourceNames)
+  );
 }
 
 export async function updateUserExternalRoles(userId: string, canonicalRoles: CanonicalRole[]) {

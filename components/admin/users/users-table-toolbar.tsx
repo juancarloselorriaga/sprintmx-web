@@ -9,12 +9,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { buildAdminUsersQueryObject } from '@/components/admin/users/search-params';
+import { adminUsersTextInputClassName } from '@/components/admin/users/styles';
 import { Filter, LayoutList, Search, SlidersHorizontal } from 'lucide-react';
 import { FormEvent, useMemo, useState } from 'react';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { useSearchParams } from 'next/navigation';
 
-type ColumnKey = 'role' | 'permissions' | 'created' | 'actions';
+import type { ColumnKey } from '@/lib/admin-users/types';
 
 type UsersTableToolbarProps = {
   query: {
@@ -40,18 +42,8 @@ export function UsersTableToolbar({
   const [searchValue, setSearchValue] = useState(query.search);
 
   const navigate = (updates: Record<string, string | null | undefined>) => {
-    const params = new URLSearchParams(searchParams.toString());
-
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value === null || value === undefined || value === '') {
-        params.delete(key);
-      } else {
-        params.set(key, value);
-      }
-    });
-
-    const query = Object.fromEntries(params.entries());
-    const href = { pathname, query } as unknown as Parameters<typeof router.push>[0];
+    const queryObject = buildAdminUsersQueryObject(searchParams.toString(), updates);
+    const href = { pathname, query: queryObject } as unknown as Parameters<typeof router.push>[0];
     router.push(href, { scroll: false });
   };
 
@@ -70,10 +62,6 @@ export function UsersTableToolbar({
 
   return (
     <div className="space-y-4">
-      <div className="space-y-1">
-        <h2 className="text-xl font-semibold leading-tight">Internal users</h2>
-        <p className="text-sm text-muted-foreground">Admins and staff with control panel access.</p>
-      </div>
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Filter className="size-4" />
@@ -88,7 +76,7 @@ export function UsersTableToolbar({
                 value={searchValue}
                 onChange={(event) => setSearchValue(event.target.value)}
                 placeholder="Search by name or email"
-                className="w-full rounded-md border bg-background pl-10 pr-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
+                className={`pl-10 pr-3 ${adminUsersTextInputClassName}`}
               />
             </div>
             <Button type="submit" size="sm" variant="secondary">

@@ -4,13 +4,19 @@ import { db } from '@/db';
 import { roles, users, userRoles } from '@/db/schema';
 import { withAdminUser } from '@/lib/auth/action-wrapper';
 import {
+  getInternalRoleSourceNames,
   getUserRolesWithInternalFlag,
   type CanonicalRole,
   type PermissionSet,
 } from '@/lib/auth/roles';
+import { type AdminUsersQuery, type NormalizedAdminUsersQuery, normalizeAdminUsersQuery } from '@/lib/admin-users/query';
 import { SQL, asc, and, desc, eq, ilike, inArray, isNull, or, sql } from 'drizzle-orm';
 
-const INTERNAL_ROLE_NAMES = ['admin', 'staff'];
+const INTERNAL_ROLE_NAMES = getInternalRoleSourceNames();
+const INTERNAL_ROLE_NAMES_BY_KIND = {
+  admin: getInternalRoleSourceNames('admin'),
+  staff: getInternalRoleSourceNames('staff'),
+};
 
 export type AdminUserRow = {
   userId: string;
@@ -22,47 +28,6 @@ export type AdminUserRow = {
   isInternal: boolean;
 };
 
-export type AdminUsersQuery = {
-  page?: number;
-  pageSize?: number;
-  sortBy?: 'createdAt' | 'name' | 'email' | 'role';
-  sortDir?: 'asc' | 'desc';
-  role?: 'all' | 'admin' | 'staff';
-  search?: string;
-};
-
-const DEFAULT_PAGE_SIZE = 20;
-const MAX_PAGE_SIZE = 100;
-
-type NormalizedAdminUsersQuery = Required<
-  Pick<AdminUsersQuery, 'page' | 'pageSize' | 'sortBy' | 'sortDir' | 'role' | 'search'>
->;
-
-function normalizeQuery(query?: AdminUsersQuery): NormalizedAdminUsersQuery {
-  const page = Math.max(1, Number.isFinite(query?.page) ? Math.floor(Number(query?.page)) : 1);
-  const rawPageSize = Number.isFinite(query?.pageSize) ? Math.floor(Number(query?.pageSize)) : DEFAULT_PAGE_SIZE;
-  const pageSize = Math.min(Math.max(1, rawPageSize), MAX_PAGE_SIZE);
-
-  const sortBy: NormalizedAdminUsersQuery['sortBy'] = ['createdAt', 'name', 'email', 'role'].includes(
-    query?.sortBy as string,
-  )
-    ? (query?.sortBy as NormalizedAdminUsersQuery['sortBy'])
-    : 'createdAt';
-
-  const defaultSortDir: NormalizedAdminUsersQuery['sortDir'] = sortBy === 'createdAt' ? 'desc' : 'asc';
-  const sortDir: NormalizedAdminUsersQuery['sortDir'] = query?.sortDir === 'asc' || query?.sortDir === 'desc'
-    ? query.sortDir
-    : defaultSortDir;
-
-  const role: NormalizedAdminUsersQuery['role'] = ['admin', 'staff', 'all'].includes(query?.role as string)
-    ? (query?.role as NormalizedAdminUsersQuery['role'])
-    : 'all';
-
-  const search = query?.search?.trim() ?? '';
-
-  return { page, pageSize, sortBy, sortDir, role, search };
-}
-
 export type ListInternalUsersResult =
   | { ok: true; users: AdminUserRow[]; page: number; pageSize: number; total: number; pageCount: number }
   | { ok: false; error: 'UNAUTHENTICATED' | 'FORBIDDEN' | 'SERVER_ERROR' };
@@ -71,7 +36,7 @@ export const listInternalUsers = withAdminUser<ListInternalUsersResult>({
   unauthenticated: () => ({ ok: false, error: 'UNAUTHENTICATED' }),
   forbidden: () => ({ ok: false, error: 'FORBIDDEN' }),
 })(async (_context, query?: AdminUsersQuery) => {
-  const normalized = normalizeQuery(query);
+  const normalized = normalizeAdminUsersQuery(query);
 
   try {
     const filters: SQL<unknown>[] = [
@@ -80,10 +45,10 @@ export const listInternalUsers = withAdminUser<ListInternalUsersResult>({
       isNull(userRoles.deletedAt),
     ];
 
-    if (normalized.role === 'admin') {
-      filters.push(eq(roles.name, 'admin'));
-    } else if (normalized.role === 'staff') {
-      filters.push(eq(roles.name, 'staff'));
+    if (normalized.role === 'admin' && INTERNAL_ROLE_NAMES_BY_KIND.admin.length > 0) {
+      filters.push(inArray(roles.name, INTERNAL_ROLE_NAMES_BY_KIND.admin));
+    } else if (normalized.role === 'staff' && INTERNAL_ROLE_NAMES_BY_KIND.staff.length > 0) {
+      filters.push(inArray(roles.name, INTERNAL_ROLE_NAMES_BY_KIND.staff));
     }
 
     if (normalized.search) {

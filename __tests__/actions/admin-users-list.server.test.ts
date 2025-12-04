@@ -31,6 +31,11 @@ jest.mock('@/lib/auth/guards', () => ({
 
 jest.mock('@/lib/auth/roles', () => ({
   getUserRolesWithInternalFlag: (...args: unknown[]) => mockGetUserRolesWithInternalFlag(...args),
+  getInternalRoleSourceNames: (kind?: 'admin' | 'staff') => {
+    if (kind === 'admin') return ['admin'];
+    if (kind === 'staff') return ['staff'];
+    return ['admin', 'staff'];
+  },
 }));
 
 jest.mock('drizzle-orm', () => ({
@@ -204,7 +209,7 @@ describe('listInternalUsers', () => {
     if (result.ok) {
       expect(result.users).toHaveLength(2);
       expect(result.page).toBe(1);
-      expect(result.pageSize).toBe(20);
+      expect(result.pageSize).toBe(10);
       expect(result.total).toBe(2);
       expect(result.pageCount).toBe(1);
       expect(result.users[0]).toEqual(
@@ -325,10 +330,11 @@ describe('listInternalUsers', () => {
     const whereArg = history[0]?.whereCalls?.[0]?.[0] as { type?: string; args?: unknown[] } | undefined;
     expect(whereArg?.type).toBe('and');
     const filters = whereArg?.args ?? [];
-    expect(filters).toEqual(expect.arrayContaining([
-      expect.objectContaining({ type: 'eq', args: expect.arrayContaining(['admin']) }),
-      expect.objectContaining({ type: 'or' }),
-    ]));
+    const roleFilter = filters.find((filter) => (filter as { type?: string })?.type === 'inArray') as
+      | { args?: unknown[] }
+      | undefined;
+    expect(roleFilter?.args?.[1]).toEqual(expect.arrayContaining(['admin']));
+    expect(filters).toEqual(expect.arrayContaining([expect.objectContaining({ type: 'or' })]));
   });
 
   it('applies sort and pagination parameters', async () => {
