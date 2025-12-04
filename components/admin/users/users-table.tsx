@@ -31,6 +31,8 @@ type UsersTableProps = {
     pageCount: number;
   };
   currentUserId?: string;
+  isLoading?: boolean;
+  onLoadingChange?: (loading: boolean) => void;
 };
 
 const DENSITY_STORAGE_KEY = 'adminUsers.tableDensity';
@@ -42,16 +44,19 @@ function formatDate(value: Date) {
   }).format(value);
 }
 
-export function UsersTable({ users, query, paginationMeta, currentUserId }: UsersTableProps) {
+export function UsersTable({
+  users,
+  query,
+  paginationMeta,
+  currentUserId,
+  isLoading = false,
+  onLoadingChange,
+}: UsersTableProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
 
-  const [density, setDensity] = useState<'comfortable' | 'compact'>(() => {
-    if (typeof window === 'undefined') return 'comfortable';
-    const stored = window.localStorage.getItem(DENSITY_STORAGE_KEY);
-    return stored === 'compact' || stored === 'comfortable' ? stored : 'comfortable';
-  });
+  const [density, setDensity] = useState<'comfortable' | 'compact'>('comfortable');
 
   const [columnVisibility, setColumnVisibility] = useState<Record<ColumnKey, boolean>>({
     role: true,
@@ -59,6 +64,10 @@ export function UsersTable({ users, query, paginationMeta, currentUserId }: User
     created: true,
     actions: true,
   });
+
+  useEffect(() => {
+    onLoadingChange?.(false);
+  }, [users, query, onLoadingChange]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -71,6 +80,7 @@ export function UsersTable({ users, query, paginationMeta, currentUserId }: User
   ) => {
     const queryObject = buildAdminUsersQueryObject(searchParams.toString(), updates);
     const href = { pathname, query: queryObject } as unknown as Parameters<typeof router.push>[0];
+    onLoadingChange?.(true);
     if (options?.replace) {
       router.replace(href, { scroll: false });
     } else {
@@ -99,6 +109,11 @@ export function UsersTable({ users, query, paginationMeta, currentUserId }: User
     handleNavigate({ search: null, role: null, page: '1' });
   };
 
+  const handleDeletedUser = () => {
+    onLoadingChange?.(true);
+    router.refresh();
+  };
+
   const visibleColumns = {
     role: columnVisibility.role,
     permissions: columnVisibility.permissions,
@@ -110,6 +125,53 @@ export function UsersTable({ users, query, paginationMeta, currentUserId }: User
   const roleSort = query.sortBy === 'role' ? query.sortDir : null;
   const createdSort = query.sortBy === 'createdAt' ? query.sortDir : null;
 
+  const renderSkeletonRows = () => {
+    const count = Math.max(3, Math.min(paginationMeta.pageSize ?? 5, 8));
+    const skeletonColumns = {
+      role: columnVisibility.role,
+      permissions: columnVisibility.permissions,
+      created: columnVisibility.created,
+      actions: columnVisibility.actions,
+    };
+
+    return Array.from({ length: count }).map((_, index) => (
+      <tr key={`skeleton-${index}`} className="border-t">
+        <td className={cn('px-4 align-top', rowPadding)}>
+          <div className="space-y-2">
+            <div className="h-4 w-32 rounded bg-muted animate-pulse" />
+            <div className="h-3 w-40 rounded bg-muted animate-pulse" />
+          </div>
+        </td>
+        {skeletonColumns.role ? (
+          <td className={cn('px-4 align-top', rowPadding)}>
+            <div className="flex gap-2">
+              <div className="h-5 w-16 rounded-full bg-muted animate-pulse" />
+              <div className="h-5 w-12 rounded-full bg-muted animate-pulse" />
+            </div>
+          </td>
+        ) : null}
+        {skeletonColumns.permissions ? (
+          <td className={cn('px-4 align-top', rowPadding)}>
+            <div className="flex flex-wrap gap-2">
+              <div className="h-6 w-24 rounded bg-muted animate-pulse" />
+              <div className="h-6 w-28 rounded bg-muted animate-pulse" />
+            </div>
+          </td>
+        ) : null}
+        {skeletonColumns.created ? (
+          <td className={cn('px-4 align-top', rowPadding)}>
+            <div className="h-4 w-24 rounded bg-muted animate-pulse" />
+          </td>
+        ) : null}
+        {skeletonColumns.actions ? (
+          <td className={cn('px-4 align-top', rowPadding)}>
+            <div className="ml-auto h-8 w-20 rounded bg-muted animate-pulse" />
+          </td>
+        ) : null}
+      </tr>
+    ));
+  };
+
   return (
     <div className="space-y-4">
       <UsersTableToolbar
@@ -117,6 +179,7 @@ export function UsersTable({ users, query, paginationMeta, currentUserId }: User
         density={density}
         onDensityChangeAction={setDensity}
         columnVisibility={columnVisibility}
+        onLoadingChangeAction={onLoadingChange}
         onToggleColumnAction={(key) =>
           setColumnVisibility((prev) => ({
             ...prev,
@@ -172,7 +235,9 @@ export function UsersTable({ users, query, paginationMeta, currentUserId }: User
             </tr>
           </thead>
           <tbody>
-            {!hasResults ? (
+            {isLoading ? (
+              renderSkeletonRows()
+            ) : !hasResults ? (
               <tr>
                 <td
                   className="px-4 py-8 text-center text-sm text-muted-foreground"
@@ -236,7 +301,8 @@ export function UsersTable({ users, query, paginationMeta, currentUserId }: User
                         userName={user.name}
                         userEmail={user.email}
                         currentUserId={currentUserId}
-                        onDeletedAction={() => router.refresh()}
+                        onDeletedAction={handleDeletedUser}
+                        onLoadingChangeAction={onLoadingChange}
                       />
                     </td>
                   ) : null}
@@ -254,6 +320,7 @@ export function UsersTable({ users, query, paginationMeta, currentUserId }: User
         total={paginationMeta.total}
         basePath={pathname}
         filters={Object.fromEntries(searchParams.entries())}
+        onNavigate={() => onLoadingChange?.(true)}
       />
     </div>
   );

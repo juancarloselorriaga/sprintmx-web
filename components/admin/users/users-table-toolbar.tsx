@@ -27,6 +27,7 @@ type UsersTableToolbarProps = {
   onDensityChangeAction: (density: 'comfortable' | 'compact') => void;
   columnVisibility: Record<ColumnKey, boolean>;
   onToggleColumnAction: (key: ColumnKey) => void;
+  onLoadingChangeAction?: (loading: boolean) => void;
 };
 
 export function UsersTableToolbar({
@@ -35,6 +36,7 @@ export function UsersTableToolbar({
   onDensityChangeAction,
   columnVisibility,
   onToggleColumnAction,
+  onLoadingChangeAction,
 }: UsersTableToolbarProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -42,6 +44,7 @@ export function UsersTableToolbar({
   const [searchValue, setSearchValue] = useState(query.search);
 
   const navigate = (updates: Record<string, string | null | undefined>) => {
+    onLoadingChangeAction?.(true);
     const queryObject = buildAdminUsersQueryObject(searchParams.toString(), updates);
     const href = { pathname, query: queryObject } as unknown as Parameters<typeof router.push>[0];
     router.push(href, { scroll: false });

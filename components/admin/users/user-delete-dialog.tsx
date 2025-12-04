@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Loader2, Trash2 } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
@@ -22,9 +22,18 @@ type UserDeleteDialogProps = {
   userName: string;
   userEmail: string;
   onDeletedAction?: () => void;
+  onPendingChangeAction?: (isPending: boolean) => void;
 };
 
-export function UserDeleteDialog({ open, onOpenChangeAction, userId, userName, userEmail, onDeletedAction }: UserDeleteDialogProps) {
+export function UserDeleteDialog({
+  open,
+  onOpenChangeAction,
+  userId,
+  userName,
+  userEmail,
+  onDeletedAction,
+  onPendingChangeAction,
+}: UserDeleteDialogProps) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -32,46 +41,56 @@ export function UserDeleteDialog({ open, onOpenChangeAction, userId, userName, u
     setError(null);
 
     startTransition(async () => {
-      const result = await deleteInternalUser({ userId });
+      onPendingChangeAction?.(true);
 
-      if (!result.ok) {
-        if (result.error === 'UNAUTHENTICATED') {
-          const message = 'Your session expired. Please sign in again.';
+      try {
+        const result = await deleteInternalUser({ userId });
+
+        if (!result.ok) {
+          if (result.error === 'UNAUTHENTICATED') {
+            const message = 'Your session expired. Please sign in again.';
+            setError(message);
+            toast.error(message);
+            return;
+          }
+
+          if (result.error === 'FORBIDDEN') {
+            const message = 'You are not allowed to delete internal users.';
+            setError(message);
+            toast.error(message);
+            return;
+          }
+
+          if (result.error === 'CANNOT_DELETE_SELF') {
+            const message = 'You cannot delete your own account.';
+            setError(message);
+            toast.error(message);
+            return;
+          }
+
+          if (result.error === 'NOT_FOUND') {
+            const message = 'User not found or already removed.';
+            setError(message);
+            toast.error(message);
+            return;
+          }
+
+          const message = 'Could not delete this user. Try again later.';
           setError(message);
           toast.error(message);
           return;
         }
 
-        if (result.error === 'FORBIDDEN') {
-          const message = 'You are not allowed to delete internal users.';
-          setError(message);
-          toast.error(message);
-          return;
-        }
-
-        if (result.error === 'CANNOT_DELETE_SELF') {
-          const message = 'You cannot delete your own account.';
-          setError(message);
-          toast.error(message);
-          return;
-        }
-
-        if (result.error === 'NOT_FOUND') {
-          const message = 'User not found or already removed.';
-          setError(message);
-          toast.error(message);
-          return;
-        }
-
+        toast.success('User deleted', { description: userEmail });
+        onOpenChangeAction(false);
+        onDeletedAction?.();
+      } catch {
         const message = 'Could not delete this user. Try again later.';
         setError(message);
         toast.error(message);
-        return;
+      } finally {
+        onPendingChangeAction?.(false);
       }
-
-      toast.success('User deleted', { description: userEmail });
-      onOpenChangeAction(false);
-      onDeletedAction?.();
     });
   };
 
@@ -111,7 +130,17 @@ export function UserDeleteDialog({ open, onOpenChangeAction, userId, userName, u
             Cancel
           </Button>
           <Button type="button" variant="destructive" disabled={isPending} onClick={handleDelete}>
-            {isPending ? 'Deleting...' : 'Delete user'}
+            {isPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              <>
+                <Trash2 className="size-4" />
+                Delete user
+              </>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

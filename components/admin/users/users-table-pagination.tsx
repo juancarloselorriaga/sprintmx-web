@@ -12,9 +12,10 @@ type UsersTablePaginationProps = {
   pageSize: number;
   basePath: string;
   filters: Record<string, string>;
+  onNavigate?: () => void;
 };
 
-export function UsersTablePagination({ page, pageCount, total, pageSize, basePath, filters }: UsersTablePaginationProps) {
+export function UsersTablePagination({ page, pageCount, total, pageSize, basePath, filters, onNavigate }: UsersTablePaginationProps) {
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = total === 0 ? 0 : Math.min(total, page * pageSize);
 
@@ -45,7 +46,7 @@ export function UsersTablePagination({ page, pageCount, total, pageSize, basePat
               Previous
             </>
           ) : (
-            <Link href={prevHref} scroll={false}>
+            <Link href={prevHref} scroll={false} onClick={onNavigate}>
               <ChevronLeft className="size-4" />
               Previous
             </Link>
@@ -58,7 +59,7 @@ export function UsersTablePagination({ page, pageCount, total, pageSize, basePat
               <ChevronRight className="size-4" />
             </>
           ) : (
-            <Link href={nextHref} scroll={false}>
+            <Link href={nextHref} scroll={false} onClick={onNavigate}>
               Next
               <ChevronRight className="size-4" />
             </Link>

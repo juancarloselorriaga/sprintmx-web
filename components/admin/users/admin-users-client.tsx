@@ -46,6 +46,7 @@ function listErrorToMessage(error: ListInternalUsersError) {
 export function AdminUsersClient({ initialUsers, initialError, initialQuery, paginationMeta }: AdminUsersClientProps) {
   const { data } = useSession();
   const [createOpen, setCreateOpen] = useState(false);
+  const [isTableLoading, setIsTableLoading] = useState(false);
 
   const users = useMemo(() => deserializeUsers(initialUsers), [initialUsers]);
   const bannerMessage = listErrorToMessage(initialError);
@@ -101,12 +102,15 @@ export function AdminUsersClient({ initialUsers, initialError, initialQuery, pag
           query={initialQuery}
           paginationMeta={paginationMeta}
           currentUserId={data?.user?.id}
+          isLoading={isTableLoading}
+          onLoadingChange={setIsTableLoading}
         />
       )}
 
       <UserCreateDialog
         open={createOpen}
         onOpenChangeAction={setCreateOpen}
+        onSuccessAction={() => setIsTableLoading(true)}
       />
     </div>
   );

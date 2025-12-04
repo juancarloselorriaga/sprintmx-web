@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Trash2 } from 'lucide-react';
+import { Loader2, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 type UsersTableActionsProps = {
@@ -17,19 +17,28 @@ type UsersTableActionsProps = {
   userEmail: string;
   currentUserId?: string;
   onDeletedAction?: () => void;
+  onLoadingChangeAction?: (loading: boolean) => void;
 };
 
-export function UsersTableActions({ userId, userName, userEmail, currentUserId, onDeletedAction }: UsersTableActionsProps) {
+export function UsersTableActions({
+  userId,
+  userName,
+  userEmail,
+  currentUserId,
+  onDeletedAction,
+  onLoadingChangeAction,
+}: UsersTableActionsProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const isSelf = currentUserId === userId;
 
   return (
     <div className="flex justify-end">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground">
-            <MoreHorizontal className="size-4" />
-            Actions
+          <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground" disabled={isPending}>
+            {isPending ? <Loader2 className="size-4 animate-spin" /> : <MoreHorizontal className="size-4" />}
+            {isPending ? 'Working...' : 'Actions'}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-40">
@@ -39,7 +48,7 @@ export function UsersTableActions({ userId, userName, userEmail, currentUserId, 
               if (isSelf) return;
               setDeleteOpen(true);
             }}
-            disabled={isSelf}
+            disabled={isSelf || isPending}
             className="text-destructive focus:text-destructive"
           >
             <Trash2 className="size-4" />
@@ -55,6 +64,10 @@ export function UsersTableActions({ userId, userName, userEmail, currentUserId, 
         userName={userName}
         userEmail={userEmail}
         onDeletedAction={onDeletedAction}
+        onPendingChangeAction={(pending) => {
+          setIsPending(pending);
+          if (pending) onLoadingChangeAction?.(true);
+        }}
       />
     </div>
   );
