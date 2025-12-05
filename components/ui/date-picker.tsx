@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 type DatePickerProps = {
   value?: string | null;
-  onChange?: (value: string) => void;
+  onChangeAction?: (value: string) => void;
   locale?: string;
   placeholder?: string;
   clearLabel?: string;
@@ -53,7 +53,7 @@ function formatDisplayDate(value: string | null | undefined, locale: string) {
 
 export function DatePicker({
   value,
-  onChange,
+  onChangeAction,
   locale = "en",
   placeholder,
   clearLabel = "Clear",
@@ -114,8 +114,17 @@ export function DatePicker({
             weekStartsOn={weekStartsOn}
             className="min-w-[300px]"
             onSelect={(date) => {
-              const iso = date ? date.toISOString().slice(0, 10) : "";
-              onChange?.(iso);
+              if (!date) {
+                onChangeAction?.("");
+                setOpen(false);
+                return;
+              }
+              // Format date in local timezone to avoid off-by-one errors
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              const day = String(date.getDate()).padStart(2, '0');
+              const iso = `${year}-${month}-${day}`;
+              onChangeAction?.(iso);
               setOpen(false);
             }}
           />
@@ -124,7 +133,7 @@ export function DatePicker({
               type="button"
               className="text-xs text-muted-foreground underline-offset-2 hover:underline"
               onClick={() => {
-                onChange?.("");
+                onChangeAction?.("");
               }}
             >
               {clearLabel}

@@ -289,7 +289,7 @@ function ProfileCompletionModal({
                 <DatePicker
                   locale={locale}
                   value={formState.dateOfBirth}
-                  onChange={(value) => setFormState((prev) => ({
+                  onChangeAction={(value) => setFormState((prev) => ({
                     ...prev,
                     dateOfBirth: value
                   }))}
