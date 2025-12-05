@@ -7,12 +7,17 @@ import { computeProfileStatus } from '@/lib/profiles/status';
 import { ProfileRecord, ProfileStatus, ProfileUpsertInput } from '@/lib/profiles/types';
 import { headers } from 'next/headers';
 import { z } from 'zod';
-import { profileUpsertSchema } from '@/lib/profiles/schema';
+import { profileUpsertSchema, createProfileValidationSchema } from '@/lib/profiles/schema';
 import { getProfileByUserId, upsertProfile } from '@/lib/profiles/repository';
 
 type ProfileActionError =
   | { ok: false; error: 'UNAUTHENTICATED' }
-  | { ok: false; error: 'INVALID_INPUT'; details?: ReturnType<typeof z.treeifyError> }
+  | {
+      ok: false;
+      error: 'INVALID_INPUT';
+      details?: ReturnType<typeof z.treeifyError>;
+      fieldErrors?: Record<string, string[]>;
+    }
   | { ok: false; error: 'SERVER_ERROR' };
 
 type ProfileActionSuccess = {
@@ -61,10 +66,26 @@ export const upsertProfileAction = withAuthenticatedUser<ProfileActionResult>({
   unauthenticated: () => ({ ok: false, error: 'UNAUTHENTICATED' }),
 })(async (authContext, input: ProfileUpsertInput) => {
   try {
-    const parsed = profileUpsertSchema.safeParse(input);
+    const validationSchema = createProfileValidationSchema(
+      authContext.profileRequirements.fieldKeys
+    );
+    const parsed = validationSchema.safeParse(input);
 
     if (!parsed.success) {
-      return { ok: false, error: 'INVALID_INPUT', details: z.treeifyError(parsed.error) };
+      const fieldErrors: Record<string, string[]> = {};
+      parsed.error.issues.forEach((issue) => {
+        const field = issue.path[0]?.toString();
+        if (field && field in profileUpsertSchema.shape) {
+          if (!fieldErrors[field]) fieldErrors[field] = [];
+          fieldErrors[field].push(issue.message);
+        }
+      });
+      return {
+        ok: false,
+        error: 'INVALID_INPUT',
+        details: z.treeifyError(parsed.error),
+        fieldErrors,
+      };
     }
 
     const profile = await upsertProfile(authContext.user.id, parsed.data);

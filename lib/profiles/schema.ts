@@ -75,3 +75,25 @@ export const profileUpsertSchema = profileSchema.omit({
   updatedAt: true,
   deletedAt: true,
 });
+
+export type ProfileRecord = z.infer<typeof profileSchema>;
+
+export function createProfileValidationSchema(requiredFields: (keyof ProfileRecord)[]) {
+  return profileUpsertSchema.superRefine((data, ctx) => {
+    requiredFields.forEach((field) => {
+      const value = data[field as keyof typeof data];
+      const isEmpty =
+        value === undefined ||
+        value === null ||
+        (typeof value === 'string' && value.trim() === '');
+
+      if (isEmpty) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'This field is required',
+          path: [field],
+        });
+      }
+    });
+  });
+}

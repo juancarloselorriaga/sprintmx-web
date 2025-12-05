@@ -23,6 +23,7 @@ import { CheckCircle2, LogOut, ShieldAlert } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useOnboardingOverrides } from '@/components/auth/onboarding-context';
+import { cn } from '@/lib/utils';
 
 type ProfileFormState = {
   phone: string;
@@ -50,15 +51,73 @@ const DEFAULT_FORM_STATE: ProfileFormState = {
   bio: '',
 };
 
+type FieldErrors = Record<keyof ProfileFormState, string | null>;
+
+const EMPTY_FIELD_ERRORS: FieldErrors = {
+  phone: null,
+  city: null,
+  state: null,
+  dateOfBirth: null,
+  emergencyContactName: null,
+  emergencyContactPhone: null,
+  gender: null,
+  shirtSize: null,
+  bloodType: null,
+  bio: null,
+};
+
 const DEFAULT_STATUS: ProfileStatus = EMPTY_PROFILE_STATUS;
 const FALLBACK_METADATA = buildProfileMetadata(buildProfileRequirementSummary([]));
 
-function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
+function FieldLabel({
+  children,
+  required,
+  error,
+}: {
+  children: React.ReactNode;
+  required?: boolean;
+  error?: boolean;
+}) {
   return (
-    <span className="font-medium text-foreground">
+    <div className="flex items-center justify-between gap-2">
+      <span className={cn('font-medium', error ? 'text-destructive' : 'text-foreground')}>
+        {children}
+        {required ? (
+          <span className="ml-0.5 text-base font-bold text-destructive" aria-label="required">
+            *
+          </span>
+        ) : null}
+      </span>
+    </div>
+  );
+}
+
+function FieldError({ error }: { error?: string | null }) {
+  if (!error) return null;
+  return (
+    <p className="mt-1 text-xs text-destructive" role="alert" aria-live="polite">
+      {error}
+    </p>
+  );
+}
+
+type FormFieldProps = {
+  label: React.ReactNode;
+  required?: boolean;
+  error?: string | null;
+  children: React.ReactNode;
+  className?: string;
+};
+
+function FormField({ label, required, error, children, className }: FormFieldProps) {
+  return (
+    <label className={cn('space-y-1 text-sm', className)}>
+      <FieldLabel required={required} error={!!error}>
+        {label}
+      </FieldLabel>
       {children}
-      {required ? <span className="text-destructive"> *</span> : null}
-    </span>
+      <FieldError error={error} />
+    </label>
   );
 }
 
@@ -179,6 +238,7 @@ function ProfileCompletionModal({
   const [remoteStatus, setRemoteStatus] = useState<ProfileStatus>(profileStatus);
   const [metadata, setMetadata] = useState<ProfileMetadata>(profileMetadata);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>(EMPTY_FIELD_ERRORS);
   const [isSubmitting, startTransition] = useTransition();
   const requiredFieldKeys = useMemo(
     () => new Set(metadata.requiredFieldKeys ?? []),
@@ -187,6 +247,16 @@ function ProfileCompletionModal({
   const shirtSizeOptions = metadata.shirtSizes ?? [];
   const bloodTypeOptions = metadata.bloodTypes ?? [];
   const isRequiredField = (field: keyof ProfileRecord) => requiredFieldKeys.has(field);
+
+  const handleFieldChange = <K extends keyof ProfileFormState>(
+    field: K,
+    value: ProfileFormState[K]
+  ) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => ({ ...prev, [field]: null }));
+    }
+  };
 
   useEffect(() => {
     setRemoteStatus(profileStatus);
@@ -205,6 +275,7 @@ function ProfileCompletionModal({
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
+    setFieldErrors(EMPTY_FIELD_ERRORS);
 
     startTransition(async () => {
       const payload = buildPayload(formState);
@@ -212,6 +283,17 @@ function ProfileCompletionModal({
 
       if (!result.ok) {
         if (result.error === 'INVALID_INPUT') {
+          if (result.fieldErrors) {
+            const newFieldErrors = { ...EMPTY_FIELD_ERRORS };
+
+            Object.entries(result.fieldErrors).forEach(([field, messages]) => {
+              if (field in newFieldErrors) {
+                newFieldErrors[field as keyof FieldErrors] = messages[0] || null;
+              }
+            });
+
+            setFieldErrors(newFieldErrors);
+          }
           setError(t('errors.invalidInput'));
           return;
         }
@@ -275,166 +357,191 @@ function ProfileCompletionModal({
           <form className="space-y-3" onSubmit={handleSubmit}>
             <div className="grid gap-3 md:grid-cols-2">
               <PhoneInput
-                label={<FieldLabel required={isRequiredField('phone')}>{t('fields.phone')}</FieldLabel>}
+                label={
+                  <FieldLabel required={isRequiredField('phone')} error={!!fieldErrors.phone}>
+                    {t('fields.phone')}
+                  </FieldLabel>
+                }
                 name="phone"
                 value={formState.phone}
-                onChangeAction={(value) => setFormState((prev) => ({ ...prev, phone: value }))}
+                onChangeAction={(value) => handleFieldChange('phone', value)}
                 defaultCountry="MX"
+                error={fieldErrors.phone || undefined}
+                disabled={isSubmitting}
               />
 
-              <label className="space-y-1 text-sm">
-                <FieldLabel required={isRequiredField('dateOfBirth')}>
-                  {t('fields.dateOfBirth')}
-                </FieldLabel>
+              <FormField
+                label={t('fields.dateOfBirth')}
+                required={isRequiredField('dateOfBirth')}
+                error={fieldErrors.dateOfBirth}
+              >
                 <DatePicker
                   locale={locale}
                   value={formState.dateOfBirth}
-                  onChangeAction={(value) => setFormState((prev) => ({
-                    ...prev,
-                    dateOfBirth: value
-                  }))}
+                  onChangeAction={(value) => handleFieldChange('dateOfBirth', value)}
                   clearLabel={t('actions.clear')}
                   name="dateOfBirth"
                 />
-              </label>
+              </FormField>
 
-              <label className="space-y-1 text-sm">
-                <FieldLabel required={isRequiredField('city')}>
-                  {t('fields.city')}
-                </FieldLabel>
+              <FormField
+                label={t('fields.city')}
+                required={isRequiredField('city')}
+                error={fieldErrors.city}
+              >
                 <input
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
+                  className={cn(
+                    'w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
+                    'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
+                    fieldErrors.city && 'border-destructive focus-visible:border-destructive'
+                  )}
                   name="city"
                   value={formState.city}
-                  onChange={(event) => setFormState((prev) => ({
-                    ...prev,
-                    city: event.target.value
-                  }))}
+                  onChange={(e) => handleFieldChange('city', e.target.value)}
+                  disabled={isSubmitting}
                 />
-              </label>
+              </FormField>
 
-              <label className="space-y-1 text-sm">
-                <FieldLabel required={isRequiredField('state')}>
-                  {t('fields.state')}
-                </FieldLabel>
+              <FormField
+                label={t('fields.state')}
+                required={isRequiredField('state')}
+                error={fieldErrors.state}
+              >
                 <input
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
+                  className={cn(
+                    'w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
+                    'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
+                    fieldErrors.state && 'border-destructive focus-visible:border-destructive'
+                  )}
                   name="state"
                   value={formState.state}
-                  onChange={(event) => setFormState((prev) => ({
-                    ...prev,
-                    state: event.target.value
-                  }))}
+                  onChange={(e) => handleFieldChange('state', e.target.value)}
+                  disabled={isSubmitting}
                 />
-              </label>
+              </FormField>
 
-              <label className="space-y-1 text-sm">
-                <FieldLabel required={isRequiredField('emergencyContactName')}>
-                  {t('fields.emergencyContactName')}
-                </FieldLabel>
+              <FormField
+                label={t('fields.emergencyContactName')}
+                required={isRequiredField('emergencyContactName')}
+                error={fieldErrors.emergencyContactName}
+              >
                 <input
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
+                  className={cn(
+                    'w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
+                    'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
+                    fieldErrors.emergencyContactName &&
+                      'border-destructive focus-visible:border-destructive'
+                  )}
                   name="emergencyContactName"
                   value={formState.emergencyContactName}
-                  onChange={(event) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      emergencyContactName: event.target.value
-                    }))
-                  }
+                  onChange={(e) => handleFieldChange('emergencyContactName', e.target.value)}
+                  disabled={isSubmitting}
                 />
-              </label>
+              </FormField>
 
               <PhoneInput
-                label={<FieldLabel required={isRequiredField('emergencyContactPhone')}>{t('fields.emergencyContactPhone')}</FieldLabel>}
+                label={
+                  <FieldLabel
+                    required={isRequiredField('emergencyContactPhone')}
+                    error={!!fieldErrors.emergencyContactPhone}
+                  >
+                    {t('fields.emergencyContactPhone')}
+                  </FieldLabel>
+                }
                 name="emergencyContactPhone"
                 value={formState.emergencyContactPhone}
-                onChangeAction={(value) => setFormState((prev) => ({ ...prev, emergencyContactPhone: value }))}
+                onChangeAction={(value) => handleFieldChange('emergencyContactPhone', value)}
                 defaultCountry="MX"
+                error={fieldErrors.emergencyContactPhone || undefined}
+                disabled={isSubmitting}
               />
 
-              <label className="space-y-1 text-sm">
-                <FieldLabel required={isRequiredField('gender')}>
-                  {t('fields.gender')}
-                </FieldLabel>
+              <FormField
+                label={t('fields.gender')}
+                required={isRequiredField('gender')}
+                error={fieldErrors.gender}
+              >
                 <input
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
+                  className={cn(
+                    'w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
+                    'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
+                    fieldErrors.gender && 'border-destructive focus-visible:border-destructive'
+                  )}
                   name="gender"
                   value={formState.gender}
-                  onChange={(event) => setFormState((prev) => ({
-                    ...prev,
-                    gender: event.target.value
-                  }))}
+                  onChange={(e) => handleFieldChange('gender', e.target.value)}
+                  disabled={isSubmitting}
                 />
-              </label>
+              </FormField>
 
-              <label className="space-y-1 text-sm">
-                <FieldLabel required={isRequiredField('shirtSize')}>
-                  {t('fields.shirtSize')}
-                </FieldLabel>
-                <div className="relative">
-                  <select
-                    className="w-full appearance-none rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
-                    name="shirtSize"
-                    value={formState.shirtSize}
-                    onChange={(event) =>
-                      setFormState((prev) => ({
-                        ...prev,
-                        shirtSize: event.target.value
-                      }))
-                    }
-                  >
-                    <option value="">{t('selectOption')}</option>
-                    {shirtSizeOptions.map((size) => (
-                      <option key={size} value={size}>
-                        {t(`shirtSizes.${size}` as const, { defaultValue: size.toUpperCase() })}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </label>
+              <FormField
+                label={t('fields.shirtSize')}
+                required={isRequiredField('shirtSize')}
+                error={fieldErrors.shirtSize}
+              >
+                <select
+                  className={cn(
+                    'w-full appearance-none rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
+                    'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
+                    fieldErrors.shirtSize && 'border-destructive focus-visible:border-destructive'
+                  )}
+                  name="shirtSize"
+                  value={formState.shirtSize}
+                  onChange={(e) => handleFieldChange('shirtSize', e.target.value)}
+                  disabled={isSubmitting}
+                >
+                  <option value="">{t('selectOption')}</option>
+                  {shirtSizeOptions.map((size) => (
+                    <option key={size} value={size}>
+                      {t(`shirtSizes.${size}` as const, { defaultValue: size.toUpperCase() })}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
 
-              <label className="space-y-1 text-sm">
-                <FieldLabel required={isRequiredField('bloodType')}>
-                  {t('fields.bloodType')}
-                </FieldLabel>
-                <div className="relative">
-                  <select
-                    className="w-full appearance-none rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
-                    name="bloodType"
-                    value={formState.bloodType}
-                    onChange={(event) =>
-                      setFormState((prev) => ({
-                        ...prev,
-                        bloodType: event.target.value
-                      }))
-                    }
-                  >
-                    <option value="">{t('selectOption')}</option>
-                    {bloodTypeOptions.map((type) => (
-                      <option key={type} value={type}>
-                        {type.toUpperCase()}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </label>
+              <FormField
+                label={t('fields.bloodType')}
+                required={isRequiredField('bloodType')}
+                error={fieldErrors.bloodType}
+              >
+                <select
+                  className={cn(
+                    'w-full appearance-none rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
+                    'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
+                    fieldErrors.bloodType && 'border-destructive focus-visible:border-destructive'
+                  )}
+                  name="bloodType"
+                  value={formState.bloodType}
+                  onChange={(e) => handleFieldChange('bloodType', e.target.value)}
+                  disabled={isSubmitting}
+                >
+                  <option value="">{t('selectOption')}</option>
+                  {bloodTypeOptions.map((type) => (
+                    <option key={type} value={type}>
+                      {type.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
             </div>
 
-            <label className="space-y-1 text-sm">
-              <FieldLabel required={isRequiredField('bio')}>
-                {t('fields.bio')}
-              </FieldLabel>
+            <FormField
+              label={t('fields.bio')}
+              required={isRequiredField('bio')}
+              error={fieldErrors.bio}
+            >
               <textarea
-                className="min-h-[80px] w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
+                className={cn(
+                  'min-h-[80px] w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
+                  'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
+                  fieldErrors.bio && 'border-destructive focus-visible:border-destructive'
+                )}
                 name="bio"
                 value={formState.bio}
-                onChange={(event) => setFormState((prev) => ({
-                  ...prev,
-                  bio: event.target.value
-                }))}
+                onChange={(e) => handleFieldChange('bio', e.target.value)}
+                disabled={isSubmitting}
               />
-            </label>
+            </FormField>
 
             <div
               className="flex flex-col gap-3 border-t pt-3 sm:flex-row sm:items-center sm:justify-between">
