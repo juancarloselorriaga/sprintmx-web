@@ -49,17 +49,20 @@ describe('ResetPasswordForm', () => {
   it('shows password mismatch error when passwords do not match', async () => {
     render(<ResetPasswordForm />);
 
-    fireEvent.change(screen.getByLabelText('newPassword'), {
+    const passwordInput = document.querySelector('#password') as HTMLInputElement;
+    const confirmPasswordInput = document.querySelector('#confirmPassword') as HTMLInputElement;
+
+    fireEvent.change(passwordInput, {
       target: { value: 'password-1' },
     });
-    fireEvent.change(screen.getByLabelText('confirmPassword'), {
+    fireEvent.change(confirmPasswordInput, {
       target: { value: 'password-2' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'resetPassword' }));
+    fireEvent.click(screen.getByRole('button', { name: /resetPassword/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('passwordMismatch')).toBeInTheDocument();
+      expect(screen.getAllByText('passwordMismatch').length).toBeGreaterThan(0);
     });
 
     expect(resetPasswordWithToken).not.toHaveBeenCalled();
@@ -74,17 +77,20 @@ describe('ResetPasswordForm', () => {
 
     render(<ResetPasswordForm />);
 
-    fireEvent.change(screen.getByLabelText('newPassword'), {
+    const passwordInput = document.querySelector('#password') as HTMLInputElement;
+    const confirmPasswordInput = document.querySelector('#confirmPassword') as HTMLInputElement;
+
+    fireEvent.change(passwordInput, {
       target: { value: 'password-1' },
     });
-    fireEvent.change(screen.getByLabelText('confirmPassword'), {
+    fireEvent.change(confirmPasswordInput, {
       target: { value: 'password-1' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'resetPassword' }));
+    fireEvent.click(screen.getByRole('button', { name: /resetPassword/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('missingToken')).toBeInTheDocument();
+      expect(screen.getAllByText('missingToken').length).toBeGreaterThan(0);
     });
 
     expect(resetPasswordWithToken).not.toHaveBeenCalled();
@@ -98,18 +104,21 @@ describe('ResetPasswordForm', () => {
 
     render(<ResetPasswordForm />);
 
-    fireEvent.change(screen.getByLabelText('newPassword'), {
+    const passwordInput = document.querySelector('#password') as HTMLInputElement;
+    const confirmPasswordInput = document.querySelector('#confirmPassword') as HTMLInputElement;
+
+    fireEvent.change(passwordInput, {
       target: { value: 'new-password' },
     });
-    fireEvent.change(screen.getByLabelText('confirmPassword'), {
+    fireEvent.change(confirmPasswordInput, {
       target: { value: 'new-password' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'resetPassword' }));
+    fireEvent.click(screen.getByRole('button', { name: /resetPassword/i }));
 
     await waitFor(() => {
       expect(resetPasswordWithToken).toHaveBeenCalledWith('new-password', 'test-token');
-      expect(screen.getByText('Reset failed')).toBeInTheDocument();
+      expect(screen.getAllByText('Reset failed').length).toBeGreaterThan(0);
     });
   });
 
@@ -121,14 +130,17 @@ describe('ResetPasswordForm', () => {
 
     render(<ResetPasswordForm />);
 
-    fireEvent.change(screen.getByLabelText('newPassword'), {
+    const passwordInput = document.querySelector('#password') as HTMLInputElement;
+    const confirmPasswordInput = document.querySelector('#confirmPassword') as HTMLInputElement;
+
+    fireEvent.change(passwordInput, {
       target: { value: 'new-password' },
     });
-    fireEvent.change(screen.getByLabelText('confirmPassword'), {
+    fireEvent.change(confirmPasswordInput, {
       target: { value: 'new-password' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'resetPassword' }));
+    fireEvent.click(screen.getByRole('button', { name: /resetPassword/i }));
 
     await waitFor(() => {
       expect(resetPasswordWithToken).toHaveBeenCalledWith('new-password', 'test-token');

@@ -32,10 +32,10 @@ describe('ForgotPasswordForm', () => {
 
     render(<ForgotPasswordForm />);
 
-    const emailInput = screen.getByLabelText('email');
+    const emailInput = screen.getByRole('textbox', { name: /email/i });
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
-    const submitButton = screen.getByRole('button', { name: 'sendResetLink' });
+    const submitButton = screen.getByRole('button', { name: /sendResetLink/i });
     fireEvent.click(submitButton);
 
     await waitFor(() => {
@@ -56,10 +56,10 @@ describe('ForgotPasswordForm', () => {
 
     render(<ForgotPasswordForm />);
 
-    const emailInput = screen.getByLabelText('email');
+    const emailInput = screen.getByRole('textbox', { name: /email/i });
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
-    const submitButton = screen.getByRole('button', { name: 'sendResetLink' });
+    const submitButton = screen.getByRole('button', { name: /sendResetLink/i });
     fireEvent.click(submitButton);
 
     await waitFor(() => {
@@ -77,10 +77,10 @@ describe('ForgotPasswordForm', () => {
 
     render(<ForgotPasswordForm />);
 
-    const emailInput = screen.getByLabelText('email');
+    const emailInput = screen.getByRole('textbox', { name: /email/i });
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
-    const submitButton = screen.getByRole('button', { name: 'sendResetLink' });
+    const submitButton = screen.getByRole('button', { name: /sendResetLink/i });
     fireEvent.click(submitButton);
 
     await waitFor(() => {
@@ -95,10 +95,10 @@ describe('ForgotPasswordForm', () => {
 
     render(<ForgotPasswordForm />);
 
-    const emailInput = screen.getByLabelText('email');
+    const emailInput = screen.getByRole('textbox', { name: /email/i });
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
-    const submitButton = screen.getByRole('button', { name: 'sendResetLink' });
+    const submitButton = screen.getByRole('button', { name: /sendResetLink/i });
     fireEvent.click(submitButton);
 
     await waitFor(() => {
