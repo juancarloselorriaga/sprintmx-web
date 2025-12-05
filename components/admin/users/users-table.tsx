@@ -7,6 +7,7 @@ import { UsersPermissionBadge } from '@/components/admin/users/users-permission-
 import { UsersTableActions } from '@/components/admin/users/users-table-actions';
 import { UsersTablePagination } from '@/components/admin/users/users-table-pagination';
 import { UsersTableToolbar } from '@/components/admin/users/users-table-toolbar';
+import { UsersTableSkeleton } from '@/components/admin/users/users-table-skeleton';
 import { Button } from '@/components/ui/button';
 import type { ColumnKey } from '@/lib/admin-users/types';
 import { cn } from '@/lib/utils';
@@ -129,53 +130,6 @@ export function UsersTable({
   const roleSort = query.sortBy === 'role' ? query.sortDir : null;
   const createdSort = query.sortBy === 'createdAt' ? query.sortDir : null;
 
-  const renderSkeletonRows = () => {
-    const count = Math.max(3, Math.min(paginationMeta.pageSize ?? 5, 8));
-    const skeletonColumns = {
-      role: columnVisibility.role,
-      permissions: columnVisibility.permissions,
-      created: columnVisibility.created,
-      actions: columnVisibility.actions,
-    };
-
-    return Array.from({ length: count }).map((_, index) => (
-      <tr key={`skeleton-${index}`} className="border-t">
-        <td className={cn('px-4 align-top', rowPadding)}>
-          <div className="space-y-2">
-            <div className="h-4 w-32 rounded bg-muted animate-pulse" />
-            <div className="h-3 w-40 rounded bg-muted animate-pulse" />
-          </div>
-        </td>
-        {skeletonColumns.role ? (
-          <td className={cn('px-4 align-top', rowPadding)}>
-            <div className="flex gap-2">
-              <div className="h-5 w-16 rounded-full bg-muted animate-pulse" />
-              <div className="h-5 w-12 rounded-full bg-muted animate-pulse" />
-            </div>
-          </td>
-        ) : null}
-        {skeletonColumns.permissions ? (
-          <td className={cn('px-4 align-top', rowPadding)}>
-            <div className="flex flex-wrap gap-2">
-              <div className="h-6 w-24 rounded bg-muted animate-pulse" />
-              <div className="h-6 w-28 rounded bg-muted animate-pulse" />
-            </div>
-          </td>
-        ) : null}
-        {skeletonColumns.created ? (
-          <td className={cn('px-4 align-top', rowPadding)}>
-            <div className="h-4 w-24 rounded bg-muted animate-pulse" />
-          </td>
-        ) : null}
-        {skeletonColumns.actions ? (
-          <td className={cn('px-4 align-top', rowPadding)}>
-            <div className="ml-auto h-8 w-20 rounded bg-muted animate-pulse" />
-          </td>
-        ) : null}
-      </tr>
-    ));
-  };
-
   return (
     <div className="space-y-4">
       <UsersTableToolbar
@@ -240,7 +194,17 @@ export function UsersTable({
           </thead>
           <tbody>
             {isLoading ? (
-              renderSkeletonRows()
+              <UsersTableSkeleton
+                rows={Math.max(3, Math.min(paginationMeta.pageSize ?? 5, 8))}
+                columns={{
+                  role: columnVisibility.role,
+                  permissions: columnVisibility.permissions,
+                  created: columnVisibility.created,
+                  actions: columnVisibility.actions,
+                }}
+                rowPadding={rowPadding as 'py-2' | 'py-3'}
+                renderAsRows
+              />
             ) : !hasResults ? (
               <tr>
                 <td

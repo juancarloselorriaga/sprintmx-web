@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { buildAdminUsersQueryObject } from '@/components/admin/users/search-params';
 import { SelfSignupUsersTableToolbar } from '@/components/admin/users/self-signup-users-table-toolbar';
 import { UsersTablePagination } from '@/components/admin/users/users-table-pagination';
+import { UsersTableSkeleton } from '@/components/admin/users/users-table-skeleton';
 import type { SelfSignupUserRow, SelfSignupUsersColumnKey } from '@/lib/self-signup-users/types';
 import { cn } from '@/lib/utils';
 import { usePathname, useRouter } from '@/i18n/navigation';
@@ -128,44 +129,6 @@ export function SelfSignupUsersTable({
     [tToolbar]
   );
 
-  const renderSkeletonRows = () => {
-    const count = Math.max(3, Math.min(paginationMeta.pageSize ?? 5, 8));
-    const skeletonColumns = {
-      role: columnVisibility.role,
-      created: columnVisibility.created,
-      actions: columnVisibility.actions,
-    };
-
-    return Array.from({ length: count }).map((_, index) => (
-      <tr key={`skeleton-${index}`} className="border-t">
-        <td className={cn('px-4 align-top', rowPadding)}>
-          <div className="space-y-2">
-            <div className="h-4 w-32 rounded bg-muted animate-pulse" />
-            <div className="h-3 w-40 rounded bg-muted animate-pulse" />
-          </div>
-        </td>
-        {skeletonColumns.role ? (
-          <td className={cn('px-4 align-top', rowPadding)}>
-            <div className="flex gap-2">
-              <div className="h-5 w-16 rounded-full bg-muted animate-pulse" />
-              <div className="h-5 w-12 rounded-full bg-muted animate-pulse" />
-            </div>
-          </td>
-        ) : null}
-        {skeletonColumns.created ? (
-          <td className={cn('px-4 align-top', rowPadding)}>
-            <div className="h-4 w-24 rounded bg-muted animate-pulse" />
-          </td>
-        ) : null}
-        {skeletonColumns.actions ? (
-          <td className={cn('px-4 align-top', rowPadding)}>
-            <div className="ml-auto h-8 w-20 rounded bg-muted animate-pulse" />
-          </td>
-        ) : null}
-      </tr>
-    ));
-  };
-
   return (
     <div className="space-y-4">
       <SelfSignupUsersTableToolbar
@@ -229,7 +192,17 @@ export function SelfSignupUsersTable({
           </thead>
           <tbody>
             {isLoading ? (
-              renderSkeletonRows()
+              <UsersTableSkeleton
+                rows={Math.max(3, Math.min(paginationMeta.pageSize ?? 5, 8))}
+                columns={{
+                  role: columnVisibility.role,
+                  created: columnVisibility.created,
+                  actions: columnVisibility.actions,
+                }}
+                rowPadding={rowPadding as 'py-2' | 'py-3'}
+                renderAsRows
+                minWidthClassName="min-w-[720px]"
+              />
             ) : !hasResults ? (
               <tr>
                 <td

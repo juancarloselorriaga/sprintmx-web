@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
+import { UsersTableSkeleton } from '@/components/admin/users/users-table-skeleton';
 
 export default function UsersLoading() {
   return (
@@ -34,46 +34,11 @@ export default function UsersLoading() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border bg-card shadow-sm">
-        <table className="w-full min-w-[720px] text-sm">
-          <thead className="bg-muted/60">
-            <tr>
-              {[1, 2, 3, 4, 5].map((col) => (
-                <th key={`col-${col}`} className="px-4 py-3">
-                  <div className="h-3 w-20 rounded bg-muted animate-pulse" />
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: 5 }).map((_, index) => (
-              <tr key={`row-${index}`} className="border-t">
-                <td className="px-4 py-3">
-                  <div className="space-y-2">
-                    <div className="h-4 w-32 rounded bg-muted animate-pulse" />
-                    <div className="h-3 w-40 rounded bg-muted animate-pulse" />
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="h-4 w-20 rounded bg-muted animate-pulse" />
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-2">
-                    <Skeleton className="h-6 w-24" />
-                    <Skeleton className="h-6 w-28" />
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="h-4 w-24 rounded bg-muted animate-pulse" />
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="ml-auto h-8 w-16 rounded bg-muted animate-pulse" />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <UsersTableSkeleton
+        rows={5}
+        columns={{ role: true, permissions: true, created: true, actions: true }}
+        showHeader
+      />
     </div>
   );
 }
