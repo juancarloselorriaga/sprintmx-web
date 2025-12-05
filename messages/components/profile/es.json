@@ -21,7 +21,7 @@
   },
   "actions": {
     "signOut": "Cerrar sesión",
-    "submit": "Guardar y continuar",
+    "submit": "Guardar",
     "clear": "Borrar"
   },
   "errors": {

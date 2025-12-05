@@ -21,7 +21,7 @@
   },
   "actions": {
     "signOut": "Sign out",
-    "submit": "Save and continue",
+    "submit": "Save",
     "clear": "Clear"
   },
   "errors": {

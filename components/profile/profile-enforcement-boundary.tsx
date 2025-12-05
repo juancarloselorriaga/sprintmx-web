@@ -1,7 +1,5 @@
 'use client';
 
-import { upsertProfileAction } from '@/app/actions/profile';
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -9,117 +7,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Spinner } from '@/components/ui/spinner';
-import { usePathname, useRouter } from '@/i18n/navigation';
+import { usePathname } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
-import { signOut, useSession } from '@/lib/auth/client';
+import { useSession } from '@/lib/auth/client';
 import { EMPTY_PROFILE_STATUS } from '@/lib/auth/constants';
-import type { ProfileRecord, ProfileStatus, ProfileUpsertInput } from '@/lib/profiles/types';
+import type { ProfileRecord, ProfileStatus } from '@/lib/profiles/types';
 import { buildProfileRequirementSummary } from '@/lib/profiles/requirements';
 import { buildProfileMetadata, ProfileMetadata } from '@/lib/profiles/metadata';
-import { DatePicker } from '@/components/ui/date-picker';
-import { PhoneInput } from '@/components/ui/phone-input-lazy';
-import { CheckCircle2, LogOut, ShieldAlert } from 'lucide-react';
+import { ShieldAlert } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
 import { useOnboardingOverrides } from '@/components/auth/onboarding-context';
-import { cn } from '@/lib/utils';
-
-type ProfileFormState = {
-  phone: string;
-  city: string;
-  state: string;
-  dateOfBirth: string;
-  emergencyContactName: string;
-  emergencyContactPhone: string;
-  gender: string;
-  shirtSize: string;
-  bloodType: string;
-  bio: string;
-};
-
-const DEFAULT_FORM_STATE: ProfileFormState = {
-  phone: '',
-  city: '',
-  state: '',
-  dateOfBirth: '',
-  emergencyContactName: '',
-  emergencyContactPhone: '',
-  gender: '',
-  shirtSize: '',
-  bloodType: '',
-  bio: '',
-};
-
-type FieldErrors = Record<keyof ProfileFormState, string | null>;
-
-const EMPTY_FIELD_ERRORS: FieldErrors = {
-  phone: null,
-  city: null,
-  state: null,
-  dateOfBirth: null,
-  emergencyContactName: null,
-  emergencyContactPhone: null,
-  gender: null,
-  shirtSize: null,
-  bloodType: null,
-  bio: null,
-};
+import { ProfileCompletionForm } from '@/components/profile/profile-completion-form';
 
 const DEFAULT_STATUS: ProfileStatus = EMPTY_PROFILE_STATUS;
 const FALLBACK_METADATA = buildProfileMetadata(buildProfileRequirementSummary([]));
-
-function FieldLabel({
-  children,
-  required,
-  error,
-}: {
-  children: React.ReactNode;
-  required?: boolean;
-  error?: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-2">
-      <span className={cn('font-medium', error ? 'text-destructive' : 'text-foreground')}>
-        {children}
-        {required ? (
-          <span className="ml-0.5 text-base font-bold text-destructive" aria-label="required">
-            *
-          </span>
-        ) : null}
-      </span>
-    </div>
-  );
-}
-
-function FieldError({ error }: { error?: string | null }) {
-  if (!error) return null;
-  return (
-    <p className="mt-1 text-xs text-destructive" role="alert" aria-live="polite">
-      {error}
-    </p>
-  );
-}
-
-type FormFieldProps = {
-  label: React.ReactNode;
-  required?: boolean;
-  error?: string | null;
-  children: React.ReactNode;
-  className?: string;
-};
-
-function FormField({ label, required, error, children, className }: FormFieldProps) {
-  return (
-    <label className={cn('space-y-1 text-sm', className)}>
-      <FieldLabel required={required} error={!!error}>
-        {label}
-      </FieldLabel>
-      {children}
-      <FieldError error={error} />
-    </label>
-  );
-}
 
 function toInternalPath(pathname: string) {
   const withoutQuery = pathname.split('?')[0]?.split('#')[0] ?? '';
@@ -155,56 +57,6 @@ function toInternalPath(pathname: string) {
   return localized;
 }
 
-function formatDateInput(value?: string | Date | null) {
-  if (!value) return '';
-  if (value instanceof Date) {
-    return value.toISOString().slice(0, 10);
-  }
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10);
-}
-
-function normalizeShirtSize(value?: string | null) {
-  if (!value) return '';
-  return value.trim().toLowerCase();
-}
-
-function normalizeBloodType(value?: string | null) {
-  if (!value) return '';
-  return value.trim().toLowerCase();
-}
-
-function toFormState(profile: ProfileRecord | null): ProfileFormState {
-  if (!profile) return DEFAULT_FORM_STATE;
-
-  return {
-    phone: profile.phone ?? '',
-    city: profile.city ?? '',
-    state: profile.state ?? '',
-    dateOfBirth: formatDateInput(profile.dateOfBirth),
-    emergencyContactName: profile.emergencyContactName ?? '',
-    emergencyContactPhone: profile.emergencyContactPhone ?? '',
-    gender: profile.gender ?? '',
-    shirtSize: normalizeShirtSize(profile.shirtSize),
-    bloodType: normalizeBloodType(profile.bloodType),
-    bio: profile.bio ?? '',
-  };
-}
-
-function buildPayload(form: ProfileFormState): ProfileUpsertInput {
-  const entries = Object.entries(form) as [keyof ProfileFormState, string][];
-  const payload: Record<string, string> = {};
-
-  entries.forEach(([key, value]) => {
-    const trimmed = value?.trim?.() ?? '';
-    if (!trimmed) return;
-
-    payload[key] = (key === 'shirtSize' || key === 'bloodType') ? trimmed.toLowerCase() : trimmed;
-  });
-
-  return payload;
-}
-
 function toLocalizedPath(pathname: string, locale: string) {
   const mapping = (routing.pathnames as Record<string, string | Record<string, string> | undefined>)[pathname];
   if (!mapping) return pathname;
@@ -231,32 +83,10 @@ function ProfileCompletionModal({
   onStatusUpdate,
   onProfileUpdate,
 }: ProfileCompletionModalProps) {
-  const router = useRouter();
   const t = useTranslations('components.profile');
   const locale = useLocale();
-  const [formState, setFormState] = useState<ProfileFormState>(toFormState(profile));
   const [remoteStatus, setRemoteStatus] = useState<ProfileStatus>(profileStatus);
   const [metadata, setMetadata] = useState<ProfileMetadata>(profileMetadata);
-  const [error, setError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>(EMPTY_FIELD_ERRORS);
-  const [isSubmitting, startTransition] = useTransition();
-  const requiredFieldKeys = useMemo(
-    () => new Set(metadata.requiredFieldKeys ?? []),
-    [metadata]
-  );
-  const shirtSizeOptions = metadata.shirtSizes ?? [];
-  const bloodTypeOptions = metadata.bloodTypes ?? [];
-  const isRequiredField = (field: keyof ProfileRecord) => requiredFieldKeys.has(field);
-
-  const handleFieldChange = <K extends keyof ProfileFormState>(
-    field: K,
-    value: ProfileFormState[K]
-  ) => {
-    setFormState((prev) => ({ ...prev, [field]: value }));
-    if (fieldErrors[field]) {
-      setFieldErrors((prev) => ({ ...prev, [field]: null }));
-    }
-  };
 
   useEffect(() => {
     setRemoteStatus(profileStatus);
@@ -268,53 +98,18 @@ function ProfileCompletionModal({
 
   useEffect(() => {
     if (!open) return;
-    setFormState(toFormState(profile));
     setMetadata(profileMetadata);
   }, [open, profile, profileMetadata]);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError(null);
-    setFieldErrors(EMPTY_FIELD_ERRORS);
-
-    startTransition(async () => {
-      const payload = buildPayload(formState);
-      const result = await upsertProfileAction(payload);
-
-      if (!result.ok) {
-        if (result.error === 'INVALID_INPUT') {
-          if (result.fieldErrors) {
-            const newFieldErrors = { ...EMPTY_FIELD_ERRORS };
-
-            Object.entries(result.fieldErrors).forEach(([field, messages]) => {
-              if (field in newFieldErrors) {
-                newFieldErrors[field as keyof FieldErrors] = messages[0] || null;
-              }
-            });
-
-            setFieldErrors(newFieldErrors);
-          }
-          setError(t('errors.invalidInput'));
-          return;
-        }
-        setError(t('errors.saveProfile'));
-        return;
-      }
-
-      setRemoteStatus(result.profileStatus);
-      onStatusUpdate(result.profileStatus);
-      setMetadata(result.profileMetadata);
-      onProfileUpdate(result.profile);
-      setFormState(toFormState(result.profile));
-      router.refresh();
-    });
-  };
-
-  const handleSignOut = () => {
-    startTransition(async () => {
-      await signOut();
-      router.refresh();
-    });
+  const handleUpdate = (result: {
+    profile: ProfileRecord | null;
+    profileStatus: ProfileStatus;
+    profileMetadata: ProfileMetadata;
+  }) => {
+    setRemoteStatus(result.profileStatus);
+    onStatusUpdate(result.profileStatus);
+    setMetadata(result.profileMetadata);
+    onProfileUpdate(result.profile);
   };
 
   return (
@@ -339,230 +134,12 @@ function ProfileCompletionModal({
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
-          {error ? (
-            <div
-              className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {error}
-            </div>
-          ) : null}
-
-          <div className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <CheckCircle2 className="h-4 w-4"/>
-              {t('status.label')}{' '}
-              {remoteStatus.isComplete ? t('status.complete') : t('status.incomplete')}
-            </div>
-          </div>
-
-          <form className="space-y-3" onSubmit={handleSubmit}>
-            <div className="grid gap-3 md:grid-cols-2">
-              <PhoneInput
-                label={
-                  <FieldLabel required={isRequiredField('phone')} error={!!fieldErrors.phone}>
-                    {t('fields.phone')}
-                  </FieldLabel>
-                }
-                name="phone"
-                value={formState.phone}
-                onChangeAction={(value) => handleFieldChange('phone', value)}
-                defaultCountry="MX"
-                error={fieldErrors.phone || undefined}
-                disabled={isSubmitting}
-              />
-
-              <FormField
-                label={t('fields.dateOfBirth')}
-                required={isRequiredField('dateOfBirth')}
-                error={fieldErrors.dateOfBirth}
-              >
-                <DatePicker
-                  locale={locale}
-                  value={formState.dateOfBirth}
-                  onChangeAction={(value) => handleFieldChange('dateOfBirth', value)}
-                  clearLabel={t('actions.clear')}
-                  name="dateOfBirth"
-                />
-              </FormField>
-
-              <FormField
-                label={t('fields.city')}
-                required={isRequiredField('city')}
-                error={fieldErrors.city}
-              >
-                <input
-                  className={cn(
-                    'w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
-                    'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
-                    fieldErrors.city && 'border-destructive focus-visible:border-destructive'
-                  )}
-                  name="city"
-                  value={formState.city}
-                  onChange={(e) => handleFieldChange('city', e.target.value)}
-                  disabled={isSubmitting}
-                />
-              </FormField>
-
-              <FormField
-                label={t('fields.state')}
-                required={isRequiredField('state')}
-                error={fieldErrors.state}
-              >
-                <input
-                  className={cn(
-                    'w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
-                    'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
-                    fieldErrors.state && 'border-destructive focus-visible:border-destructive'
-                  )}
-                  name="state"
-                  value={formState.state}
-                  onChange={(e) => handleFieldChange('state', e.target.value)}
-                  disabled={isSubmitting}
-                />
-              </FormField>
-
-              <FormField
-                label={t('fields.emergencyContactName')}
-                required={isRequiredField('emergencyContactName')}
-                error={fieldErrors.emergencyContactName}
-              >
-                <input
-                  className={cn(
-                    'w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
-                    'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
-                    fieldErrors.emergencyContactName &&
-                      'border-destructive focus-visible:border-destructive'
-                  )}
-                  name="emergencyContactName"
-                  value={formState.emergencyContactName}
-                  onChange={(e) => handleFieldChange('emergencyContactName', e.target.value)}
-                  disabled={isSubmitting}
-                />
-              </FormField>
-
-              <PhoneInput
-                label={
-                  <FieldLabel
-                    required={isRequiredField('emergencyContactPhone')}
-                    error={!!fieldErrors.emergencyContactPhone}
-                  >
-                    {t('fields.emergencyContactPhone')}
-                  </FieldLabel>
-                }
-                name="emergencyContactPhone"
-                value={formState.emergencyContactPhone}
-                onChangeAction={(value) => handleFieldChange('emergencyContactPhone', value)}
-                defaultCountry="MX"
-                error={fieldErrors.emergencyContactPhone || undefined}
-                disabled={isSubmitting}
-              />
-
-              <FormField
-                label={t('fields.gender')}
-                required={isRequiredField('gender')}
-                error={fieldErrors.gender}
-              >
-                <input
-                  className={cn(
-                    'w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
-                    'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
-                    fieldErrors.gender && 'border-destructive focus-visible:border-destructive'
-                  )}
-                  name="gender"
-                  value={formState.gender}
-                  onChange={(e) => handleFieldChange('gender', e.target.value)}
-                  disabled={isSubmitting}
-                />
-              </FormField>
-
-              <FormField
-                label={t('fields.shirtSize')}
-                required={isRequiredField('shirtSize')}
-                error={fieldErrors.shirtSize}
-              >
-                <select
-                  className={cn(
-                    'w-full appearance-none rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
-                    'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
-                    fieldErrors.shirtSize && 'border-destructive focus-visible:border-destructive'
-                  )}
-                  name="shirtSize"
-                  value={formState.shirtSize}
-                  onChange={(e) => handleFieldChange('shirtSize', e.target.value)}
-                  disabled={isSubmitting}
-                >
-                  <option value="">{t('selectOption')}</option>
-                  {shirtSizeOptions.map((size) => (
-                    <option key={size} value={size}>
-                      {t(`shirtSizes.${size}` as const, { defaultValue: size.toUpperCase() })}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
-
-              <FormField
-                label={t('fields.bloodType')}
-                required={isRequiredField('bloodType')}
-                error={fieldErrors.bloodType}
-              >
-                <select
-                  className={cn(
-                    'w-full appearance-none rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
-                    'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
-                    fieldErrors.bloodType && 'border-destructive focus-visible:border-destructive'
-                  )}
-                  name="bloodType"
-                  value={formState.bloodType}
-                  onChange={(e) => handleFieldChange('bloodType', e.target.value)}
-                  disabled={isSubmitting}
-                >
-                  <option value="">{t('selectOption')}</option>
-                  {bloodTypeOptions.map((type) => (
-                    <option key={type} value={type}>
-                      {type.toUpperCase()}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
-            </div>
-
-            <FormField
-              label={t('fields.bio')}
-              required={isRequiredField('bio')}
-              error={fieldErrors.bio}
-            >
-              <textarea
-                className={cn(
-                  'min-h-[80px] w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
-                  'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
-                  fieldErrors.bio && 'border-destructive focus-visible:border-destructive'
-                )}
-                name="bio"
-                value={formState.bio}
-                onChange={(e) => handleFieldChange('bio', e.target.value)}
-                disabled={isSubmitting}
-              />
-            </FormField>
-
-            <div
-              className="flex flex-col gap-3 border-t pt-3 sm:flex-row sm:items-center sm:justify-between">
-              <Button
-                type="button"
-                variant="ghost"
-                className="justify-start gap-2 text-sm text-muted-foreground"
-                onClick={handleSignOut}
-              >
-                <LogOut className="h-4 w-4"/>
-                {t('actions.signOut')}
-              </Button>
-
-              <div className="flex items-center gap-2">
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? <Spinner className="mr-2 h-4 w-4"/> : null}
-                  {t('actions.submit')}
-                </Button>
-              </div>
-            </div>
-          </form>
+          <ProfileCompletionForm
+            profile={profile}
+            profileStatus={remoteStatus}
+            profileMetadata={metadata}
+            onUpdateAction={handleUpdate}
+          />
         </div>
       </DialogContent>
     </Dialog>
