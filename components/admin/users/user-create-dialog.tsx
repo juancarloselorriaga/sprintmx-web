@@ -13,9 +13,11 @@ import {
 } from '@/components/ui/dialog';
 import { adminUsersTextInputClassName } from '@/components/admin/users/styles';
 import { cn } from '@/lib/utils';
+import { Form, FormError, useForm } from '@/lib/forms';
+import { FormField } from '@/components/ui/form-field';
 import { useRouter } from '@/i18n/navigation';
 import { Shield, ShieldCheck, UserPlus2 } from 'lucide-react';
-import { FormEvent, useMemo, useState, useTransition } from 'react';
+import { useMemo, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
 type FieldErrors = Partial<Record<'name' | 'email' | 'password', string[]>>;
@@ -83,6 +85,12 @@ function extractFieldErrors(details: unknown): FieldErrors {
   return output;
 }
 
+type CreateUserFormValues = {
+  name: string;
+  email: string;
+  password: string;
+};
+
 export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, initialRole = 'internal.admin' }: UserCreateDialogProps) {
   const t = useTranslations('pages.adminUsers.createDialog');
   const router = useRouter();
@@ -90,13 +98,48 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
   const resolvedOpen = open ?? internalOpen;
 
   const [role, setRole] = useState<'internal.admin' | 'internal.staff'>(initialRole);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [validationMessages, setValidationMessages] = useState<string[]>([]);
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [banner, setBanner] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isPending] = useTransition();
+
+  const form = useForm<CreateUserFormValues, { email: string; canonicalRoles: string[] }>({
+    defaultValues: { name: '', email: '', password: '' },
+    onSubmit: async (values) => {
+      const action = role === 'internal.admin' ? createAdminUser : createStaffUser;
+      const result = await action(values);
+
+      if (!result.ok) {
+        if (result.error === 'UNAUTHENTICATED') {
+          return { ok: false, error: 'UNAUTHENTICATED', message: t('errors.unauthenticated') };
+        }
+
+        if (result.error === 'FORBIDDEN') {
+          return { ok: false, error: 'FORBIDDEN', message: t('errors.forbidden') };
+        }
+
+        if (result.error === 'INVALID_INPUT') {
+          const messages = extractValidationMessages(result.details);
+          const byField = extractFieldErrors(result.details);
+          return {
+            ok: false,
+            error: 'INVALID_INPUT',
+            fieldErrors: byField,
+            message: messages[0] ?? t('errors.invalidInput'),
+          };
+        }
+
+        return { ok: false, error: 'SERVER_ERROR', message: t('errors.genericError') };
+      }
+
+      return { ok: true, data: result };
+    },
+    onSuccess: (result) => {
+      toast.success(t('success.toast', { email: result.email }), {
+        description: t('success.toastDescription', { roles: result.canonicalRoles.join(', ') }),
+      });
+      handleOpenChange(false);
+      onSuccessAction?.();
+      router.refresh();
+    },
+  });
 
   const handleOpenChange = (value: boolean) => {
     setInternalOpen(value);
@@ -105,12 +148,7 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
       setRole(initialRole);
     }
     if (!value) {
-      setValidationMessages([]);
-      setFieldErrors({});
-      setBanner(null);
-      setName('');
-      setEmail('');
-      setPassword('');
+      form.reset();
     }
   };
 
@@ -121,50 +159,6 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
         : t('roles.staff.summary'),
     [role, t]
   );
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setBanner(null);
-    setValidationMessages([]);
-    setFieldErrors({});
-
-    startTransition(async () => {
-      const action = role === 'internal.admin' ? createAdminUser : createStaffUser;
-      const result = await action({ email, name, password });
-
-      if (!result.ok) {
-        if (result.error === 'UNAUTHENTICATED') {
-          setBanner(t('errors.unauthenticated'));
-          return;
-        }
-
-        if (result.error === 'FORBIDDEN') {
-          setBanner(t('errors.forbidden'));
-          return;
-        }
-
-        if (result.error === 'INVALID_INPUT') {
-          const messages = extractValidationMessages(result.details);
-          const byField = extractFieldErrors(result.details);
-          setValidationMessages(messages);
-          setFieldErrors(byField);
-          setBanner(messages[0] ?? t('errors.invalidInput'));
-          return;
-        }
-
-        setBanner(t('errors.genericError'));
-        return;
-      }
-
-      toast.success(t('success.toast', { email: result.email }), {
-        description: t('success.toastDescription', { roles: result.canonicalRoles.join(', ') }),
-      });
-
-      handleOpenChange(false);
-      onSuccessAction?.();
-      router.refresh();
-    });
-  };
 
   return (
     <Dialog open={resolvedOpen} onOpenChange={handleOpenChange}>
@@ -179,13 +173,8 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
           </DialogDescription>
         </DialogHeader>
 
-        {banner ? (
-          <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {banner}
-          </div>
-        ) : null}
-
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <Form form={form} className="space-y-4">
+          <FormError />
           <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2">
             <Shield className="size-4 text-muted-foreground" />
             <div>
@@ -238,85 +227,74 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
 
           <p className="text-xs text-muted-foreground">{roleSummary}</p>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground/80" htmlFor="name">
-              {t('fields.name.label')}
-            </label>
+          <FormField
+            label={<span className="text-sm font-medium text-foreground/80">{t('fields.name.label')}</span>}
+            required
+            error={form.errors.name}
+          >
             <input
               id="name"
-              name="name"
               required
               type="text"
               autoComplete="name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
               className={adminUsersTextInputClassName}
               placeholder={t('fields.name.placeholder')}
+              {...form.register('name')}
+              disabled={isPending || form.isSubmitting}
             />
-            {fieldErrors.name?.length ? (
-              <p className="text-xs text-destructive">{fieldErrors.name[0]}</p>
-            ) : null}
-          </div>
+          </FormField>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground/80" htmlFor="email">
-              {t('fields.email.label')}
-            </label>
+          <FormField
+            label={<span className="text-sm font-medium text-foreground/80">{t('fields.email.label')}</span>}
+            required
+            error={form.errors.email}
+          >
             <input
               id="email"
-              name="email"
               required
               type="email"
               autoComplete="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
               className={adminUsersTextInputClassName}
               placeholder={t('fields.email.placeholder')}
+              {...form.register('email')}
+              disabled={isPending || form.isSubmitting}
             />
-            {fieldErrors.email?.length ? (
-              <p className="text-xs text-destructive">{fieldErrors.email[0]}</p>
-            ) : null}
-          </div>
+          </FormField>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground/80" htmlFor="password">
-              {t('fields.password.label')}
-            </label>
+          <FormField
+            label={<span className="text-sm font-medium text-foreground/80">{t('fields.password.label')}</span>}
+            required
+            error={form.errors.password}
+          >
             <input
               id="password"
-              name="password"
               required
               type="password"
               minLength={8}
               maxLength={128}
               autoComplete="new-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
               className={adminUsersTextInputClassName}
               placeholder={t('fields.password.placeholder')}
+              {...form.register('password')}
+              disabled={isPending || form.isSubmitting}
             />
             <p className="text-xs text-muted-foreground">
               {t('fields.password.hint')}
             </p>
-            {fieldErrors.password?.length ? (
-              <p className="text-xs text-destructive">{fieldErrors.password[0]}</p>
-            ) : null}
-          </div>
+          </FormField>
 
-          {validationMessages.length > 0 ? (
-            <ul className="space-y-1 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-              {validationMessages.map((message) => (
-                <li key={message}>{message}</li>
-              ))}
-            </ul>
+          {'errors' in form && form.error ? (
+            <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {form.error}
+            </div>
           ) : null}
 
           <DialogFooter className="flex justify-end gap-2 sm:justify-end">
             <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
               {t('buttons.cancel')}
             </Button>
-            <Button className="justify-center gap-2" disabled={isPending} type="submit">
-              {isPending ? (
+            <Button className="justify-center gap-2" disabled={isPending || form.isSubmitting} type="submit">
+              {isPending || form.isSubmitting ? (
                 <span className="animate-pulse">{t('buttons.creating')}</span>
               ) : (
                 <>
@@ -326,7 +304,7 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
               )}
             </Button>
           </DialogFooter>
-        </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
