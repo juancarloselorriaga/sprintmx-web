@@ -1,6 +1,6 @@
 'use client';
 
-import { AppLocale } from '@/i18n/routing';
+import { AppLocale, DEFAULT_TIMEZONE } from '@/i18n/routing';
 import { type Messages } from '@/i18n/types';
 import { NextIntlClientProvider } from 'next-intl';
 import React from 'react';
@@ -17,7 +17,11 @@ export function IntlProvider({
   children,
 }: IntlProviderProps) {
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+    <NextIntlClientProvider
+      locale={locale}
+      messages={messages}
+      timeZone={DEFAULT_TIMEZONE}
+    >
       {children}
     </NextIntlClientProvider>
   );

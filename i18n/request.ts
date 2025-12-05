@@ -2,7 +2,7 @@ import 'server-only';
 import { hasLocale } from 'next-intl';
 
 import { getRequestConfig } from 'next-intl/server';
-import { routing } from './routing';
+import { DEFAULT_TIMEZONE, routing } from './routing';
 import {
   getRequestPathname,
   getStoredRoutePathname,
@@ -30,5 +30,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
   return {
     locale: resolvedLocale,
     messages,
+    timeZone: DEFAULT_TIMEZONE,
   };
 });

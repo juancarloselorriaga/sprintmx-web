@@ -1,5 +1,7 @@
 import { defineRouting } from 'next-intl/routing';
 
+export const DEFAULT_TIMEZONE = 'America/Mexico_City';
+
 export const routing = defineRouting({
   // A list of all locales that are supported
   locales: ['es', 'en'],
