@@ -2,8 +2,10 @@
 
 import { Button } from '@/components/ui/button';
 import { resetPasswordWithToken } from '@/lib/auth/actions';
+import { Form, FormError, useForm } from '@/lib/forms';
+import { FormField } from '@/components/ui/form-field';
 import { Loader2, Lock, KeyRound } from 'lucide-react';
-import { FormEvent, useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 
@@ -11,9 +13,7 @@ export function ResetPasswordForm() {
   const t = useTranslations('pages.resetPassword');
   const tAuth = useTranslations('auth');
   const searchParams = useSearchParams();
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   const token = searchParams.get('token');
   const errorParam = searchParams.get('error');
@@ -23,99 +23,106 @@ export function ResetPasswordForm() {
     errorParam === 'INVALID_TOKEN' ? t('invalidToken') : null
   );
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError(null);
+  const form = useForm<{ password: string; confirmPassword: string }>({
+    defaultValues: { password: '', confirmPassword: '' },
+    onSubmit: async (values) => {
+      setError(null);
 
-    if (password !== confirmPassword) {
-      setError(t('passwordMismatch'));
-      return;
-    }
+      if (values.password !== values.confirmPassword) {
+        return { ok: false, error: 'INVALID_INPUT', message: t('passwordMismatch') };
+      }
 
-    if (!token) {
-      setError(t('missingToken'));
-      return;
-    }
+      if (!token) {
+        return { ok: false, error: 'INVALID_INPUT', message: t('missingToken') };
+      }
 
-    startTransition(async () => {
+      setIsPending(true);
       try {
-        const { error: resetError } = await resetPasswordWithToken(
-          password,
-          token
-        );
+        const { error: resetError } = await resetPasswordWithToken(values.password, token);
 
         if (resetError) {
-          setError(resetError.message ?? t('genericError'));
-          return;
+          return { ok: false, error: 'SERVER_ERROR', message: resetError.message ?? t('genericError') };
         }
 
-        // Password reset successful - redirect to sign-in with success message
-        // Using window.location for query param support since next-intl router doesn't support query objects
-        window.location.href = `${window.location.origin}/sign-in?reset=success`;
+        return { ok: true, data: null };
       } catch {
-        setError(t('genericError'));
+        return { ok: false, error: 'SERVER_ERROR', message: t('genericError') };
+      } finally {
+        setIsPending(false);
       }
-    });
-  };
+    },
+    onSuccess: () => {
+      // Password reset successful - redirect to sign-in with success message
+      // Using window.location for query param support since next-intl router doesn't support query objects
+      window.location.href = `${window.location.origin}/sign-in?reset=success`;
+    },
+    onError: (message) => {
+      setError(message);
+    },
+  });
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-foreground/80"
-               htmlFor="password">
-          <Lock className="size-4 text-muted-foreground"/>
-          {t('newPassword')}
-        </label>
+    <Form form={form} className="space-y-4">
+      <FormError />
+
+      <FormField
+        label={
+          <span className="flex items-center gap-2 text-sm font-medium text-foreground/80">
+            <Lock className="size-4 text-muted-foreground" />
+            {t('newPassword')}
+          </span>
+        }
+        required
+        error={form.errors.password}
+      >
         <input
           id="password"
-          name="password"
           required
           type="password"
           autoComplete="new-password"
           className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
           placeholder="••••••••"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          disabled={isPending}
+          {...form.register('password')}
+          disabled={isPending || form.isSubmitting}
           minLength={8}
           maxLength={128}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-foreground/80"
-               htmlFor="confirmPassword">
-          <KeyRound className="size-4 text-muted-foreground"/>
-          {t('confirmPassword')}
-        </label>
+      <FormField
+        label={
+          <span className="flex items-center gap-2 text-sm font-medium text-foreground/80">
+            <KeyRound className="size-4 text-muted-foreground" />
+            {t('confirmPassword')}
+          </span>
+        }
+        required
+        error={form.errors.confirmPassword}
+      >
         <input
           id="confirmPassword"
-          name="confirmPassword"
           required
           type="password"
           autoComplete="new-password"
           className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
           placeholder="••••••••"
-          value={confirmPassword}
-          onChange={(event) => setConfirmPassword(event.target.value)}
-          disabled={isPending}
+          {...form.register('confirmPassword')}
+          disabled={isPending || form.isSubmitting}
           minLength={8}
           maxLength={128}
         />
-      </div>
+      </FormField>
 
       <p className="text-xs text-muted-foreground">
         {tAuth('passwordRequirements')}
       </p>
 
-      {error ? (
-        <p className="text-sm text-destructive">{error}</p>
-      ) : null}
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-      <Button className="w-full" disabled={isPending} type="submit">
-        {isPending ? <Loader2 className="size-4 animate-spin"/> : <KeyRound className="size-4"/>}
+      <Button className="w-full" disabled={isPending || form.isSubmitting} type="submit">
+        {isPending || form.isSubmitting ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />}
         <span>{t('resetPassword')}</span>
       </Button>
-    </form>
+    </Form>
   );
 }

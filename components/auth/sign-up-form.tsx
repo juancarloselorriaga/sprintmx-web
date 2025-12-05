@@ -1,11 +1,13 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Form, FormError, useForm } from '@/lib/forms';
+import { FormField } from '@/components/ui/form-field';
 import { useRouter } from '@/i18n/navigation';
 import { signIn, signUp } from '@/lib/auth/client';
 import { routing } from '@/i18n/routing';
 import { Loader2, Lock, Mail, UserRoundPlus } from 'lucide-react';
-import { FormEvent, useState, useTransition } from 'react';
+import { useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 
 type SignUpFormProps = {
@@ -15,49 +17,49 @@ type SignUpFormProps = {
 export function SignUpForm({ callbackPath }: SignUpFormProps) {
   const t = useTranslations('auth');
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const isAppPathname = (value: string): value is keyof typeof routing.pathnames =>
     Object.prototype.hasOwnProperty.call(routing.pathnames, value);
   const targetPath: keyof typeof routing.pathnames =
     callbackPath && isAppPathname(callbackPath) ? callbackPath : '/dashboard';
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError(null);
-
-    if (!name || !email || !password) {
-      setError(t('missingFields'));
-      return;
-    }
-
-    startTransition(async () => {
-      try {
-        const { error: signUpError } = await signUp.email({
-          name,
-          email,
-          password,
-          callbackURL: targetPath,
-        });
-
-        if (signUpError) {
-          setError(signUpError.message ?? t('genericError'));
-          return;
-        }
-
-        router.refresh();
-        router.push(targetPath);
-      } catch {
-        setError(t('genericError'));
+  const form = useForm<{ name: string; email: string; password: string }>({
+    defaultValues: { name: '', email: '', password: '' },
+    onSubmit: async (values) => {
+      if (!values.name || !values.email || !values.password) {
+        return {
+          ok: false,
+          error: 'INVALID_INPUT',
+          message: t('missingFields'),
+          fieldErrors: {
+            name: values.name ? undefined : [t('name')],
+            email: values.email ? undefined : [t('email')],
+            password: values.password ? undefined : [t('password')],
+          },
+        };
       }
-    });
-  };
+
+      const { error: signUpError } = await signUp.email({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        callbackURL: targetPath,
+      });
+
+      if (signUpError) {
+        return { ok: false, error: 'SERVER_ERROR', message: signUpError.message ?? t('genericError') };
+      }
+
+      return { ok: true, data: null };
+    },
+    onSuccess: () => {
+      router.refresh();
+      router.push(targetPath);
+    },
+  });
 
   const handleGoogleSignUp = () => {
-    setError(null);
+    form.reset();
     startTransition(async () => {
       try {
         const { error: signInError } = await signIn.social({
@@ -66,64 +68,78 @@ export function SignUpForm({ callbackPath }: SignUpFormProps) {
         });
 
         if (signInError) {
-          setError(signInError.message ?? t('genericError'));
+          form.setError('password', signInError.message ?? t('genericError'));
           return;
         }
 
         router.refresh();
         router.push(targetPath);
       } catch {
-        setError(t('genericError'));
+        form.setError('password', t('genericError'));
       }
     });
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-foreground/80" htmlFor="name">
-          <UserRoundPlus className="size-4 text-muted-foreground"/>
-          {t('name')}
-        </label>
+    <Form form={form} className="space-y-4">
+      <FormError />
+
+      <FormField
+        label={
+          <span className="flex items-center gap-2 text-sm font-medium text-foreground/80">
+            <UserRoundPlus className="size-4 text-muted-foreground" />
+            {t('name')}
+          </span>
+        }
+        required
+        error={form.errors.name}
+      >
         <input
           id="name"
-          name="name"
           required
           type="text"
           autoComplete="name"
           className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
           placeholder={t('namePlaceholder')}
-          value={name}
-          onChange={(event) => setName(event.target.value)}
+          {...form.register('name')}
+          disabled={form.isSubmitting}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-foreground/80" htmlFor="email">
-          <Mail className="size-4 text-muted-foreground"/>
-          {t('email')}
-        </label>
+      <FormField
+        label={
+          <span className="flex items-center gap-2 text-sm font-medium text-foreground/80">
+            <Mail className="size-4 text-muted-foreground" />
+            {t('email')}
+          </span>
+        }
+        required
+        error={form.errors.email}
+      >
         <input
           id="email"
-          name="email"
           required
           type="email"
           autoComplete="email"
           className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
           placeholder="you@example.com"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
+          {...form.register('email')}
+          disabled={form.isSubmitting}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-foreground/80" htmlFor="password">
-          <Lock className="size-4 text-muted-foreground"/>
-          {t('password')}
-        </label>
+      <FormField
+        label={
+          <span className="flex items-center gap-2 text-sm font-medium text-foreground/80">
+            <Lock className="size-4 text-muted-foreground" />
+            {t('password')}
+          </span>
+        }
+        required
+        error={form.errors.password}
+      >
         <input
           id="password"
-          name="password"
           required
           type="password"
           autoComplete="new-password"
@@ -131,26 +147,22 @@ export function SignUpForm({ callbackPath }: SignUpFormProps) {
           maxLength={128}
           className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
           placeholder="••••••••"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          {...form.register('password')}
+          disabled={form.isSubmitting}
         />
         <p className="text-xs text-muted-foreground">
           {t('passwordRequirements')}
         </p>
-      </div>
+      </FormField>
 
-      {error ? (
-        <p className="text-sm text-destructive">{error}</p>
-      ) : null}
-
-      <Button className="w-full" disabled={isPending} type="submit">
-        {isPending ? <Loader2 className="size-4 animate-spin"/> : <UserRoundPlus className="size-4"/>}
+      <Button className="w-full" disabled={form.isSubmitting || isPending} type="submit">
+        {form.isSubmitting ? <Loader2 className="size-4 animate-spin" /> : <UserRoundPlus className="size-4" />}
         <span>{t('createAccount')}</span>
       </Button>
 
       <Button
         className="w-full"
-        disabled={isPending}
+        disabled={form.isSubmitting || isPending}
         type="button"
         variant="outline"
         onClick={handleGoogleSignUp}
@@ -158,6 +170,6 @@ export function SignUpForm({ callbackPath }: SignUpFormProps) {
         <span className="font-medium">G</span>
         <span>{t('continueWithGoogle')}</span>
       </Button>
-    </form>
+    </Form>
   );
 }

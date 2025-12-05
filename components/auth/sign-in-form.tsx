@@ -1,12 +1,14 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Form, FormError, useForm } from '@/lib/forms';
+import { FormField } from '@/components/ui/form-field';
 import { Link } from '@/i18n/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { signIn } from '@/lib/auth/client';
 import { routing } from '@/i18n/routing';
 import { Loader2, Lock, LogIn, Mail } from 'lucide-react';
-import { FormEvent, useState, useTransition } from 'react';
+import { useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 
 type SignInFormProps = {
@@ -16,42 +18,35 @@ type SignInFormProps = {
 export function SignInForm({ callbackPath }: SignInFormProps) {
   const t = useTranslations('auth');
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const isAppPathname = (value: string): value is keyof typeof routing.pathnames =>
     Object.prototype.hasOwnProperty.call(routing.pathnames, value);
   const targetPath: keyof typeof routing.pathnames =
     callbackPath && isAppPathname(callbackPath) ? callbackPath : '/dashboard';
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError(null);
+  const form = useForm<{ email: string; password: string }>({
+    defaultValues: { email: '', password: '' },
+    onSubmit: async (values) => {
+      const { error: signInError } = await signIn.email({
+        email: values.email,
+        password: values.password,
+        callbackURL: targetPath,
+      });
 
-    startTransition(async () => {
-      try {
-        const { error: signInError } = await signIn.email({
-          email,
-          password,
-          callbackURL: targetPath,
-        });
-
-        if (signInError) {
-          setError(signInError.message ?? t('genericError'));
-          return;
-        }
-
-        router.refresh();
-        router.push(targetPath);
-      } catch {
-        setError(t('genericError'));
+      if (signInError) {
+        return { ok: false, error: 'SERVER_ERROR', message: signInError.message ?? t('genericError') };
       }
-    });
-  };
+
+      return { ok: true, data: null };
+    },
+    onSuccess: () => {
+      router.refresh();
+      router.push(targetPath);
+    },
+  });
 
   const handleGoogleSignIn = () => {
-    setError(null);
+    form.reset();
     startTransition(async () => {
       try {
         const { error: signInError } = await signIn.social({
@@ -60,55 +55,65 @@ export function SignInForm({ callbackPath }: SignInFormProps) {
         });
 
         if (signInError) {
-          setError(signInError.message ?? t('genericError'));
+          form.setError('password', signInError.message ?? t('genericError'));
           return;
         }
 
         router.refresh();
         router.push(targetPath);
       } catch {
-        setError(t('genericError'));
+        form.setError('password', t('genericError'));
       }
     });
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-foreground/80" htmlFor="email">
-          <Mail className="size-4 text-muted-foreground"/>
-          {t('email')}
-        </label>
+    <Form form={form} className="space-y-4">
+      <FormError />
+
+      <FormField
+        label={
+          <span className="flex items-center gap-2 text-sm font-medium text-foreground/80">
+            <Mail className="size-4 text-muted-foreground" />
+            {t('email')}
+          </span>
+        }
+        required
+        error={form.errors.email}
+      >
         <input
           id="email"
-          name="email"
           required
           type="email"
           autoComplete="email"
           className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
           placeholder="you@example.com"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
+          {...form.register('email')}
+          disabled={form.isSubmitting}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-foreground/80" htmlFor="password">
-          <Lock className="size-4 text-muted-foreground"/>
-          {t('password')}
-        </label>
+      <FormField
+        label={
+          <span className="flex items-center gap-2 text-sm font-medium text-foreground/80">
+            <Lock className="size-4 text-muted-foreground" />
+            {t('password')}
+          </span>
+        }
+        required
+        error={form.errors.password}
+      >
         <input
           id="password"
-          name="password"
           required
           type="password"
           autoComplete="current-password"
           className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30"
           placeholder="••••••••"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          {...form.register('password')}
+          disabled={form.isSubmitting}
         />
-      </div>
+      </FormField>
 
       <div className="text-right">
         <Link
@@ -119,18 +124,14 @@ export function SignInForm({ callbackPath }: SignInFormProps) {
         </Link>
       </div>
 
-      {error ? (
-        <p className="text-sm text-destructive">{error}</p>
-      ) : null}
-
-      <Button className="w-full" disabled={isPending} type="submit">
-        {isPending ? <Loader2 className="size-4 animate-spin"/> : <LogIn className="size-4"/>}
+      <Button className="w-full" disabled={form.isSubmitting || isPending} type="submit">
+        {form.isSubmitting ? <Loader2 className="size-4 animate-spin" /> : <LogIn className="size-4" />}
         <span>{t('signIn')}</span>
       </Button>
 
       <Button
         className="w-full"
-        disabled={isPending}
+        disabled={form.isSubmitting || isPending}
         type="button"
         variant="outline"
         onClick={handleGoogleSignIn}
@@ -138,6 +139,6 @@ export function SignInForm({ callbackPath }: SignInFormProps) {
         <span className="font-medium">G</span>
         <span>{t('continueWithGoogle')}</span>
       </Button>
-    </form>
+    </Form>
   );
 }
