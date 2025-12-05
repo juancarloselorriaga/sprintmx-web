@@ -3,7 +3,10 @@
 import { db } from '@/db';
 import { roles, users, userRoles } from '@/db/schema';
 import { withAdminUser } from '@/lib/auth/action-wrapper';
-import { getUserRolesWithInternalFlag } from '@/lib/auth/roles';
+import {
+  getExternalRoleSourceNamesByKind,
+  getUserRolesWithInternalFlag,
+} from '@/lib/auth/roles';
 import {
   type NormalizedSelfSignupUsersQuery,
   type SelfSignupUsersQuery,
@@ -12,12 +15,7 @@ import {
 import type { ListSelfSignupUsersResult, SelfSignupUserRow } from '@/lib/self-signup-users/types';
 import { SQL, asc, and, desc, eq, ilike, inArray, isNull, or, sql } from 'drizzle-orm';
 
-const EXTERNAL_ROLE_NAMES_BY_KIND = {
-  organizer: ['organizer'],
-  athlete: ['athlete'],
-  volunteer: ['volunteer', 'user'],
-} satisfies Record<Exclude<NormalizedSelfSignupUsersQuery['role'], 'all'>, string[]>;
-
+const EXTERNAL_ROLE_NAMES_BY_KIND = getExternalRoleSourceNamesByKind();
 const EXTERNAL_ROLE_NAMES = Array.from(new Set(Object.values(EXTERNAL_ROLE_NAMES_BY_KIND).flat()));
 
 export const listSelfSignupUsers = withAdminUser<ListSelfSignupUsersResult>({

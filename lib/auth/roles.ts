@@ -226,6 +226,34 @@ export function getSelectableExternalRoles(): CanonicalRole[] {
     .map((role) => role.id);
 }
 
+const isExternalRoleKind = (
+  kind: RoleKind
+): kind is Extract<RoleKind, 'organizer' | 'athlete' | 'volunteer'> =>
+  kind === 'organizer' || kind === 'athlete' || kind === 'volunteer';
+
+type ExternalRoleKind = Extract<RoleKind, 'organizer' | 'athlete' | 'volunteer'>;
+
+export function getExternalRoleSourceNamesByKind(): Record<ExternalRoleKind, string[]> {
+  const kindSets: Record<ExternalRoleKind, Set<string>> = {
+    organizer: new Set<string>(),
+    athlete: new Set<string>(),
+    volunteer: new Set<string>(),
+  };
+
+  Object.values(ROLE_REGISTRY).forEach((role) => {
+    if (role.category !== 'external') return;
+    if (!isExternalRoleKind(role.kind)) return;
+    const kind: ExternalRoleKind = role.kind;
+    role.sourceNames.forEach((name) => kindSets[kind].add(name));
+  });
+
+  return {
+    organizer: Array.from(kindSets.organizer),
+    athlete: Array.from(kindSets.athlete),
+    volunteer: Array.from(kindSets.volunteer),
+  };
+}
+
 export function getInternalRoleSourceNames(kind?: InternalRoleKind): string[] {
   return unique(
     Object.values(ROLE_REGISTRY)
