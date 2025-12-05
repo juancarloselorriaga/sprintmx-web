@@ -10,6 +10,7 @@ import {
 import { generateRootMetadata } from '@/utils/seo';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { setRequestLocale } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 import Loading from './loading';
@@ -40,6 +41,8 @@ export default async function LocaleLayout({
   if (!routing.locales.includes(locale)) {
     notFound();
   }
+
+  setRequestLocale(locale);
 
   const storedPathname = getStoredRoutePathname();
   const pathname = storedPathname ?? (await getRequestPathname());
