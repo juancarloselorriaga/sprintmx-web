@@ -33,6 +33,49 @@
       "title": "Staff tools",
       "description": "Operational utilities and event management shortcuts.",
       "placeholder": "Staff tools will be available soon."
+    },
+    "metrics": {
+      "sectionTitle": "Platform activity",
+      "sectionDescription": "High-level signals for how RunGoMX is being used.",
+      "timeRange": "Last 30 days",
+      "ranges": {
+        "last7days": "Last 7 days",
+        "last14days": "Last 14 days",
+        "last30days": "Last 30 days"
+      },
+      "users": {
+        "title": "User signups",
+        "description": "New accounts created across the platform.",
+        "totalLabel": "{count, number} total users"
+      },
+      "profiles": {
+        "title": "Profiles created",
+        "description": "Athlete and organizer profiles with details filled in.",
+        "completionLabel": "{rate, number} % of users with a profile"
+      },
+      "contactSubmissions": {
+        "title": "Feedback activity",
+        "description": "Feedback submitted from the in-app dialog.",
+        "totalLabel": "{count, number} feedback entries",
+        "originsPrefix": "Top sources:"
+      },
+      "registrationsByRole": {
+        "title": "Registrations by role",
+        "description": "Breakdown of new signups by external role in the selected period.",
+        "totalLabel": "{count, number} role assignments",
+        "roles": {
+          "organizer": "Organizers",
+          "athlete": "Athletes",
+          "volunteer": "Volunteers"
+        }
+      },
+      "operations": {
+        "feedbackRateTitle": "Feedback rate",
+        "feedbackRateDescription": "How often users send feedback in the selected period.",
+        "feedbackRateLabel": "Feedback entries relative to total users",
+        "feedbackEntriesLabel": "{count, number} feedback entries",
+        "usersLabel": "{count, number} users"
+      }
     }
   }
 }

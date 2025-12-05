@@ -33,6 +33,49 @@
       "title": "Herramientas de staff",
       "description": "Utilidades operativas y atajos para gestión de eventos.",
       "placeholder": "Las herramientas de staff estarán disponibles pronto."
+    },
+    "metrics": {
+      "sectionTitle": "Actividad de la plataforma",
+      "sectionDescription": "Señales generales de cómo se utiliza RunGoMX.",
+      "timeRange": "Últimos 30 días",
+      "ranges": {
+        "last7days": "Últimos 7 días",
+        "last14days": "Últimos 14 días",
+        "last30days": "Últimos 30 días"
+      },
+      "users": {
+        "title": "Altas de usuarios",
+        "description": "Nuevas cuentas creadas en la plataforma.",
+        "totalLabel": "{count, number} usuarios en total"
+      },
+      "profiles": {
+        "title": "Perfiles creados",
+        "description": "Perfiles de atletas y organizadores con información registrada.",
+        "completionLabel": "{rate, number} % de usuarios con perfil"
+      },
+      "contactSubmissions": {
+        "title": "Actividad de comentarios",
+        "description": "Comentarios enviados desde el diálogo dentro de la app.",
+        "totalLabel": "{count, number} comentarios",
+        "originsPrefix": "Fuentes principales:"
+      },
+      "registrationsByRole": {
+        "title": "Registros por rol",
+        "description": "Distribución de altas nuevas por rol externo en el periodo seleccionado.",
+        "totalLabel": "{count, number} asignaciones de rol",
+        "roles": {
+          "organizer": "Organizadores",
+          "athlete": "Atletas",
+          "volunteer": "Voluntarios"
+        }
+      },
+      "operations": {
+        "feedbackRateTitle": "Tasa de comentarios",
+        "feedbackRateDescription": "Con qué frecuencia las personas envían comentarios en el periodo seleccionado.",
+        "feedbackRateLabel": "Comentarios en relación con el total de usuarios",
+        "feedbackEntriesLabel": "{count, number} comentarios",
+        "usersLabel": "{count, number} usuarios"
+      }
     }
   }
 }
