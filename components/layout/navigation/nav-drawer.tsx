@@ -13,6 +13,7 @@ import * as SheetPrimitive from '@radix-ui/react-dialog';
 import { PanelRightOpen } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { useNavDrawer } from './nav-drawer-context';
 
 export function NavigationDrawerContent({
   user: initialUser,
@@ -22,6 +23,7 @@ export function NavigationDrawerContent({
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const t = useTranslations('common');
   const { data } = useSession();
+  const { open } = useNavDrawer();
 
   const resolvedUser = useMemo(
     () => data?.user ?? initialUser ?? null,
@@ -35,8 +37,15 @@ export function NavigationDrawerContent({
   }, [pathname]);
 
   return (
-    <SheetContent side="left" hideCloseButton className="w-[80%] max-w-sm border-r p-0">
-      <div className="flex flex-col h-full">
+    <SheetContent
+      side="left"
+      hideCloseButton
+      className="p-0"
+    >
+      <div
+        className="flex h-full flex-col origin-left px-0 py-0 opacity-0 scale-[0.97] translate-x-[-4px] transform-gpu transition-[opacity,transform] duration-[220ms] ease-[cubic-bezier(0.18,0.89,0.32,1.28)] delay-75 group-data-[state=closed]/sheet:delay-0 group-data-[state=open]/sheet:opacity-100 group-data-[state=open]/sheet:scale-100 group-data-[state=open]/sheet:translate-x-0"
+        data-open={open ? 'true' : 'false'}
+      >
         <SheetHeader className="p-1 py-2 border-b">
           <div className="flex items-center justify-between">
             <SheetTitle asChild>

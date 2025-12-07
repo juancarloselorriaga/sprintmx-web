@@ -4,6 +4,10 @@ import {
   protectedNavSections
 } from '@/components/layout/navigation/protected-nav-items.constants';
 import { Sidebar } from '@/components/layout/navigation/sidebar';
+import {
+  MobileNavPushLayout,
+  NavDrawerProvider,
+} from '@/components/layout/navigation/nav-drawer-context';
 import ProtectedLayoutWrapper from '@/components/layout/protected-layout-wrapper';
 import { getPathname } from '@/i18n/navigation';
 import { AppLocale } from '@/i18n/routing';
@@ -37,19 +41,23 @@ export default async function ProtectedLayout({
     }));
   }
 
-  return <ProtectedLayoutWrapper>
-    <div className="min-h-screen bg-background">
-      <NavigationBar items={protectedNavItems} variant="protected"/>
-      <div className="flex">
-        <Sidebar sections={protectedNavSections}/>
-        <div className="flex-1 min-w-0">
-          <main className="px-4 pb-10 pt-6 md:px-8 lg:px-10">
-            <div className="mx-auto w-full max-w-6xl">
-              {children}
+  return (
+    <ProtectedLayoutWrapper>
+      <NavDrawerProvider>
+        <MobileNavPushLayout className="min-h-screen bg-background">
+          <NavigationBar items={protectedNavItems} variant="protected" />
+          <div className="flex">
+            <Sidebar sections={protectedNavSections} />
+            <div className="flex-1 min-w-0">
+              <main className="px-4 pb-10 pt-6 md:px-8 lg:px-10">
+                <div className="mx-auto w-full max-w-6xl">
+                  {children}
+                </div>
+              </main>
             </div>
-          </main>
-        </div>
-      </div>
-    </div>
-  </ProtectedLayoutWrapper>;
+          </div>
+        </MobileNavPushLayout>
+      </NavDrawerProvider>
+    </ProtectedLayoutWrapper>
+  );
 };

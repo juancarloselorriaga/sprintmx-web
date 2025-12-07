@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetTrigger } from '@/components/ui/sheet';
 import { PanelRightClose } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { Suspense, useState } from 'react';
+import { Suspense } from 'react';
 import type { NavigationDrawerContentProps } from './types';
+import { useNavDrawer } from './nav-drawer-context';
 
 const NavigationDrawerContent = dynamic<NavigationDrawerContentProps>(
   () => import('./nav-drawer').then(mod => mod.NavigationDrawerContent),
@@ -20,7 +21,7 @@ export function NavDrawerTrigger({
   user,
   items
 }: NavDrawerTriggerProps) {
-  const [open, setOpen] = useState(false);
+  const { open, setOpen } = useNavDrawer();
 
   return (
     <div className="md:hidden">
@@ -30,11 +31,9 @@ export function NavDrawerTrigger({
             <PanelRightClose size={22}/>
           </Button>
         </SheetTrigger>
-        {open && (
-          <Suspense fallback={null}>
-            <NavigationDrawerContent user={user} items={items}/>
-          </Suspense>
-        )}
+        <Suspense fallback={null}>
+          <NavigationDrawerContent user={user} items={items}/>
+        </Suspense>
       </Sheet>
     </div>
   );

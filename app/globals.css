@@ -160,3 +160,33 @@
         font-size: max(16px, 1em);
     }
 }
+
+@layer components {
+    .mobile-nav-push-layout {
+        transition-property: transform, box-shadow, border-radius;
+        transition-duration: 260ms;
+        transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+        transform-origin: left center;
+        will-change: transform;
+    }
+
+    .mobile-nav-push-layout-open {
+        transform: translateX(80vw) scale(0.97);
+        border-radius: 0.95rem;
+        box-shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
+    }
+
+    @media (min-width: 768px) {
+        .mobile-nav-push-layout {
+            transform: none;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        .mobile-nav-push-layout-open {
+            transform: none;
+            box-shadow: none;
+            border-radius: 0;
+        }
+    }
+}

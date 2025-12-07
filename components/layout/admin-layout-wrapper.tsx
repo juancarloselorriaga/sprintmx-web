@@ -1,6 +1,10 @@
 import type { PermissionSet } from '@/lib/auth/roles';
 import { type ReactNode } from 'react';
 import NavigationBar from '@/components/layout/navigation/nav-bar';
+import {
+  MobileNavPushLayout,
+  NavDrawerProvider,
+} from './navigation/nav-drawer-context';
 import { buildAdminNavItems, buildAdminNavSections } from './navigation/admin-nav-items.constants';
 import { Sidebar } from './navigation/sidebar';
 
@@ -17,18 +21,20 @@ export default function AdminLayoutWrapper({
   const navItems = buildAdminNavItems(permissions);
 
   return (
-    <div className="min-h-screen bg-background">
-      <NavigationBar items={navItems} variant="protected"/>
-      <div className="flex">
-        <Sidebar sections={navSections}/>
-        <div className="flex-1 min-w-0">
-          <main className="px-4 pb-10 pt-6 md:px-8 lg:px-10">
-            <div className="mx-auto w-full max-w-6xl">
-              {children}
-            </div>
-          </main>
+    <NavDrawerProvider>
+      <MobileNavPushLayout className="min-h-screen bg-background">
+        <NavigationBar items={navItems} variant="protected" />
+        <div className="flex">
+          <Sidebar sections={navSections} />
+          <div className="flex-1 min-w-0">
+            <main className="px-4 pb-10 pt-6 md:px-8 lg:px-10">
+              <div className="mx-auto w-full max-w-6xl">
+                {children}
+              </div>
+            </main>
+          </div>
         </div>
-      </div>
-    </div>
+      </MobileNavPushLayout>
+    </NavDrawerProvider>
   );
 }
