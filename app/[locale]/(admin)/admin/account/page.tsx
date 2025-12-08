@@ -35,7 +35,7 @@ export default async function AdminAccountPage({ params }: LocalePageProps) {
         <p className="text-muted-foreground">{tPage('description')}</p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-8">
         <AccountNameForm
           defaultName={user?.name ?? ''}
           email={user?.email ?? ''}
