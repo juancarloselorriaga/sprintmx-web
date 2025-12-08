@@ -264,10 +264,8 @@ async function loadMessagesForSelection(
   selection: NamespaceSelection
 ): Promise<Messages> {
   'use cache';
-  if (process.env.NODE_ENV !== 'test') {
-    cacheTag('i18n-messages', `i18n-${locale}`);
-    cacheLife('weeks');
-  }
+  cacheTag('i18n-messages', `i18n-${locale}`);
+  cacheLife('weeks');
 
   const [baseNamespaces, componentNamespaces, pageNamespaces] = await Promise.all([
     loadNamespaceGroup(locale, pickLoaders(rootNamespaceLoaders, selection.base)),
