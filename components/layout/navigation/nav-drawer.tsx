@@ -1,16 +1,13 @@
 'use client';
 
 import AuthControlsCompact from '@/components/auth/auth-controls-compact';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { NavItems } from '@/components/layout/navigation/nav-items';
 import type { NavigationDrawerContentProps } from '@/components/layout/navigation/types';
-import { LanguageSwitcher } from '@/components/language-switcher';
 import { ThemeSwitcher } from '@/components/theme-switcher';
-import { Button } from '@/components/ui/button';
 import { SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Link, usePathname } from '@/i18n/navigation';
 import { useSession } from '@/lib/auth/client';
-import * as SheetPrimitive from '@radix-ui/react-dialog';
-import { PanelRightOpen } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Suspense, useEffect, useMemo, useRef } from 'react';
 import { useNavDrawer } from './nav-drawer-context';
@@ -53,12 +50,6 @@ export function NavigationDrawerContent({
                 {t('brandName')}
               </Link>
             </SheetTitle>
-            <SheetPrimitive.Close asChild ref={closeButtonRef}>
-              <Button variant="ghost" size="icon" className="p-0 rounded-sm h-8 w-8">
-                <PanelRightOpen size={20} />
-                <span className="sr-only">{t('close')}</span>
-              </Button>
-            </SheetPrimitive.Close>
           </div>
         </SheetHeader>
 
