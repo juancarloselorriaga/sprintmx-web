@@ -129,7 +129,7 @@ export function createProfileValidationSchema(requiredFields: (keyof ProfileReco
         });
       }
 
-      if (age >= MAX_AGE_YEARS) {
+      if (age > MAX_AGE_YEARS) {
         ctx.addIssue({
           code: 'custom',
           message: `Age must be between ${MIN_AGE_YEARS} and ${MAX_AGE_YEARS} years old`,
@@ -186,6 +186,11 @@ export function createProfileValidationSchema(requiredFields: (keyof ProfileReco
           path: ['longitude'],
         });
       }
+    }
+
+    // If gender is not self-described, ignore any description to avoid storing stale values.
+    if (data.gender !== 'self_described' && data.genderDescription !== undefined) {
+      data.genderDescription = undefined;
     }
   });
 }
