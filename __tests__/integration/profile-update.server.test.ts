@@ -5,15 +5,23 @@ import type { ProfileRecord, ProfileUpsertInput } from '@/lib/profiles/types';
 import { headers } from 'next/headers';
 
 const mockRequireAuth = jest.fn();
-const mockUpsertProfile = jest.fn<Promise<ProfileRecord>, [string, ProfileUpsertInput]>();
-const mockGetSession = jest.fn();
+let mockUpsertProfile: jest.Mock<Promise<ProfileRecord>, [string, ProfileUpsertInput]>;
+let mockGetSession: jest.Mock;
+
+function upsertProfileProxy(...args: Parameters<typeof mockUpsertProfile>) {
+  return mockUpsertProfile(...args);
+}
+
+function getSessionProxy(...args: unknown[]) {
+  return mockGetSession(...args);
+}
 
 jest.mock('@/lib/auth/guards', () => ({
   requireAuthenticatedUser: (...args: unknown[]) => mockRequireAuth(...args),
 }));
 
 jest.mock('@/lib/profiles/repository', () => ({
-  upsertProfile: mockUpsertProfile,
+  upsertProfile: (...args: unknown[]) => upsertProfileProxy(...args as [string, ProfileUpsertInput]),
   getProfileByUserId: jest.fn(),
 }));
 
@@ -24,7 +32,7 @@ jest.mock('next/headers', () => ({
 jest.mock('@/lib/auth', () => ({
   auth: {
     api: {
-      getSession: mockGetSession,
+      getSession: (...args: unknown[]) => getSessionProxy(...args),
     },
   },
 }));
@@ -90,6 +98,8 @@ const profileFromInput = (userId: string, input: ProfileUpsertInput): ProfileRec
 describe('Profile Update Flow', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUpsertProfile = jest.fn<Promise<ProfileRecord>, [string, ProfileUpsertInput]>();
+    mockGetSession = jest.fn();
     mockRequireAuth.mockResolvedValue({
       user: { id: 'user-1' },
       isInternal: false,

@@ -8,28 +8,16 @@ type ChangePasswordBody = {
 };
 
 const mockRequireAuth = jest.fn();
-const mockChangePassword = jest.fn(
-  async ({ body }: { body: ChangePasswordBody }) => {
-    const { currentPassword, newPassword, revokeOtherSessions } = body;
+let mockChangePassword: jest.Mock;
+let mockGetSession: jest.Mock;
 
-    if (currentPassword !== currentPasswordState.value) {
-      throw new Error('INVALID_PASSWORD');
-    }
+function changePasswordProxy(...args: unknown[]) {
+  return mockChangePassword(...args);
+}
 
-    if (newPassword.includes('pwned')) {
-      throw new Error('PASSWORD_PWNED');
-    }
-
-    currentPasswordState.value = newPassword;
-
-    if (revokeOtherSessions !== false) {
-      sessionState.tokens = ['new-session'];
-    } else {
-      sessionState.tokens = [...sessionState.tokens, 'new-session'];
-    }
-  }
-);
-const mockGetSession = jest.fn(async () => ({ tokens: sessionState.tokens }));
+function getSessionProxy(...args: unknown[]) {
+  return mockGetSession(...args);
+}
 
 jest.mock('@/lib/auth/guards', () => ({
   requireAuthenticatedUser: (...args: unknown[]) => mockRequireAuth(...args),
@@ -42,8 +30,8 @@ jest.mock('next/headers', () => ({
 jest.mock('@/lib/auth', () => ({
   auth: {
     api: {
-      changePassword: mockChangePassword,
-      getSession: mockGetSession,
+      changePassword: (...args: unknown[]) => changePasswordProxy(...args),
+      getSession: (...args: unknown[]) => getSessionProxy(...args),
     },
   },
 }));
@@ -58,6 +46,28 @@ describe('Password Change Flow', () => {
     currentPasswordState.value = 'old-password';
     sessionState.tokens = ['session-1', 'session-2'];
     mockRequireAuth.mockResolvedValue({ user: { id: 'user-1' } });
+    mockChangePassword = jest.fn(
+      async ({ body }: { body: ChangePasswordBody }) => {
+        const { currentPassword, newPassword, revokeOtherSessions } = body;
+
+        if (currentPassword !== currentPasswordState.value) {
+          throw new Error('INVALID_PASSWORD');
+        }
+
+        if (newPassword.includes('pwned')) {
+          throw new Error('PASSWORD_PWNED');
+        }
+
+        currentPasswordState.value = newPassword;
+
+        if (revokeOtherSessions !== false) {
+          sessionState.tokens = ['new-session'];
+        } else {
+          sessionState.tokens = [...sessionState.tokens, 'new-session'];
+        }
+      }
+    );
+    mockGetSession = jest.fn(async () => ({ tokens: sessionState.tokens }));
   });
 
   it('returns a field error and keeps the old password when the current password is incorrect', async () => {
