@@ -36,11 +36,15 @@ export const updateAccountNameAction = withAuthenticatedUser<UpdateAccountNameRe
       .set({ name, updatedAt: new Date() })
       .where(eq(users.id, user.id));
 
-    const h = await headers();
-    await auth.api.getSession({
-      headers: h,
-      query: { disableCookieCache: true },
-    });
+    try {
+      const h = await headers();
+      await auth.api.getSession({
+        headers: h,
+        query: { disableCookieCache: true },
+      });
+    } catch (error) {
+      console.warn('[account] Session refresh failed after name update; will refresh later', error);
+    }
 
     return {
       ok: true,
@@ -141,10 +145,14 @@ export const changePasswordAction = withAuthenticatedUser<ChangePasswordResult>(
       },
     });
 
-    await auth.api.getSession({
-      headers: requestHeaders,
-      query: { disableCookieCache: true },
-    });
+    try {
+      await auth.api.getSession({
+        headers: requestHeaders,
+        query: { disableCookieCache: true },
+      });
+    } catch (error) {
+      console.warn('[account] Session refresh failed after password change; will refresh later', error);
+    }
 
     return { ok: true, data: null };
   } catch (error) {

@@ -58,8 +58,6 @@ const DEFAULT_VALUES: ProfileFormValues = {
   heightCm: '',
 };
 
-const COUNTRY_OPTIONS = ['MX', 'US', 'CA', 'ES', 'BR'] as const;
-
 type UpsertProfileSuccess = {
   profile: ProfileRecord | null;
   profileStatus: ProfileStatus;
@@ -132,7 +130,7 @@ function buildPayload(values: ProfileFormValues): ProfileUpsertInput {
     assign('genderDescription', values.genderDescription);
   } else if (values.gender !== 'self_described') {
     // Drop description when not self-described to avoid stale values
-    payload.genderDescription = undefined;
+    payload.genderDescription = null;
   }
 
   assign('emergencyContactName', values.emergencyContactName);
@@ -232,6 +230,7 @@ function ProfileForm({
   const shirtSizeOptions = profileMetadata.shirtSizes ?? [];
   const bloodTypeOptions = profileMetadata.bloodTypes ?? [];
   const genderOptions = profileMetadata.genderOptions ?? [];
+  const countryOptions = profileMetadata.countries ?? [];
 
   const phoneField = form.register('phone');
   const emergencyPhoneField = form.register('emergencyContactPhone');
@@ -367,7 +366,7 @@ function ProfileForm({
             label={t('fields.country')}
             value={form.values.country}
             onChangeAction={(value) => form.setFieldValue('country', value)}
-            options={COUNTRY_OPTIONS}
+            options={countryOptions}
             required={isRequiredField('country')}
             error={form.errors.country}
             disabled={isBusy}

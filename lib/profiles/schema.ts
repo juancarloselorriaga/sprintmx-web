@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SHIRT_SIZES, BLOOD_TYPES, GENDER_CODES } from './metadata';
+import { SHIRT_SIZES, BLOOD_TYPES, GENDER_CODES, ALLOWED_COUNTRIES } from './metadata';
 import { optionalPhoneNumber } from '@/lib/phone/schema';
 
 const optionalTrimmedString = (maxLength: number) =>
@@ -18,11 +18,7 @@ const optionalCountryCode = () =>
 
     const trimmed = val.trim().toUpperCase();
     return trimmed.length === 0 ? undefined : trimmed;
-  }, z
-    .string()
-    .length(2)
-    .regex(/^[A-Z]{2}$/, { message: 'Invalid country code' })
-    .optional());
+  }, z.enum(ALLOWED_COUNTRIES).optional());
 
 const optionalText = () =>
   z.preprocess((val) => {
@@ -133,10 +129,10 @@ export function createProfileValidationSchema(requiredFields: (keyof ProfileReco
         });
       }
 
-      if (age > MAX_AGE_YEARS) {
+      if (age >= MAX_AGE_YEARS) {
         ctx.addIssue({
           code: 'custom',
-          message: 'Enter a valid date of birth',
+          message: `Age must be between ${MIN_AGE_YEARS} and ${MAX_AGE_YEARS} years old`,
           path: ['dateOfBirth'],
         });
       }
@@ -190,14 +186,6 @@ export function createProfileValidationSchema(requiredFields: (keyof ProfileReco
           path: ['longitude'],
         });
       }
-    }
-
-    if (data.genderDescription && data.gender !== 'self_described') {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'Self description is only used when selecting self describe',
-        path: ['genderDescription'],
-      });
     }
   });
 }

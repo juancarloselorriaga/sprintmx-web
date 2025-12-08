@@ -18,10 +18,15 @@ export const GENDER_CODES = [
 
 export type GenderCode = (typeof GENDER_CODES)[number];
 
+export const ALLOWED_COUNTRIES = ['MX', 'US', 'CA', 'ES', 'BR'] as const;
+
+export type AllowedCountry = (typeof ALLOWED_COUNTRIES)[number];
+
 export type ProfileMetadata = {
   shirtSizes: readonly ShirtSize[];
   bloodTypes: readonly BloodType[];
   genderOptions: readonly GenderCode[];
+  countries: readonly AllowedCountry[];
   requiredCategories: ProfileRequirementSummary['categories'];
   requiredFieldKeys: ProfileRequirementSummary['fieldKeys'];
 };
@@ -33,6 +38,7 @@ export function buildProfileMetadata(
     shirtSizes: SHIRT_SIZES,
     bloodTypes: BLOOD_TYPES,
     genderOptions: GENDER_CODES,
+    countries: ALLOWED_COUNTRIES,
     requiredCategories: summary.categories,
     requiredFieldKeys: summary.fieldKeys,
   };
