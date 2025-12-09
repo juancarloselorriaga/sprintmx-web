@@ -148,6 +148,7 @@
     }
 
     /* Prevent iOS zoom on input focus by ensuring 16px minimum font size */
+    input:not([type]),
     input[type="text"],
     input[type="email"],
     input[type="password"],
@@ -162,6 +163,7 @@
 
     /* On iOS the Tailwind text utilities can override the 16px minimum and trigger zoom-on-focus. */
     @supports (-webkit-touch-callout: none) {
+        input:not([type]),
         input[type="text"],
         input[type="email"],
         input[type="password"],
