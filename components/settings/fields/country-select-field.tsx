@@ -4,6 +4,7 @@ import { FormField } from '@/components/ui/form-field';
 import { cn } from '@/lib/utils';
 import { useTranslations, useLocale } from 'next-intl';
 import { getCountryName, type CountryCode } from '@/lib/profiles/countries';
+import { useMemo } from 'react';
 
 type CountrySelectFieldProps = {
   label: string;
@@ -27,6 +28,16 @@ export function CountrySelectField({
   const t = useTranslations('components.settings.profileForm');
   const locale = useLocale() as 'en' | 'es';
   const placeholder = t('selectOption');
+  const sortedOptions = useMemo(
+    () =>
+      options
+        .map((code) => ({
+          code,
+          name: getCountryName(code as CountryCode, locale),
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name, locale, { sensitivity: 'base' })),
+    [options, locale]
+  );
 
   return (
     <FormField label={label} required={required} error={error}>
@@ -41,9 +52,9 @@ export function CountrySelectField({
         disabled={disabled}
       >
         <option value="">{placeholder}</option>
-        {options.map((code) => (
+        {sortedOptions.map(({ code, name }) => (
           <option key={code} value={code}>
-            {getCountryName(code as CountryCode, locale)}
+            {name}
           </option>
         ))}
       </select>
