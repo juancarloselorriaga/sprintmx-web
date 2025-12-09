@@ -18,7 +18,7 @@
     "actions": {
       "clear": "Limpiar",
       "cancel": "Cancelar",
-      "save": "Guardar cambios",
+      "save": "Guardar",
       "submit": "Enviar",
       "signOut": "Cerrar sesión"
     },
@@ -129,7 +129,7 @@
     },
     "actions": {
       "cancel": "Cancelar",
-      "save": "Guardar cambios"
+      "save": "Guardar"
     },
     "success": "Nombre actualizado correctamente.",
     "errors": {

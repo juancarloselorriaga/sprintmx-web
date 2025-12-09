@@ -27,6 +27,7 @@ export function AccountNameForm({
   const t = useTranslations('components.settings.accountNameForm');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const lastSavedNameRef = useRef(defaultName);
+  const previousDefaultNameRef = useRef(defaultName);
 
   const form = useForm<NameFormValues, { name: string }>({
     defaultValues: { name: defaultName },
@@ -74,12 +75,15 @@ export function AccountNameForm({
   });
 
   useEffect(() => {
-    if (defaultName !== lastSavedNameRef.current) {
-      lastSavedNameRef.current = defaultName;
-      form.setFieldValue('name', defaultName);
-      form.clearError('name');
+    if (defaultName === previousDefaultNameRef.current) {
+      return;
     }
-  }, [defaultName, form]);
+
+    previousDefaultNameRef.current = defaultName;
+    lastSavedNameRef.current = defaultName;
+    form.setFieldValue('name', defaultName);
+    form.clearError('name');
+  }, [defaultName, form.clearError, form.setFieldValue]);
 
   const handleReset = () => {
     form.setFieldValue('name', lastSavedNameRef.current);

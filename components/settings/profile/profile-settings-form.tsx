@@ -175,6 +175,7 @@ function ProfileForm({
 
   const initialValues = useMemo(() => toFormValues(profile), [profile]);
   const lastSavedValuesRef = useRef<ProfileFormValues>(initialValues);
+  const previousProfileSerializedRef = useRef(JSON.stringify(initialValues));
 
   const requiredFields = useMemo(
     () => new Set(requiredFieldKeys ?? profileMetadata.requiredFieldKeys ?? []),
@@ -241,16 +242,18 @@ function ProfileForm({
   useEffect(() => {
     const nextValues = toFormValues(profile);
     const serialized = JSON.stringify(nextValues);
-    const current = JSON.stringify(lastSavedValuesRef.current);
 
-    if (serialized !== current) {
-      lastSavedValuesRef.current = nextValues;
-      (Object.keys(nextValues) as (keyof ProfileFormValues)[]).forEach((field) => {
-        form.setFieldValue(field, nextValues[field]);
-        form.clearError(field);
-      });
+    if (serialized === previousProfileSerializedRef.current) {
+      return;
     }
-  }, [profile, form]);
+
+    previousProfileSerializedRef.current = serialized;
+    lastSavedValuesRef.current = nextValues;
+    (Object.keys(nextValues) as (keyof ProfileFormValues)[]).forEach((field) => {
+      form.setFieldValue(field, nextValues[field]);
+      form.clearError(field);
+    });
+  }, [profile, form.clearError, form.setFieldValue, form]);
 
   const handleReset = () => {
     const values = lastSavedValuesRef.current;
