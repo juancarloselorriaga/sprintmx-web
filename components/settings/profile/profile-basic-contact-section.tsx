@@ -67,6 +67,7 @@ export function ProfileBasicContactSection({
           error={form.errors.city}
         >
           <input
+            type="text"
             className={cn(
               'w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
               'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
@@ -83,6 +84,7 @@ export function ProfileBasicContactSection({
           error={form.errors.state}
         >
           <input
+            type="text"
             className={cn(
               'w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
               'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
@@ -95,6 +97,7 @@ export function ProfileBasicContactSection({
 
         <FormField label={t('fields.postalCode')} error={form.errors.postalCode}>
           <input
+            type="text"
             className={cn(
               'w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
               'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
@@ -120,4 +123,3 @@ export function ProfileBasicContactSection({
     </section>
   );
 }
-

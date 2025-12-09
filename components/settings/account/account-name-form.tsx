@@ -109,6 +109,7 @@ export function AccountNameForm({
         <div className="grid gap-3">
           <FormField label={t('fields.name')} required error={form.errors.name}>
             <input
+              type="text"
               className={cn(
                 'h-11 w-full rounded-lg border bg-background px-3 text-sm shadow-sm outline-none ring-0 transition',
                 'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
