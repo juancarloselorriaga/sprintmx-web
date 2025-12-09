@@ -1,5 +1,6 @@
 "use client";
 
+import { FormField } from '@/components/ui/form-field';
 import * as React from "react";
 import PhoneInputPrimitive from "react-phone-number-input";
 import en from "react-phone-number-input/locale/en";
@@ -52,14 +53,8 @@ export function PhoneInput({
   const labels = LOCALE_LABELS[locale as keyof typeof LOCALE_LABELS] || LOCALE_LABELS.en;
 
   return (
-    <div className={cn("space-y-1 text-sm", className)}>
-      {label ? (
-        <label className="font-medium text-foreground">
-          {label}
-          {required ? <span className="text-destructive"> *</span> : null}
-        </label>
-      ) : null}
-
+    <FormField label={label} required={required} error={error} className={className}>
+      {name ? <input type="hidden" name={name} value={value || ""} readOnly /> : null}
       <PhoneInputPrimitive
         labels={labels}
         international={international}
@@ -89,10 +84,6 @@ export function PhoneInput({
           ),
         }}
       />
-
-      {name ? <input type="hidden" name={name} value={value || ""} readOnly /> : null}
-
-      {error ? <p className="text-xs text-destructive">{error}</p> : null}
-    </div>
+    </FormField>
   );
 }

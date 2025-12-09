@@ -30,19 +30,6 @@ type FormFieldSkeletonProps = {
 /**
  * Reusable skeleton for form fields (inputs, selects, etc.)
  *
- * Matches the exact dimensions of form fields wrapped with FormField component:
- * - Label: h-5 (text-sm line-height = 1.25rem = 20px)
- * - Input: h-[38px] (py-2 [16px] + text-sm line-height [20px] + border [2px] = 38px)
- * - Spacing: space-y-1 (4px between label and input)
- *
- * This ensures zero layout shift when the actual component loads.
- *
- * Height calculation breakdown:
- * - py-2: 0.5rem × 2 = 8px + 8px = 16px padding
- * - text-sm line-height: 1.25rem = 20px content height
- * - border: 1px × 2 = 2px borders
- * - Total: 16 + 20 + 2 = 38px
- *
  * @example
  * ```tsx
  * <FormFieldSkeleton />
@@ -56,8 +43,8 @@ export function FormFieldSkeleton({
   className,
 }: FormFieldSkeletonProps) {
   return (
-    <div className={cn('block space-y-1 text-sm', className)}>
-      {showLabel && <Skeleton className={cn('h-5', LABEL_WIDTH_CLASSES[labelWidth])} />}
+    <div className={cn('block space-y-2 text-sm', className)}>
+      {showLabel && <Skeleton className={cn('h-[20px]', LABEL_WIDTH_CLASSES[labelWidth])} />}
       <Skeleton className="h-[38px] w-full" />
     </div>
   );

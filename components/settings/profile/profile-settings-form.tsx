@@ -189,7 +189,8 @@ function ProfileForm({
       const result = await upsertProfileAction(payload);
 
       if (!result.ok) {
-        const fieldErrors = 'fieldErrors' in result ? translateFieldErrors(result.fieldErrors) : undefined;
+        const fieldErrors = 'fieldErrors' in result ? translateFieldErrors(result.fieldErrors) :
+          undefined;
         if (result.error === 'INVALID_INPUT') {
           return {
             ok: false,
@@ -294,9 +295,10 @@ function ProfileForm({
 
   return (
     <Form form={form} className="space-y-4">
-      <FormError />
+      <FormError/>
       {successMessage ? (
-        <div className="rounded-md border border-green-400/40 bg-green-500/5 px-3 py-2 text-sm text-green-900 shadow-sm dark:border-green-400/50 dark:bg-green-500/10 dark:text-green-50">
+        <div
+          className="rounded-md border border-green-400/40 bg-green-500/5 px-3 py-2 text-sm text-green-900 shadow-sm dark:border-green-400/50 dark:bg-green-500/10 dark:text-green-50">
           {successMessage}
         </div>
       ) : null}
@@ -304,7 +306,7 @@ function ProfileForm({
       {showStatusCard ? (
         <div className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
           <div className="flex items-center gap-2 text-muted-foreground">
-            <CheckCircle2 className="h-4 w-4" />
+            <CheckCircle2 className="h-4 w-4"/>
             {t('status.label')}{' '}
             {profileStatus.isComplete ? t('status.complete') : t('status.incomplete')}
           </div>
@@ -419,7 +421,7 @@ function ProfileForm({
                 'w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
                 'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
                 form.errors.emergencyContactName &&
-                  'border-destructive focus-visible:border-destructive'
+                'border-destructive focus-visible:border-destructive'
               )}
               {...form.register('emergencyContactName')}
               disabled={isBusy}
@@ -577,7 +579,8 @@ function ProfileForm({
               className={cn(
                 'min-h-[80px] w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm outline-none ring-0 transition',
                 'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/30',
-                form.errors.medicalConditions && 'border-destructive focus-visible:border-destructive'
+                form.errors.medicalConditions &&
+                'border-destructive focus-visible:border-destructive'
               )}
               {...form.register('medicalConditions')}
               disabled={isBusy}
@@ -602,7 +605,8 @@ function ProfileForm({
 
       </section>
 
-      <div className="flex flex-col gap-3 border-t pt-3 sm:flex-row sm:items-center sm:justify-between">
+      <div
+        className="flex flex-col gap-3 border-t pt-3 sm:flex-row sm:items-center sm:justify-between">
         {mode === 'completion' && onSignOutClick ? (
           <Button
             type="button"
@@ -611,11 +615,11 @@ function ProfileForm({
             onClick={onSignOutClick}
             disabled={isBusy}
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4"/>
             {t('actions.signOut')}
           </Button>
         ) : (
-          <div />
+          <div/>
         )}
 
         <div className="flex items-center gap-2">

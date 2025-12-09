@@ -12,7 +12,7 @@ interface FormFieldProps {
 
 export function FormField({ label, required, error, children, className }: FormFieldProps) {
   return (
-    <label className={cn('block space-y-1 text-sm', className)}>
+    <label className={cn('block space-y-2 text-sm', className)}>
       <FieldLabel required={required} error={!!error}>
         {label}
       </FieldLabel>

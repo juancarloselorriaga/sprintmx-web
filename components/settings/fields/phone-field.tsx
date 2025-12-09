@@ -1,6 +1,5 @@
 'use client';
 
-import { FieldLabel } from '@/components/ui/form-field';
 import { PhoneInput } from '@/components/ui/phone-input-lazy';
 import { CountryCode } from 'libphonenumber-js';
 
@@ -27,11 +26,8 @@ export function PhoneField({
 }: PhoneFieldProps) {
   return (
     <PhoneInput
-      label={
-        <FieldLabel required={required} error={!!error}>
-          {label}
-        </FieldLabel>
-      }
+      required={required}
+      label={label}
       name={name}
       value={value}
       onChangeAction={onChangeAction}
