@@ -9,6 +9,7 @@ import { Form, FormError, useForm } from '@/lib/forms';
 import { cn } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
 type AccountPasswordFormProps = {
   variant?: 'default' | 'admin';
@@ -22,7 +23,6 @@ type PasswordFormValues = {
 
 export function AccountPasswordForm({ variant = 'default' }: AccountPasswordFormProps) {
   const t = useTranslations('components.settings.accountPasswordForm');
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState({
     current: false,
     new: false,
@@ -40,8 +40,6 @@ export function AccountPasswordForm({ variant = 'default' }: AccountPasswordForm
       confirmPassword: '',
     },
     onSubmit: async (values) => {
-      setSuccessMessage(null);
-
       if (values.newPassword !== values.confirmPassword) {
         return {
           ok: false,
@@ -110,7 +108,7 @@ export function AccountPasswordForm({ variant = 'default' }: AccountPasswordForm
       form.clearError('currentPassword');
       form.clearError('newPassword');
       form.clearError('confirmPassword');
-      setSuccessMessage(t('success'));
+      toast.success(t('success'));
     },
   });
 
@@ -130,11 +128,6 @@ export function AccountPasswordForm({ variant = 'default' }: AccountPasswordForm
 
       <Form form={form} className="space-y-5 border-t border-border/70 pt-5">
         <FormError />
-        {successMessage ? (
-          <div className="rounded-md border border-green-400/40 bg-green-500/5 px-3 py-2 text-sm text-green-900 shadow-sm dark:border-green-400/50 dark:bg-green-500/10 dark:text-green-50">
-            {successMessage}
-          </div>
-        ) : null}
 
         <div className="space-y-4">
           <FormField

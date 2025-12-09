@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { updateAccountNameAction } from '@/app/actions/account';
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/ui/form-field';
@@ -8,6 +8,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Form, FormError, useForm } from '@/lib/forms';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
 type AccountNameFormProps = {
   defaultName: string;
@@ -25,14 +26,12 @@ export function AccountNameForm({
   variant = 'default',
 }: AccountNameFormProps) {
   const t = useTranslations('components.settings.accountNameForm');
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const lastSavedNameRef = useRef(defaultName);
   const previousDefaultNameRef = useRef(defaultName);
 
   const form = useForm<NameFormValues, { name: string }>({
     defaultValues: { name: defaultName },
     onSubmit: async (values) => {
-      setSuccessMessage(null);
       const result = await updateAccountNameAction(values);
 
       if (!result.ok) {
@@ -70,7 +69,7 @@ export function AccountNameForm({
       form.setFieldValue('name', name);
       form.clearError('name');
       lastSavedNameRef.current = name;
-      setSuccessMessage(t('success'));
+      toast.success(t('success'));
     },
   });
 
@@ -83,12 +82,11 @@ export function AccountNameForm({
     lastSavedNameRef.current = defaultName;
     form.setFieldValue('name', defaultName);
     form.clearError('name');
-  }, [defaultName, form.clearError, form.setFieldValue]);
+  }, [defaultName, form, form.clearError, form.setFieldValue]);
 
   const handleReset = () => {
     form.setFieldValue('name', lastSavedNameRef.current);
     form.clearError('name');
-    setSuccessMessage(null);
   };
 
   const isSubmitting = form.isSubmitting;
@@ -107,11 +105,6 @@ export function AccountNameForm({
 
       <Form form={form} className="space-y-4 border-t border-border/70 pt-4">
         <FormError />
-        {successMessage ? (
-          <div className="rounded-md border border-green-400/40 bg-green-500/5 px-3 py-2 text-sm text-green-900 shadow-sm dark:border-green-400/50 dark:bg-green-500/10 dark:text-green-50">
-            {successMessage}
-          </div>
-        ) : null}
 
         <div className="grid gap-3">
           <FormField label={t('fields.name')} required error={form.errors.name}>

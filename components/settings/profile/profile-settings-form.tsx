@@ -15,7 +15,8 @@ import type { ProfileRecord, ProfileStatus, ProfileUpsertInput } from '@/lib/pro
 import { cn } from '@/lib/utils';
 import { CheckCircle2, LogOut } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import { toast } from 'sonner';
 
 type ProfileFormValues = {
   phone: string;
@@ -184,7 +185,6 @@ function ProfileForm({
   const t = useTranslations('components.settings.profileForm');
   const locale = useLocale();
   const router = useRouter();
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const initialValues = useMemo(() => toFormValues(profile), [profile]);
   const lastSavedValuesRef = useRef<ProfileFormValues>(initialValues);
@@ -198,7 +198,6 @@ function ProfileForm({
   const form = useForm<ProfileFormValues, UpsertProfileSuccess>({
     defaultValues: initialValues,
     onSubmit: async (values) => {
-      setSuccessMessage(null);
       const payload = buildPayload(values);
       const result = await upsertProfileAction(payload);
 
@@ -238,7 +237,7 @@ function ProfileForm({
         form.setFieldValue(key as keyof ProfileFormValues, value as string);
         form.clearError(key as keyof ProfileFormValues);
       });
-      setSuccessMessage(t('success.updated'));
+      toast.success(t('success.updated'));
       onUpdateAction?.(data);
       router.refresh();
     },
@@ -299,7 +298,6 @@ function ProfileForm({
       form.setFieldValue(field, values[field]);
       form.clearError(field);
     });
-    setSuccessMessage(null);
   };
 
   const isBusy = form.isSubmitting || disableActions;
@@ -310,12 +308,6 @@ function ProfileForm({
   return (
     <Form form={form} className="space-y-4">
       <FormError/>
-      {successMessage ? (
-        <div
-          className="rounded-md border border-green-400/40 bg-green-500/5 px-3 py-2 text-sm text-green-900 shadow-sm dark:border-green-400/50 dark:bg-green-500/10 dark:text-green-50">
-          {successMessage}
-        </div>
-      ) : null}
 
       {showStatusCard ? (
         <div className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
