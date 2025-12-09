@@ -10,19 +10,13 @@ import { siteUrl } from '@/config/url';
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
-const vercelPreviewWildcard = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PREFIX
-  ? `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PREFIX}-*.vercel.app`
-  : null;
-
 const trustedOrigins = Array.from(
   new Set(
     [
       siteUrl,
-      process.env.NEXT_PUBLIC_SITE_URL,
       process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
       process.env.VERCEL_BRANCH_URL ? `https://${process.env.VERCEL_BRANCH_URL}` : null,
-      process.env.NEXT_PUBLIC_AUTH_TRUSTED_ORIGINS,
-      vercelPreviewWildcard,
+      process.env.AUTH_ADDITIONAL_TRUSTED_ORIGINS,
       'http://localhost:3000',
     ]
       .filter((origin): origin is string => Boolean(origin))
@@ -157,5 +151,16 @@ export const auth = betterAuth({
       }
     },
   },
-  trustedOrigins,
+  trustedOrigins: async (request) => {
+    const origins = new Set(trustedOrigins);
+
+    // Always trust the current host serving the request (covers aliases and previews)
+    const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host');
+    const protocol = request.headers.get('x-forwarded-proto') ?? 'https';
+    if (host) {
+      origins.add(`${protocol}://${host}`);
+    }
+
+    return Array.from(origins);
+  },
 });
