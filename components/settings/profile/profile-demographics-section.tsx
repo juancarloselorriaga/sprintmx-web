@@ -70,39 +70,43 @@ export function ProfileDemographicsSection({
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
-        <GenderField
-          label={t('fields.gender')}
-          value={genderField.value}
-          description={genderDescriptionField.value}
-          onChangeAction={(value) => genderField.onChange(value)}
-          onDescriptionChangeAction={(value) => genderDescriptionField.onChange(value)}
-          options={genderOptions}
-          required={isRequiredField('gender')}
-          error={form.errors.gender}
-          descriptionError={form.errors.genderDescription}
-          disabled={isBusy}
-        />
+        <div className="min-w-0">
+          <GenderField
+            label={t('fields.gender')}
+            value={genderField.value}
+            description={genderDescriptionField.value}
+            onChangeAction={(value) => genderField.onChange(value)}
+            onDescriptionChangeAction={(value) => genderDescriptionField.onChange(value)}
+            options={genderOptions}
+            required={isRequiredField('gender')}
+            error={form.errors.gender}
+            descriptionError={form.errors.genderDescription}
+            disabled={isBusy}
+          />
+        </div>
 
-        <LocationField
-          label={t('fields.locationDisplay')}
-          displayValue={locationDisplayField.value ?? ''}
-          required={isRequiredField('locationDisplay')}
-          error={form.errors.locationDisplay}
-          disabled={isBusy}
-          hint={t('hints.locationDisplay')}
-          location={currentLocation}
-          country={form.values.country}
-          language={locale}
-          onLocationChangeAction={(location) => {
-            locationDisplayField.onChange(location.formattedAddress);
-            form.setFieldValue('latitude', String(location.lat));
-            form.setFieldValue('longitude', String(location.lng));
+        <div className="min-w-0">
+          <LocationField
+            label={t('fields.locationDisplay')}
+            displayValue={locationDisplayField.value ?? ''}
+            required={isRequiredField('locationDisplay')}
+            error={form.errors.locationDisplay}
+            disabled={isBusy}
+            hint={t('hints.locationDisplay')}
+            location={currentLocation}
+            country={form.values.country}
+            language={locale}
+            onLocationChangeAction={(location) => {
+              locationDisplayField.onChange(location.formattedAddress);
+              form.setFieldValue('latitude', String(location.lat));
+              form.setFieldValue('longitude', String(location.lng));
 
-            if (!form.values.country && location.countryCode) {
-              form.setFieldValue('country', location.countryCode.toUpperCase());
-            }
-          }}
-        />
+              if (!form.values.country && location.countryCode) {
+                form.setFieldValue('country', location.countryCode.toUpperCase());
+              }
+            }}
+          />
+        </div>
       </div>
     </section>
   );

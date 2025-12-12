@@ -50,13 +50,13 @@ export function LocationField({
   const hasLocation = Boolean(locationDisplay);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 min-w-0">
       <FormField label={label} required={required} error={error}>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <button
             type="button"
             className={cn(
-              'flex w-full flex-1 items-center gap-2 rounded-md border bg-background px-3 py-2 text-left text-sm shadow-sm transition',
+              'flex w-full min-w-0 flex-1 items-center gap-2 rounded-md border bg-background px-3 py-2 text-left text-sm shadow-sm transition',
               'hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30',
               error && 'border-destructive focus-visible:ring-destructive/30',
               disabled && 'cursor-not-allowed opacity-60 hover:border-border'
