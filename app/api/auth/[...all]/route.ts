@@ -25,6 +25,17 @@ function extractNestedCallbackPath(callbackURL: string | null) {
     const cbUrl = new URL(callbackURL);
     return cbUrl.searchParams.get("callbackURL") ?? undefined;
   } catch {
+    // Handle path-only URLs like "/en/verify-email-success?callbackURL=/en/dashboard"
+    const queryIndex = callbackURL.indexOf("?");
+    if (queryIndex !== -1) {
+      const search = callbackURL.slice(queryIndex);
+      const params = new URLSearchParams(search);
+      const nested = params.get("callbackURL");
+      if (nested) {
+        return nested;
+      }
+    }
+
     return callbackURL.startsWith("/") ? callbackURL : undefined;
   }
 }
