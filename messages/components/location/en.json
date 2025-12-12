@@ -1,7 +1,6 @@
 {
   "field": {
     "mapButton": "Map",
-    "currentLabel": "Current location",
     "emptyValue": "No location selected yet"
   },
   "picker": {

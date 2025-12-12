@@ -1,13 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import dynamic from 'next/dynamic';
-import { MapPinIcon } from 'lucide-react';
 import { FormField } from '@/components/ui/form-field';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { PublicLocationValue } from '@/types/location';
+import { MapPinIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
 
 const LocationPickerDialog = dynamic(
   () =>
@@ -47,6 +46,8 @@ export function LocationField({
 }: LocationFieldProps) {
   const t = useTranslations('components.location');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const locationDisplay = displayValue?.trim() || location?.formattedAddress?.trim() || '';
+  const hasLocation = Boolean(locationDisplay);
 
   return (
     <div className="space-y-2">
@@ -55,42 +56,38 @@ export function LocationField({
           <button
             type="button"
             className={cn(
-              'group flex min-h-[3rem] flex-1 items-center gap-3 rounded-lg border bg-muted/40 px-3 py-2 text-left text-sm shadow-sm transition-colors',
-              'hover:bg-accent/40 hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40',
-              disabled && 'cursor-default opacity-60 hover:bg-muted/40 hover:border-border'
+              'flex w-full flex-1 items-center gap-2 rounded-md border bg-background px-3 py-2 text-left text-sm shadow-sm transition',
+              'hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30',
+              error && 'border-destructive focus-visible:ring-destructive/30',
+              disabled && 'cursor-not-allowed opacity-60 hover:border-border'
             )}
+            disabled={disabled}
             onClick={() => {
               if (!disabled) {
                 setIsDialogOpen(true);
               }
             }}
           >
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <MapPinIcon className="h-4 w-4" />
+            <span
+              className={cn(
+                'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border',
+                'border-transparent bg-primary/10 text-primary'
+              )}
+            >
+              <MapPinIcon className="h-3 w-3" />
             </span>
             <span className="flex min-w-0 flex-col gap-0.5">
-              <span className="text-xs font-medium text-muted-foreground">
-                {t('field.currentLabel')}
-              </span>
-              <span className={cn('truncate text-sm', displayValue ? 'text-foreground' : 'text-muted-foreground')}>
-                {displayValue && displayValue.trim()
-                  ? displayValue
-                  : t('field.emptyValue')}
+
+              <span
+                className={cn(
+                  'truncate text-sm font-medium',
+                  hasLocation ? 'text-foreground' : 'text-muted-foreground'
+                )}
+              >
+                {hasLocation ? locationDisplay : t('field.emptyValue')}
               </span>
             </span>
           </button>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="shrink-0 sm:w-auto w-full"
-            onClick={() => setIsDialogOpen(true)}
-            disabled={disabled}
-          >
-            <MapPinIcon className="mr-1 h-4 w-4" />
-            {t('field.mapButton')}
-          </Button>
         </div>
         {hint ? (
           <p className="mt-1 text-xs text-muted-foreground">{hint}</p>

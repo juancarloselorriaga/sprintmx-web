@@ -64,7 +64,7 @@
       "state": "State / region",
       "postalCode": "Postal code",
       "country": "Country",
-      "locationDisplay": "Location display",
+      "locationDisplay": "Profile location",
       "emergencyContactName": "Emergency contact",
       "emergencyContactPhone": "Emergency phone",
       "gender": "Gender",
