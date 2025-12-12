@@ -47,6 +47,13 @@ export function SignUpForm({ callbackPath }: SignUpFormProps) {
       });
 
       if (signUpError) {
+        const status = (signUpError as { status?: number } | null)?.status;
+        const message = (signUpError as { message?: string } | null)?.message?.toLowerCase() ?? '';
+        const isExistingAccount = status === 409 || message.includes('already exists') || message.includes('already registered');
+        if (isExistingAccount) {
+          return { ok: true, data: { email: values.email, callbackPath: targetPath } };
+        }
+
         return { ok: false, error: 'SERVER_ERROR', message: signUpError.message ?? t('genericError') };
       }
 

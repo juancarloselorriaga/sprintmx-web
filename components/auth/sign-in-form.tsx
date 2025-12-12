@@ -24,7 +24,11 @@ export function SignInForm({ callbackPath }: SignInFormProps) {
   const targetPath: keyof typeof routing.pathnames =
     callbackPath && isAppPathname(callbackPath) ? callbackPath : '/dashboard';
 
-  const form = useForm<{ email: string; password: string }>({
+  const form = useForm<
+    { email: string; password: string },
+    | { kind: 'signed-in' }
+    | { kind: 'verify-email'; email: string; callbackPath: keyof typeof routing.pathnames }
+  >({
     defaultValues: { email: '', password: '' },
     onSubmit: async (values) => {
       const { error: signInError } = await signIn.email({
@@ -34,13 +38,29 @@ export function SignInForm({ callbackPath }: SignInFormProps) {
       });
 
       if (signInError) {
+        const status = (signInError as { status?: number } | null)?.status;
+        if (status === 403) {
+          return { ok: true, data: { kind: 'verify-email', email: values.email, callbackPath: targetPath } };
+        }
+
         return { ok: false, error: 'SERVER_ERROR', message: signInError.message ?? t('genericError') };
       }
 
-      return { ok: true, data: null };
+      return { ok: true, data: { kind: 'signed-in' } };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       router.refresh();
+      if (result?.kind === 'verify-email') {
+        router.push({
+          pathname: '/verify-email',
+          query: {
+            email: result.email,
+            callbackURL: result.callbackPath,
+          },
+        });
+        return;
+      }
+
       router.push(targetPath);
     },
   });

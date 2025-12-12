@@ -1,9 +1,52 @@
 import { auth } from "@/lib/auth";
+import { siteUrl } from "@/config/url";
+import { extractLocaleFromCallbackURL } from "@/lib/utils/locale";
 import { APIError } from "better-auth/api";
 import { toNextJsHandler } from "better-auth/next-js";
 import { NextResponse } from "next/server";
 
 const handler = toNextJsHandler(auth.handler);
+
+function isEmailVerificationCallbackURL(callbackURL: string | null) {
+  if (!callbackURL) return false;
+
+  try {
+    const cbUrl = new URL(callbackURL);
+    return cbUrl.pathname.includes("/verify-email-success");
+  } catch {
+    return callbackURL.includes("/verify-email-success");
+  }
+}
+
+function extractNestedCallbackPath(callbackURL: string | null) {
+  if (!callbackURL) return undefined;
+
+  try {
+    const cbUrl = new URL(callbackURL);
+    return cbUrl.searchParams.get("callbackURL") ?? undefined;
+  } catch {
+    return callbackURL.startsWith("/") ? callbackURL : undefined;
+  }
+}
+
+function buildVerifyEmailRedirect(request: Request) {
+  const url = new URL(request.url);
+  const callbackURL = url.searchParams.get("callbackURL") ?? "";
+  const locale = extractLocaleFromCallbackURL(callbackURL, request);
+  const redirectUrl = new URL(`${siteUrl}/${locale}/verify-email`);
+
+  const nestedCallbackPath = extractNestedCallbackPath(callbackURL);
+  if (nestedCallbackPath) {
+    redirectUrl.searchParams.set("callbackURL", nestedCallbackPath);
+  }
+
+  const email = url.searchParams.get("email");
+  if (email) {
+    redirectUrl.searchParams.set("email", email);
+  }
+
+  return redirectUrl;
+}
 
 const withErrorHandling = (fn: (request: Request) => Promise<Response>) => {
   return async (request: Request) => {
@@ -11,6 +54,16 @@ const withErrorHandling = (fn: (request: Request) => Promise<Response>) => {
       return await fn(request);
     } catch (error) {
       if (error instanceof APIError) {
+        const requestUrl = new URL(request.url);
+        const isVerificationLink =
+          request.method === "GET" &&
+          requestUrl.searchParams.has("token") &&
+          isEmailVerificationCallbackURL(requestUrl.searchParams.get("callbackURL"));
+
+        if (isVerificationLink) {
+          return NextResponse.redirect(buildVerifyEmailRedirect(request), { status: 302 });
+        }
+
         // Avoid user enumeration: collapse 404 from auth endpoints into a generic 401.
         const rawStatus = typeof error.status === "string" ? Number.parseInt(error.status, 10) : error.status;
         const normalizedStatus = rawStatus === 404 ? 401 : rawStatus ?? 401;
