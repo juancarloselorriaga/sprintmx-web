@@ -1,19 +1,25 @@
 import { NextResponse } from 'next/server';
 import { cleanupExpiredUnverifiedUsers } from '@/lib/auth/cleanup-unverified-users';
 
-export const dynamic = 'force-dynamic';
-
 const TTL_MS = 24 * 60 * 60 * 1000;
 
 function isAuthorized(request: Request) {
-  const cronHeader = request.headers.get('x-vercel-cron');
   const authHeader = request.headers.get('authorization') ?? '';
   const secret = process.env.CRON_SECRET;
 
-  if (secret && authHeader === `Bearer ${secret}`) return true;
+  // In production, require CRON_SECRET (set in Vercel dashboard)
+  if (secret) {
+    return authHeader === `Bearer ${secret}`;
+  }
 
-  // Vercel Cron Jobs add this header automatically.
-  return cronHeader === '1';
+  // Fallback for development only (x-vercel-cron header can be spoofed)
+  if (process.env.NODE_ENV === 'development') {
+    const cronHeader = request.headers.get('x-vercel-cron');
+    return cronHeader === '1';
+  }
+
+  // No secret configured in production = deny all
+  return false;
 }
 
 export async function GET(request: Request) {
