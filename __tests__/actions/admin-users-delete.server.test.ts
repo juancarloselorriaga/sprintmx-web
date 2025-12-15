@@ -5,168 +5,122 @@ type MockAdminContext = {
 };
 
 const mockRequireAdmin = jest.fn<Promise<MockAdminContext>, unknown[]>();
-
-type UpdateCall = { table: unknown; values: unknown; condition: unknown };
-
-type MockDbModule = {
-  db: { select: jest.Mock; transaction: jest.Mock };
-  __pushSelect: (rows: Array<Record<string, unknown>>) => void;
-  __reset: () => void;
-  __getUpdateCalls: () => UpdateCall[];
-};
+const mockVerifyUserCredentialPassword = jest.fn<
+  Promise<{ ok: true } | { ok: false; error: 'NO_PASSWORD' | 'INVALID_PASSWORD' }>,
+  unknown[]
+>();
+const mockDeleteUser = jest.fn<
+  Promise<{ ok: true } | { ok: false; error: 'NOT_FOUND' | 'SERVER_ERROR' }>,
+  unknown[]
+>();
 
 jest.mock('@/lib/auth/guards', () => ({
   requireAdminUser: (...args: unknown[]) => mockRequireAdmin(...args),
 }));
 
-jest.mock('drizzle-orm', () => ({
-  eq: (...args: unknown[]) => ({ type: 'eq', args }),
-  and: (...args: unknown[]) => ({ type: 'and', args }),
-  isNull: (...args: unknown[]) => ({ type: 'isNull', args }),
+jest.mock('@/lib/auth/credential-password', () => ({
+  verifyUserCredentialPassword: (...args: unknown[]) => mockVerifyUserCredentialPassword(...args),
 }));
 
-jest.mock('@/db', () => {
-  const state = {
-    selectQueue: [] as ReturnType<typeof buildSelect>[],
-    updateCalls: [] as UpdateCall[],
-  };
-
-  function buildSelect(rows: unknown[]) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Testing purposes
-    const query: any = {};
-    const chain = () => query;
-
-    query.from = jest.fn(chain);
-    query.where = jest.fn(chain);
-    query.then = (resolve: (value: unknown) => void, reject?: (reason: unknown) => void) =>
-      Promise.resolve(rows).then(resolve, reject);
-    query.catch = (reject: (reason: unknown) => void) => Promise.resolve(rows).catch(reject);
-
-    return query;
-  }
-
-  const __pushSelect = (rows: unknown[]) => {
-    state.selectQueue.push(buildSelect(rows));
-  };
-
-  const select = jest.fn(() => {
-    const next = state.selectQueue.shift();
-    if (!next) throw new Error('Unexpected select call');
-    return next;
-  });
-
-  const update = jest.fn((table: unknown) => {
-    const where = jest.fn(async (condition: unknown) => {
-      state.updateCalls.push({ table, values: undefined, condition });
-      return undefined;
-    });
-
-    const set = jest.fn((values: unknown) => ({
-      where: jest.fn(async (condition: unknown) => {
-        state.updateCalls.push({ table, values, condition });
-        return undefined;
-      }),
-    }));
-
-    return { set, where };
-  });
-
-  const transaction = jest.fn(
-    async (callback: (tx: { update: typeof update }) => Promise<void>) => {
-      await callback({ update });
-    },
-  );
-
-  const __reset = () => {
-    state.selectQueue = [];
-    state.updateCalls = [];
-    select.mockClear();
-    transaction.mockClear();
-    update.mockClear();
-  };
-
-  return {
-    db: {
-      select,
-      transaction,
-    },
-    __pushSelect,
-    __reset,
-    __getUpdateCalls: () => state.updateCalls,
-  };
-});
-
-const { __pushSelect, __reset, __getUpdateCalls, db } = require('@/db') as MockDbModule;
+jest.mock('@/lib/users/delete-user', () => ({
+  deleteUser: (...args: unknown[]) => mockDeleteUser(...args),
+}));
 
 describe('deleteInternalUser', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockRequireAdmin.mockReset();
-    __reset();
+    mockVerifyUserCredentialPassword.mockReset();
+    mockDeleteUser.mockReset();
   });
 
   it('returns UNAUTHENTICATED when the admin guard rejects', async () => {
     mockRequireAdmin.mockRejectedValueOnce({ code: 'UNAUTHENTICATED' });
 
-    const result = await deleteInternalUser({ userId: '00000000-0000-0000-0000-000000000001' });
+    const result = await deleteInternalUser({
+      userId: '00000000-0000-0000-0000-000000000001',
+      adminPassword: 'pw',
+    });
 
     expect(result).toEqual({ ok: false, error: 'UNAUTHENTICATED' });
-    expect(db.select).not.toHaveBeenCalled();
+    expect(mockVerifyUserCredentialPassword).not.toHaveBeenCalled();
+    expect(mockDeleteUser).not.toHaveBeenCalled();
   });
 
   it('returns FORBIDDEN when the admin guard blocks access', async () => {
     mockRequireAdmin.mockRejectedValueOnce({ code: 'FORBIDDEN' });
 
-    const result = await deleteInternalUser({ userId: '00000000-0000-0000-0000-000000000001' });
+    const result = await deleteInternalUser({
+      userId: '00000000-0000-0000-0000-000000000001',
+      adminPassword: 'pw',
+    });
 
     expect(result).toEqual({ ok: false, error: 'FORBIDDEN' });
-    expect(db.select).not.toHaveBeenCalled();
+    expect(mockVerifyUserCredentialPassword).not.toHaveBeenCalled();
+    expect(mockDeleteUser).not.toHaveBeenCalled();
   });
 
   it('prevents deleting the current user', async () => {
     mockRequireAdmin.mockResolvedValue({ user: { id: '00000000-0000-0000-0000-000000000001' } });
 
-    const result = await deleteInternalUser({ userId: '00000000-0000-0000-0000-000000000001' });
+    const result = await deleteInternalUser({
+      userId: '00000000-0000-0000-0000-000000000001',
+      adminPassword: 'pw',
+    });
 
     expect(result).toEqual({ ok: false, error: 'CANNOT_DELETE_SELF' });
-    expect(db.select).not.toHaveBeenCalled();
+    expect(mockVerifyUserCredentialPassword).not.toHaveBeenCalled();
+    expect(mockDeleteUser).not.toHaveBeenCalled();
+  });
+
+  it('returns INVALID_PASSWORD when admin password fails verification', async () => {
+    mockRequireAdmin.mockResolvedValue({ user: { id: 'admin-1' } });
+    mockVerifyUserCredentialPassword.mockResolvedValueOnce({ ok: false, error: 'INVALID_PASSWORD' });
+
+    const result = await deleteInternalUser({ userId: 'user-1', adminPassword: 'wrong' });
+
+    expect(result).toEqual({ ok: false, error: 'INVALID_PASSWORD' });
+    expect(mockDeleteUser).not.toHaveBeenCalled();
+  });
+
+  it('returns NO_PASSWORD when the admin does not have a credential password', async () => {
+    mockRequireAdmin.mockResolvedValue({ user: { id: 'admin-1' } });
+    mockVerifyUserCredentialPassword.mockResolvedValueOnce({ ok: false, error: 'NO_PASSWORD' });
+
+    const result = await deleteInternalUser({ userId: 'user-1', adminPassword: 'pw' });
+
+    expect(result).toEqual({ ok: false, error: 'NO_PASSWORD' });
+    expect(mockDeleteUser).not.toHaveBeenCalled();
   });
 
   it('returns NOT_FOUND when the target user does not exist', async () => {
     mockRequireAdmin.mockResolvedValue({ user: { id: 'admin-1' } });
-    __pushSelect([]);
+    mockVerifyUserCredentialPassword.mockResolvedValueOnce({ ok: true });
+    mockDeleteUser.mockResolvedValueOnce({ ok: false, error: 'NOT_FOUND' });
 
-    const result = await deleteInternalUser({ userId: '00000000-0000-0000-0000-000000000099' });
+    const result = await deleteInternalUser({ userId: 'user-404', adminPassword: 'pw' });
 
     expect(result).toEqual({ ok: false, error: 'NOT_FOUND' });
-    expect(db.select).toHaveBeenCalled();
-    expect(__getUpdateCalls()).toHaveLength(0);
   });
 
-  it('soft deletes users, accounts, and sessions', async () => {
+  it('returns ok when deletion succeeds', async () => {
     mockRequireAdmin.mockResolvedValue({ user: { id: 'admin-1' } });
-    __pushSelect([{ id: '00000000-0000-0000-0000-000000000002' }]);
+    mockVerifyUserCredentialPassword.mockResolvedValueOnce({ ok: true });
+    mockDeleteUser.mockResolvedValueOnce({ ok: true });
 
-    const result = await deleteInternalUser({ userId: '00000000-0000-0000-0000-000000000002' });
+    const result = await deleteInternalUser({ userId: 'user-2', adminPassword: 'pw' });
 
     expect(result).toEqual({ ok: true });
-    expect(db.select).toHaveBeenCalled();
-    expect(db.transaction).toHaveBeenCalled();
-    const updateCalls = __getUpdateCalls();
-    expect(updateCalls).toHaveLength(3);
-    updateCalls.forEach((call) => {
-      expect(call.values).toEqual(expect.objectContaining({ deletedAt: expect.any(Date) }));
-    });
   });
 
   it('returns SERVER_ERROR when the delete flow throws', async () => {
     mockRequireAdmin.mockResolvedValue({ user: { id: 'admin-1' } });
-    db.select.mockImplementationOnce(() => {
-      throw new Error('db failure');
-    });
+    mockVerifyUserCredentialPassword.mockResolvedValueOnce({ ok: true });
+    mockDeleteUser.mockRejectedValueOnce(new Error('db failure'));
 
-    const result = await deleteInternalUser({ userId: '00000000-0000-0000-0000-000000000003' });
+    const result = await deleteInternalUser({ userId: 'user-3', adminPassword: 'pw' });
 
     expect(result).toEqual({ ok: false, error: 'SERVER_ERROR' });
   });
 });
+

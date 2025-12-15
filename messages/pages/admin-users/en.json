@@ -136,13 +136,19 @@
   },
   "deleteDialog": {
     "title": "Delete user",
-    "description": "This will revoke internal access for {userName}.",
+    "description": "This will revoke access and anonymize personal data for {userName}.",
     "warning": {
       "title": "Are you sure you want to delete this user?",
-      "description": "Their internal account will be deactivated. You can recreate them later if needed."
+      "description": "Their sessions and credentials will be removed, and their personal data will be anonymized."
     },
     "userInfo": {
       "unnamedUser": "Unnamed user"
+    },
+    "fields": {
+      "password": {
+        "label": "Your password",
+        "required": "Enter your password to confirm."
+      }
     },
     "buttons": {
       "cancel": "Cancel",
@@ -151,9 +157,11 @@
     },
     "errors": {
       "unauthenticated": "Your session expired. Please sign in again.",
-      "forbidden": "You are not allowed to delete internal users.",
+      "forbidden": "You are not allowed to delete users.",
       "cannotDeleteSelf": "You cannot delete your own account.",
       "notFound": "User not found or already removed.",
+      "noPassword": "Your account does not have a password set. Set a password to confirm deletions.",
+      "invalidPassword": "Incorrect password.",
       "genericError": "Could not delete this user. Try again later."
     },
     "success": {

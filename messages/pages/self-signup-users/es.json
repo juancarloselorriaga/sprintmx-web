@@ -51,6 +51,44 @@
     "columnsButton": "Columnas",
     "columnsLabel": "Mostrar columnas"
   },
+  "actions": {
+    "working": "Procesando...",
+    "deleteUser": "Eliminar usuario"
+  },
+  "deleteDialog": {
+    "title": "Eliminar usuario",
+    "description": "Esto revocará el acceso y anonimizará los datos personales de {userName}.",
+    "warning": {
+      "title": "¿Estás seguro de que quieres eliminar este usuario?",
+      "description": "Sus sesiones y credenciales se eliminarán, y sus datos personales serán anonimizados."
+    },
+    "userInfo": {
+      "unnamedUser": "Usuario sin nombre"
+    },
+    "fields": {
+      "password": {
+        "label": "Tu contraseña",
+        "required": "Ingresa tu contraseña para confirmar."
+      }
+    },
+    "buttons": {
+      "cancel": "Cancelar",
+      "deleting": "Eliminando...",
+      "delete": "Eliminar usuario"
+    },
+    "errors": {
+      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo.",
+      "forbidden": "No tienes permiso para eliminar usuarios.",
+      "cannotDeleteSelf": "No puedes eliminar tu propia cuenta.",
+      "notFound": "Usuario no encontrado o ya eliminado.",
+      "noPassword": "Tu cuenta no tiene una contraseña configurada. Configura una contraseña para confirmar eliminaciones.",
+      "invalidPassword": "Contraseña incorrecta.",
+      "genericError": "No se pudo eliminar este usuario. Intenta de nuevo más tarde."
+    },
+    "success": {
+      "toast": "Usuario eliminado"
+    }
+  },
   "pagination": {
     "showing": "Mostrando {start}-{end} de {total} usuarios",
     "previous": "Anterior",

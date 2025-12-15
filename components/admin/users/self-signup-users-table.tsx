@@ -1,6 +1,7 @@
 'use client';
 
 import { buildAdminUsersQueryObject } from '@/components/admin/users/search-params';
+import { SelfSignupUsersTableActions } from '@/components/admin/users/self-signup-users-table-actions';
 import { SelfSignupUsersTableToolbar } from '@/components/admin/users/self-signup-users-table-toolbar';
 import { UsersTablePagination } from '@/components/admin/users/users-table-pagination';
 import { UsersTableSkeleton } from '@/components/admin/users/users-table-skeleton';
@@ -40,6 +41,7 @@ export function SelfSignupUsersTable({
   users,
   query,
   paginationMeta,
+  currentUserId,
   isLoading = false,
   onLoadingChangeAction,
 }: SelfSignupUsersTableProps) {
@@ -109,6 +111,11 @@ export function SelfSignupUsersTable({
 
   const handleClearFilters = () => {
     handleNavigate({ search: null, role: 'all', page: '1' });
+  };
+
+  const handleDeletedUser = () => {
+    onLoadingChangeAction?.(true);
+    router.refresh();
   };
 
   const visibleColumns = {
@@ -285,7 +292,14 @@ export function SelfSignupUsersTable({
                     <td
                       className={cn('px-4 align-top text-right text-muted-foreground', rowPadding)}
                     >
-                      &mdash;
+                      <SelfSignupUsersTableActions
+                        userId={user.userId}
+                        userName={user.name}
+                        userEmail={user.email}
+                        currentUserId={currentUserId}
+                        onDeletedAction={handleDeletedUser}
+                        onLoadingChangeAction={onLoadingChangeAction}
+                      />
                     </td>
                   ) : null}
                 </tr>

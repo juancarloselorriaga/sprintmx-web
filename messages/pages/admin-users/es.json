@@ -136,13 +136,19 @@
   },
   "deleteDialog": {
     "title": "Eliminar usuario",
-    "description": "Esto revocará el acceso interno de {userName}.",
+    "description": "Esto revocará el acceso y anonimizará los datos personales de {userName}.",
     "warning": {
       "title": "¿Estás seguro de que quieres eliminar este usuario?",
-      "description": "Su cuenta interna será desactivada. Puedes recrearla más tarde si es necesario."
+      "description": "Sus sesiones y credenciales se eliminarán, y sus datos personales serán anonimizados."
     },
     "userInfo": {
       "unnamedUser": "Usuario sin nombre"
+    },
+    "fields": {
+      "password": {
+        "label": "Tu contraseña",
+        "required": "Ingresa tu contraseña para confirmar."
+      }
     },
     "buttons": {
       "cancel": "Cancelar",
@@ -151,9 +157,11 @@
     },
     "errors": {
       "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo.",
-      "forbidden": "No tienes permiso para eliminar usuarios internos.",
+      "forbidden": "No tienes permiso para eliminar usuarios.",
       "cannotDeleteSelf": "No puedes eliminar tu propia cuenta.",
       "notFound": "Usuario no encontrado o ya eliminado.",
+      "noPassword": "Tu cuenta no tiene una contraseña configurada. Configura una contraseña para confirmar eliminaciones.",
+      "invalidPassword": "Contraseña incorrecta.",
       "genericError": "No se pudo eliminar este usuario. Intenta de nuevo más tarde."
     },
     "success": {
