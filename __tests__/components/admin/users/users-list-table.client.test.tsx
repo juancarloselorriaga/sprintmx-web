@@ -2,6 +2,58 @@ import { UsersListTable, type UsersListRow } from '@/components/admin/users/user
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
+jest.mock('@/components/ui/dropdown-menu', () => {
+  return {
+    DropdownMenu: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    DropdownMenuTrigger: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    DropdownMenuContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    DropdownMenuLabel: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    DropdownMenuSeparator: () => <div />,
+    DropdownMenuItem: ({
+      children,
+      onSelect,
+      ...props
+    }: {
+      children: React.ReactNode;
+      onSelect?: (event: { preventDefault: () => void }) => void;
+    }) => (
+      <button
+        type="button"
+        onClick={() => onSelect?.({ preventDefault: () => undefined })}
+        {...props}
+      >
+        {children}
+      </button>
+    ),
+    DropdownMenuCheckboxItem: ({
+      children,
+      onCheckedChange,
+      ...props
+    }: {
+      children: React.ReactNode;
+      onCheckedChange?: () => void;
+    }) => (
+      <button type="button" onClick={() => onCheckedChange?.()} {...props}>
+        {children}
+      </button>
+    ),
+  };
+});
+
+const deleteInternalUserMock = jest.fn();
+jest.mock('@/app/actions/admin-users-delete', () => ({
+  deleteInternalUser: (...args: unknown[]) => deleteInternalUserMock(...args),
+}));
+
+const toastErrorMock = jest.fn();
+const toastSuccessMock = jest.fn();
+jest.mock('sonner', () => ({
+  toast: {
+    error: (...args: unknown[]) => toastErrorMock(...args),
+    success: (...args: unknown[]) => toastSuccessMock(...args),
+  },
+}));
+
 jest.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
   useFormatter: () => ({
@@ -46,6 +98,9 @@ describe('UsersListTable', () => {
     routerPushMock.mockReset();
     routerReplaceMock.mockReset();
     routerRefreshMock.mockReset();
+    deleteInternalUserMock.mockReset();
+    toastErrorMock.mockReset();
+    toastSuccessMock.mockReset();
     window.localStorage.clear();
   });
 
@@ -178,5 +233,62 @@ describe('UsersListTable', () => {
       }),
       expect.anything(),
     );
+  });
+
+  it('keeps the delete dialog open and does not toggle table loading on INVALID_PASSWORD', async () => {
+    const { UsersTableActions } = await import('@/components/admin/users/users-table-actions');
+
+    deleteInternalUserMock.mockResolvedValue({ ok: false, error: 'INVALID_PASSWORD' });
+
+    const users: UsersListRow[] = [
+      {
+        userId: 'u1',
+        name: 'Ada Lovelace',
+        email: 'ada@example.com',
+        canonicalRoles: ['internal.admin'],
+        createdAt: new Date('2025-01-01T00:00:00.000Z'),
+      },
+    ];
+
+    function Wrapper() {
+      const [isLoading, setIsLoading] = React.useState(false);
+      return (
+        <UsersListTable
+          {...baseProps}
+          users={users}
+          isLoading={isLoading}
+          onLoadingChangeAction={setIsLoading}
+          paginationMeta={{ ...baseProps.paginationMeta, total: 1, pageCount: 1 }}
+          renderActionsAction={({ user, currentUserId, onDeletedAction }) => (
+            <UsersTableActions
+              userId={user.userId}
+              userName={user.name}
+              userEmail={user.email}
+              currentUserId={currentUserId}
+              onDeletedAction={onDeletedAction}
+            />
+          )}
+        />
+      );
+    }
+
+    render(<Wrapper />);
+
+    const row = screen.getByText('Ada Lovelace').closest('tr');
+    expect(row).not.toBeNull();
+
+    const actionsButton = within(row as HTMLElement).getAllByRole('button')[0];
+    fireEvent.click(actionsButton);
+    fireEvent.click(screen.getByText('deleteUser'));
+
+    expect(await screen.findByText('title')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'wrong-password' } });
+    fireEvent.click(screen.getByRole('button', { name: 'buttons.delete' }));
+
+    expect(await screen.findAllByText('errors.invalidPassword')).toHaveLength(2);
+    const table = screen.getByRole('table', { hidden: true });
+    expect(within(table).getByText('Ada Lovelace')).toBeInTheDocument();
+    expect(toastErrorMock).toHaveBeenCalled();
   });
 });

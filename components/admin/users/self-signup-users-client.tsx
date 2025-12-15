@@ -128,14 +128,13 @@ export function SelfSignupUsersClient({
           }}
           tableMinWidthClassName="min-w-[720px]"
           paginationTranslationNamespace={labels.paginationNamespace}
-          renderActionsAction={({ user, currentUserId, onDeletedAction, onLoadingChangeAction }) => (
+          renderActionsAction={({ user, currentUserId, onDeletedAction }) => (
             <SelfSignupUsersTableActions
               userId={user.userId}
               userName={user.name}
               userEmail={user.email}
               currentUserId={currentUserId}
               onDeletedAction={onDeletedAction}
-              onLoadingChangeAction={onLoadingChangeAction}
             />
           )}
         />

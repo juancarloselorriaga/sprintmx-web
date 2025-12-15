@@ -128,14 +128,13 @@ export function AdminUsersClient({
           getRoleBadgeLabelAction={(role) => role.replace('internal.', '')}
           tableMinWidthClassName="min-w-[720px]"
           paginationTranslationNamespace={labels.paginationNamespace}
-          renderActionsAction={({ user, currentUserId, onDeletedAction, onLoadingChangeAction }) => (
+          renderActionsAction={({ user, currentUserId, onDeletedAction }) => (
             <UsersTableActions
               userId={user.userId}
               userName={user.name}
               userEmail={user.email}
               currentUserId={currentUserId}
               onDeletedAction={onDeletedAction}
-              onLoadingChangeAction={onLoadingChangeAction}
             />
           )}
         />

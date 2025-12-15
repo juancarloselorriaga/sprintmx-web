@@ -18,7 +18,6 @@ type SelfSignupUsersTableActionsProps = {
   userEmail: string;
   currentUserId?: string;
   onDeletedAction?: () => void;
-  onLoadingChangeAction?: (loading: boolean) => void;
 };
 
 export function SelfSignupUsersTableActions({
@@ -27,7 +26,6 @@ export function SelfSignupUsersTableActions({
   userEmail,
   currentUserId,
   onDeletedAction,
-  onLoadingChangeAction,
 }: SelfSignupUsersTableActionsProps) {
   const t = useTranslations('pages.selfSignupUsers.actions');
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -78,10 +76,8 @@ export function SelfSignupUsersTableActions({
         onDeletedAction={onDeletedAction}
         onPendingChangeAction={(pending) => {
           setIsPending(pending);
-          if (pending) onLoadingChangeAction?.(true);
         }}
       />
     </div>
   );
 }
-

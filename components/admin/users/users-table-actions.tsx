@@ -18,7 +18,6 @@ type UsersTableActionsProps = {
   userEmail: string;
   currentUserId?: string;
   onDeletedAction?: () => void;
-  onLoadingChangeAction?: (loading: boolean) => void;
 };
 
 export function UsersTableActions({
@@ -27,7 +26,6 @@ export function UsersTableActions({
   userEmail,
   currentUserId,
   onDeletedAction,
-  onLoadingChangeAction,
 }: UsersTableActionsProps) {
   const t = useTranslations('pages.adminUsers.actions');
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -77,7 +75,6 @@ export function UsersTableActions({
         onDeletedAction={onDeletedAction}
         onPendingChangeAction={(pending) => {
           setIsPending(pending);
-          if (pending) onLoadingChangeAction?.(true);
         }}
       />
     </div>
