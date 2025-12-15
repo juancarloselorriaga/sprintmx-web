@@ -38,6 +38,7 @@
     }
   },
   "toolbar": {
+    "searchLabel": "Search",
     "filtersLabel": "Filters",
     "searchPlaceholder": "Search by name or email",
     "applyButton": "Apply",

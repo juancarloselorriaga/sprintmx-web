@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { AlertTriangle, Loader2, Trash2 } from 'lucide-react';
+import { AlertTriangle, Trash2 } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
@@ -131,18 +131,18 @@ export function UserDeleteDialog({
           <Button type="button" variant="ghost" onClick={() => onOpenChangeAction(false)}>
             {t('buttons.cancel')}
           </Button>
-          <Button type="button" variant="destructive" disabled={isPending} onClick={handleDelete}>
-            {isPending ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                {t('buttons.deleting')}
-              </>
-            ) : (
-              <>
-                <Trash2 className="size-4" />
-                {t('buttons.delete')}
-              </>
-            )}
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={isPending}
+            isLoading={isPending}
+            loadingPlacement="replace"
+            loadingLabel={t('buttons.deleting')}
+            onClick={handleDelete}
+            className="min-w-[120px]"
+          >
+            <Trash2 className="size-4" />
+            {t('buttons.delete')}
           </Button>
         </DialogFooter>
       </DialogContent>

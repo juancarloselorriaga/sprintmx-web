@@ -1,4 +1,3 @@
-import { sql } from "drizzle-orm";
 import {
   boolean,
   date,
@@ -26,7 +25,7 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
     .defaultNow()
     .notNull()
-    .$onUpdate(() => sql`now()`),
+    .$onUpdate(() => new Date()),
   deletedAt: timestamp("deleted_at", { withTimezone: true, mode: "date" }),
 });
 
@@ -52,7 +51,7 @@ export const accounts = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull()
-      .$onUpdate(() => sql`now()`),
+      .$onUpdate(() => new Date()),
     deletedAt: timestamp("deleted_at", { withTimezone: true, mode: "date" }),
   },
   (table) => ({
@@ -75,7 +74,7 @@ export const sessions = pgTable("sessions", {
   updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
     .defaultNow()
     .notNull()
-    .$onUpdate(() => sql`now()`),
+    .$onUpdate(() => new Date()),
   deletedAt: timestamp("deleted_at", { withTimezone: true, mode: "date" }),
 });
 
@@ -90,7 +89,7 @@ export const verifications = pgTable("verifications", {
   updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
     .defaultNow()
     .notNull()
-    .$onUpdate(() => sql`now()`),
+    .$onUpdate(() => new Date()),
 });
 
 export const profiles = pgTable("profiles", {
@@ -122,7 +121,7 @@ export const profiles = pgTable("profiles", {
   updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
     .defaultNow()
     .notNull()
-    .$onUpdate(() => sql`now()`),
+    .$onUpdate(() => new Date()),
   deletedAt: timestamp("deleted_at", { withTimezone: true, mode: "date" }),
 });
 
@@ -136,7 +135,7 @@ export const roles = pgTable("roles", {
   updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
     .defaultNow()
     .notNull()
-    .$onUpdate(() => sql`now()`),
+    .$onUpdate(() => new Date()),
   deletedAt: timestamp("deleted_at", { withTimezone: true, mode: "date" }),
 }, (table) => ({
   nameIdx: uniqueIndex("roles_name_idx").on(table.name),
@@ -199,7 +198,7 @@ export const rateLimits = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull()
-      .$onUpdate(() => sql`now()`),
+      .$onUpdate(() => new Date()),
   },
   (table) => ({
     identifierActionIdx: uniqueIndex("rate_limits_identifier_type_action_idx").on(

@@ -293,15 +293,16 @@ export function UserCreateDialog({ open, onOpenChangeAction, onSuccessAction, in
             <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
               {t('buttons.cancel')}
             </Button>
-            <Button className="justify-center gap-2" disabled={isPending || form.isSubmitting} type="submit">
-              {isPending || form.isSubmitting ? (
-                <span className="animate-pulse">{t('buttons.creating')}</span>
-              ) : (
-                <>
-                  <UserPlus2 className="size-4" />
-                  <span>{role === 'internal.admin' ? t('buttons.createAdmin') : t('buttons.createStaff')}</span>
-                </>
-              )}
+            <Button
+              type="submit"
+              disabled={isPending || form.isSubmitting}
+              isLoading={isPending || form.isSubmitting}
+              loadingPlacement="replace"
+              loadingLabel={t('buttons.creating')}
+              className="justify-center min-w-[120px]"
+            >
+              <UserPlus2 className="size-4" />
+              <span>{role === 'internal.admin' ? t('buttons.createAdmin') : t('buttons.createStaff')}</span>
             </Button>
           </DialogFooter>
         </Form>
