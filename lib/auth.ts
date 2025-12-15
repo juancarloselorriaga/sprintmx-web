@@ -171,4 +171,16 @@ export const auth = betterAuth({
 
     return Array.from(origins);
   },
+  trustedOrigins: async (request) => {
+    const origins = new Set(trustedOrigins);
+
+    // Always trust the current host serving the request (covers aliases and previews)
+    const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host');
+    const protocol = request.headers.get('x-forwarded-proto') ?? 'https';
+    if (host) {
+      origins.add(`${protocol}://${host}`);
+    }
+
+    return Array.from(origins);
+  },
 });
