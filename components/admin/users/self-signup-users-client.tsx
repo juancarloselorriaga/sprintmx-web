@@ -1,8 +1,10 @@
 'use client';
 
 import { SelfSignupUsersEmptyState } from '@/components/admin/users/self-signup-users-empty-state';
-import { SelfSignupUsersTable } from '@/components/admin/users/self-signup-users-table';
+import { SelfSignupUsersTableActions } from '@/components/admin/users/self-signup-users-table-actions';
+import { useUsersListLabels } from '@/components/admin/users/use-users-list-labels';
 import { UsersSectionHeader } from '@/components/admin/users/users-section-header';
+import { UsersListTable } from '@/components/admin/users/users-list-table';
 import type { NormalizedSelfSignupUsersQuery } from '@/lib/self-signup-users/query';
 import type {
   ListSelfSignupUsersError,
@@ -43,6 +45,8 @@ export function SelfSignupUsersClient({
   currentUserEmail,
 }: SelfSignupUsersClientProps) {
   const t = useTranslations('pages.selfSignupUsers');
+  const tToolbar = useTranslations('pages.selfSignupUsers.toolbar');
+  const labels = useUsersListLabels({ pageNamespace: 'pages.selfSignupUsers', roleColumnKey: 'role' });
   const [isTableLoading, setIsTableLoading] = useState(false);
 
   const users = useMemo(() => deserializeUsers(initialUsers), [initialUsers]);
@@ -79,13 +83,61 @@ export function SelfSignupUsersClient({
       {paginationMeta.total === 0 && !hasFiltersApplied ? (
         <SelfSignupUsersEmptyState />
       ) : (
-        <SelfSignupUsersTable
+        <UsersListTable
           users={users}
           query={initialQuery}
           paginationMeta={paginationMeta}
           currentUserId={currentUserId}
           isLoading={isTableLoading}
           onLoadingChangeAction={setIsTableLoading}
+          densityStorageKey="selfSignupUsers.tableDensity"
+          labels={{
+            toolbar: labels.toolbar,
+            density: labels.table.density,
+            table: {
+              columns: {
+                name: labels.table.columns.name,
+                role: labels.table.columns.role,
+                created: labels.table.columns.created,
+                actions: labels.table.columns.actions,
+              },
+              noMatches: {
+                title: labels.table.emptyNoMatches.title,
+                description: labels.table.emptyNoMatches.description,
+                clearButton: labels.table.emptyNoMatches.clearButton,
+              },
+            },
+          }}
+          roleOptions={[
+            { key: 'all', label: tToolbar('roleAll') },
+            { key: 'organizer', label: tToolbar('roleOrganizer') },
+            { key: 'athlete', label: tToolbar('roleAthlete') },
+            { key: 'volunteer', label: tToolbar('roleVolunteer') },
+          ]}
+          getRoleBadgeLabelAction={(role) => {
+            switch (role) {
+              case 'external.organizer':
+                return tToolbar('roleOrganizer');
+              case 'external.athlete':
+                return tToolbar('roleAthlete');
+              case 'external.volunteer':
+                return tToolbar('roleVolunteer');
+              default:
+                return role.replace('external.', '');
+            }
+          }}
+          tableMinWidthClassName="min-w-[720px]"
+          paginationTranslationNamespace={labels.paginationNamespace}
+          renderActionsAction={({ user, currentUserId, onDeletedAction, onLoadingChangeAction }) => (
+            <SelfSignupUsersTableActions
+              userId={user.userId}
+              userName={user.name}
+              userEmail={user.email}
+              currentUserId={currentUserId}
+              onDeletedAction={onDeletedAction}
+              onLoadingChangeAction={onLoadingChangeAction}
+            />
+          )}
         />
       )}
     </div>

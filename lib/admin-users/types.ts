@@ -6,4 +6,4 @@ export type ListInternalUsersError =
   | Extract<ListInternalUsersResult, { ok: false }>['error']
   | null;
 
-export type ColumnKey = 'role' | 'permissions' | 'created' | 'actions';
+export type ColumnKey = 'role' | 'created' | 'actions';

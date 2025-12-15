@@ -3,8 +3,8 @@
 type UsersTableSkeletonProps = {
   rows?: number;
   columns: {
+    user?: boolean;
     role?: boolean;
-    permissions?: boolean;
     created?: boolean;
     actions?: boolean;
   };
@@ -23,34 +23,27 @@ export function UsersTableSkeleton({
   renderAsRows = false,
 }: UsersTableSkeletonProps) {
   const columnOrder = [
-    { key: 'name', visible: true },
+    { key: 'name', visible: columns.user !== false },
     { key: 'role', visible: !!columns.role },
-    { key: 'permissions', visible: !!columns.permissions },
     { key: 'created', visible: !!columns.created },
     { key: 'actions', visible: !!columns.actions },
   ] as const;
 
   const rowsMarkup = Array.from({ length: rows }).map((_, index) => (
     <tr key={`skeleton-${index}`} className="border-t">
-      <td className={`px-4 align-top ${rowPadding}`}>
-        <div className="space-y-2">
-          <div className="h-4 w-32 rounded bg-muted animate-pulse" />
-          <div className="h-3 w-40 rounded bg-muted animate-pulse" />
-        </div>
-      </td>
+      {columns.user !== false ? (
+        <td className={`px-4 align-top ${rowPadding}`}>
+          <div className="space-y-2">
+            <div className="h-4 w-32 rounded bg-muted animate-pulse" />
+            <div className="h-3 w-40 rounded bg-muted animate-pulse" />
+          </div>
+        </td>
+      ) : null}
       {columns.role ? (
         <td className={`px-4 align-top ${rowPadding}`}>
           <div className="flex gap-2">
             <div className="h-5 w-16 rounded-full bg-muted animate-pulse" />
             <div className="h-5 w-12 rounded-full bg-muted animate-pulse" />
-          </div>
-        </td>
-      ) : null}
-      {columns.permissions ? (
-        <td className={`px-4 align-top ${rowPadding}`}>
-          <div className="flex flex-wrap gap-2">
-            <div className="h-6 w-24 rounded bg-muted animate-pulse" />
-            <div className="h-6 w-28 rounded bg-muted animate-pulse" />
           </div>
         </td>
       ) : null}

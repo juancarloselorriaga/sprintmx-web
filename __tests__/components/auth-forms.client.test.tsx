@@ -25,7 +25,7 @@ jest.mock('@/i18n/navigation', () => ({
     children,
     ...props
   }: React.PropsWithChildren<React.AnchorHTMLAttributes<HTMLAnchorElement>>) => (
-    // eslint-disable-next-line jsx-a11y/anchor-has-content
+     
     <a {...props}>{children}</a>
   ),
   useRouter: () => ({

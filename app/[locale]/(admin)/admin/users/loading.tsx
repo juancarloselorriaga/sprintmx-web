@@ -36,8 +36,9 @@ export default function UsersLoading() {
 
       <UsersTableSkeleton
         rows={5}
-        columns={{ role: true, permissions: true, created: true, actions: true }}
+        columns={{ user: true, role: true, created: true, actions: true }}
         showHeader
+        minWidthClassName="min-w-[720px]"
       />
     </div>
   );

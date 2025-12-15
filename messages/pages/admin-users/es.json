@@ -16,7 +16,7 @@
   "page": {
     "sectionLabel": "Admin",
     "title": "Usuarios internos",
-    "description": "Crea cuentas de administradores o personal y revisa sus permisos.",
+    "description": "Crea cuentas de administradores o personal y revisa sus roles.",
     "signedInAs": "Sesión iniciada como {email}",
     "createButton": "Crear usuario interno",
     "createFirstButton": "Crear primer admin"
@@ -37,7 +37,7 @@
     "emptyState": {
       "noFilters": {
         "title": "No hay usuarios internos aún",
-        "description": "Crea la primera cuenta de administrador o personal para gestionar accesos y permisos internos."
+        "description": "Crea la primera cuenta de administrador o personal para gestionar el acceso interno."
       },
       "noMatches": {
         "title": "No hay usuarios que coincidan con tus filtros",

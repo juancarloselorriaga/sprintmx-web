@@ -16,7 +16,7 @@
   "page": {
     "sectionLabel": "Admin",
     "title": "Internal users",
-    "description": "Create administrators or staff accounts and review their permissions.",
+    "description": "Create administrators or staff accounts and review their roles.",
     "signedInAs": "Signed in as {email}",
     "createButton": "Create internal user",
     "createFirstButton": "Create first admin"
@@ -37,7 +37,7 @@
     "emptyState": {
       "noFilters": {
         "title": "No internal users yet",
-        "description": "Create the first admin or staff account to manage internal access and permissions."
+        "description": "Create the first admin or staff account to manage internal access."
       },
       "noMatches": {
         "title": "No users match your filters",

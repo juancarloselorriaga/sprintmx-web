@@ -1,6 +1,5 @@
 'use client';
 
-import { buildAdminUsersQueryObject } from '@/components/admin/users/search-params';
 import { adminUsersTextInputClassName } from '@/components/admin/users/styles';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,97 +10,84 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { usePathname, useRouter } from '@/i18n/navigation';
-
-import type { ColumnKey } from '@/lib/admin-users/types';
 import { Filter, LayoutList, Search, SlidersHorizontal } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { useSearchParams } from 'next/navigation';
-import { FormEvent, useMemo, useState } from 'react';
+import type { FormEvent } from 'react';
+import { useMemo, useState } from 'react';
 
-type UsersTableToolbarProps = {
+export type UsersListColumnKey = 'name' | 'role' | 'created' | 'actions';
+export type UsersListDensity = 'comfortable' | 'compact';
+
+type UsersListToolbarProps<TRoleFilter extends string> = {
+  labels: {
+    searchLabel: string;
+    filtersLabel: string;
+    searchPlaceholder: string;
+    applyButton: string;
+    clearFilters: string;
+    displayLabel: string;
+    columnsButton: string;
+    columnsLabel: string;
+  };
+  densityLabels: {
+    comfortable: string;
+    compact: string;
+  };
   query: {
-    role: 'all' | 'admin' | 'staff';
+    role: TRoleFilter;
     search: string;
   };
-  density: 'comfortable' | 'compact';
-  onDensityChangeAction: (density: 'comfortable' | 'compact') => void;
-  columnVisibility: Record<ColumnKey, boolean>;
-  onToggleColumnAction: (key: ColumnKey) => void;
-  onLoadingChangeAction?: (loading: boolean) => void;
+  defaultRoleKey: TRoleFilter;
+  roleOptions: ReadonlyArray<{ key: TRoleFilter; label: string }>;
+  density: UsersListDensity;
+  onDensityChangeAction: (density: UsersListDensity) => void;
+  columnVisibility: Record<UsersListColumnKey, boolean>;
+  columnOptions: ReadonlyArray<{ key: Exclude<UsersListColumnKey, 'name'>; label: string }>;
+  onToggleColumnAction: (key: Exclude<UsersListColumnKey, 'name'>) => void;
+  onNavigateAction: (updates: Record<string, string | null | undefined>) => void;
 };
 
-export function UsersTableToolbar({
+export function UsersListToolbar<TRoleFilter extends string>({
+  labels,
+  densityLabels,
   query,
+  defaultRoleKey,
+  roleOptions,
   density,
   onDensityChangeAction,
   columnVisibility,
+  columnOptions,
   onToggleColumnAction,
-  onLoadingChangeAction,
-}: UsersTableToolbarProps) {
-  const t = useTranslations('pages.adminUsers.toolbar');
-  const tTable = useTranslations('pages.adminUsers.table');
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  onNavigateAction,
+}: UsersListToolbarProps<TRoleFilter>) {
   const [searchValue, setSearchValue] = useState(query.search);
-
-  const navigate = (updates: Record<string, string | null | undefined>) => {
-    onLoadingChangeAction?.(true);
-    const queryObject = buildAdminUsersQueryObject(searchParams.toString(), updates);
-    const href = { pathname, query: queryObject } as unknown as Parameters<typeof router.push>[0];
-    router.push(href, { scroll: false });
-  };
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    navigate({ search: searchValue.trim() || null, page: '1' });
+    onNavigateAction({ search: searchValue.trim() || null, page: '1' });
   };
 
   const handleClearFilters = () => {
     setSearchValue('');
-    navigate({ role: 'all', search: null, page: '1' });
+    onNavigateAction({ role: String(defaultRoleKey), search: null, page: '1' });
   };
 
-  const hasActiveFilters = query.role !== 'all' || query.search.trim() !== '';
+  const hasActiveFilters = query.search.trim() !== '' || query.role !== defaultRoleKey;
 
   const densityOptions = useMemo(
     () =>
       [
-        { key: 'comfortable', label: tTable('density.comfortable') },
-        { key: 'compact', label: tTable('density.compact') },
+        { key: 'comfortable', label: densityLabels.comfortable },
+        { key: 'compact', label: densityLabels.compact },
       ] as const,
-    [tTable],
-  );
-
-  const roleOptions = useMemo(
-    () =>
-      [
-        { key: 'all', label: t('roleAll') },
-        { key: 'admin', label: t('roleAdmin') },
-        { key: 'staff', label: t('roleStaff') },
-      ] as const,
-    [t],
-  );
-
-  const columnOptions = useMemo(
-    () =>
-      [
-        { key: 'role', label: tTable('columns.internalRole') },
-        { key: 'permissions', label: tTable('columns.permissions') },
-        { key: 'created', label: tTable('columns.created') },
-        { key: 'actions', label: tTable('columns.actions') },
-      ] as const,
-    [tTable],
+    [densityLabels],
   );
 
   return (
     <div className="space-y-3">
-      {/* Search Section */}
       <div className="rounded-lg border bg-card p-3">
         <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
           <Search className="size-3.5" />
-          <span>{t('searchLabel')}</span>
+          <span>{labels.searchLabel}</span>
         </div>
         <form
           onSubmit={handleSearch}
@@ -114,43 +100,41 @@ export function UsersTableToolbar({
               type="search"
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
-              placeholder={t('searchPlaceholder')}
+              placeholder={labels.searchPlaceholder}
               className={`min-w-[180px] pl-10 pr-3 ${adminUsersTextInputClassName}`}
             />
           </div>
           <Button type="submit" size="sm" variant="secondary" className="w-full shrink-0 sm:w-auto">
-            {t('applyButton')}
+            {labels.applyButton}
           </Button>
         </form>
       </div>
 
-      {/* Filters & Display Row */}
       <div className="flex flex-col gap-3 sm:flex-row">
-        {/* Filters Section */}
         <div className="flex-1 rounded-lg border bg-card p-3">
           <div className="mb-2 flex justify-between gap-2 text-xs font-medium text-muted-foreground">
             <div className="flex gap-2">
               <Filter className="size-3.5" />
-              <span>{t('filtersLabel')}</span>
+              <span>{labels.filtersLabel}</span>
             </div>
             <Button
               variant="ghost"
               type="button"
               disabled={!hasActiveFilters}
               onClick={handleClearFilters}
-              className="text-destructive hover:bg-destructive/80 hover:text-destructive h-auto text-xs p-0 min-w-auto"
+              className="h-auto min-w-auto p-0 text-xs text-destructive hover:bg-destructive/80 hover:text-destructive"
             >
-              {t('clearFilters')}
+              {labels.clearFilters}
             </Button>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {roleOptions.map(({ key, label }) => (
               <Button
-                key={key}
+                key={String(key)}
                 type="button"
                 size="sm"
                 variant={query.role === key ? 'default' : 'outline'}
-                onClick={() => navigate({ role: key, page: '1' })}
+                onClick={() => onNavigateAction({ role: String(key), page: '1' })}
                 className="h-8 flex-1"
               >
                 {label}
@@ -159,20 +143,19 @@ export function UsersTableToolbar({
           </div>
         </div>
 
-        {/* Display Section */}
         <div className="flex-1 rounded-lg border bg-card p-3">
           <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
             <SlidersHorizontal className="size-3.5" />
-            <span>{t('displayLabel')}</span>
+            <span>{labels.displayLabel}</span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-0.5 rounded-md border bg-muted/30 p-0.5 flex-1">
+            <div className="flex flex-1 items-center gap-0.5 rounded-md border bg-muted/30 p-0.5">
               {densityOptions.map((option) => (
                 <Button
                   key={option.key}
                   size="sm"
                   variant={density === option.key ? 'secondary' : 'ghost'}
-                  className="h-7 px-2.5 text-xs flex-1"
+                  className="h-7 flex-1 px-2.5 text-xs"
                   onClick={() => onDensityChangeAction(option.key)}
                   type="button"
                 >
@@ -183,13 +166,13 @@ export function UsersTableToolbar({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs flex-1">
+                <Button variant="outline" size="sm" className="h-8 flex-1 gap-1.5 text-xs">
                   <LayoutList className="size-3.5" />
-                  {t('columnsButton')}
+                  {labels.columnsButton}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuLabel>{t('columnsLabel')}</DropdownMenuLabel>
+                <DropdownMenuLabel>{labels.columnsLabel}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {columnOptions.map(({ key, label }) => (
                   <DropdownMenuCheckboxItem
